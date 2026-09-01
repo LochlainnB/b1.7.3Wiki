@@ -221,6 +221,38 @@ def extract_entities(jar, mp):
     return []
 
 
+def extract_biomes(jar, mp):
+    """Biomes are anonymous singletons; the display name comes from a setter."""
+    known = {'Rainforest', 'Swampland', 'Forest', 'Savanna', 'Shrubland',
+             'Taiga', 'Desert', 'Plains', 'Tundra'}
+    for name in jar.classes():
+        cf = jar.cls(name)
+        if cf is None:
+            continue
+        strs = {e[1] for e in cf.cp if e and e[0] == 'utf8'}
+        if len(known & strs) < 5:
+            continue
+        out = []
+        for r in trace_clinit(cf):
+            label = color = None
+            for nm, desc, cargs in r['calls']:
+                v = cargs[0] if cargs else None
+                if desc.startswith('(Ljava/lang/String;)') and isinstance(v, str):
+                    label = v
+                elif desc.startswith('(I)') and color is None and isinstance(v, int):
+                    color = v
+            if label:
+                out.append({
+                    'name': label,
+                    'class': mp.simple(r['ctor']),
+                    'color': '#%06X' % (color & 0xFFFFFF) if color is not None else None,
+                    'field': r['field'],
+                })
+        if len(out) >= 5:
+            return out
+    return []
+
+
 def resolve(v, bfield, ifield, block_obf, item_obf):
     """Turn a decoded bytecode value into {'block'|'item': id, ...}."""
     if isinstance(v, dict) and 'ref' in v:
@@ -346,6 +378,7 @@ def main():
     blocks, bfield, block_obf = extract_blocks(jar, mp, lang_names, lang_descs)
     items, ifield, item_obf = extract_items(jar, mp, lang_names)
     entities = extract_entities(jar, mp)
+    biomes = extract_biomes(jar, mp)
     recipes = extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf)
     smelting = extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf)
 
@@ -361,6 +394,7 @@ def main():
     write('blocks.json', blocks)
     write('items.json', items)
     write('entities.json', entities)
+    write('biomes.json', biomes)
     write('recipes.json', recipes)
     write('smelting.json', smelting)
     write('meta.json', {

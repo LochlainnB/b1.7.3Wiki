@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Rainforest",
+    "class": "class_547",
+    "color": "#08FA36",
+    "field": "a"
+  },
+  {
+    "name": "Swampland",
+    "class": "class_424",
+    "color": "#07F9B2",
+    "field": "b"
+  },
+  {
+    "name": "Seasonal Forest",
+    "class": "class_153",
+    "color": "#9BE023",
+    "field": "c"
+  },
+  {
+    "name": "Forest",
+    "class": "class_368",
+    "color": "#056621",
+    "field": "d"
+  },
+  {
+    "name": "Savanna",
+    "class": "class_100",
+    "color": "#D9E023",
+    "field": "e"
+  },
+  {
+    "name": "Shrubland",
+    "class": "class_153",
+    "color": "#A1AD20",
+    "field": "f"
+  },
+  {
+    "name": "Taiga",
+    "class": "class_164",
+    "color": "#2EB153",
+    "field": "g"
+  },
+  {
+    "name": "Desert",
+    "class": "class_100",
+    "color": "#FA9418",
+    "field": "h"
+  },
+  {
+    "name": "Plains",
+    "class": "class_100",
+    "color": "#FFD910",
+    "field": "i"
+  },
+  {
+    "name": "Ice Desert",
+    "class": "class_100",
+    "color": "#FFED93",
+    "field": "j"
+  },
+  {
+    "name": "Tundra",
+    "class": "class_153",
+    "color": "#57EBF9",
+    "field": "k"
+  },
+  {
+    "name": "Hell",
+    "class": "class_422",
+    "color": "#FF0000",
+    "field": "l"
+  },
+  {
+    "name": "Sky",
+    "class": "class_399",
+    "color": "#8080FF",
+    "field": "m"
+  }
+]

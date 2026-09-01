@@ -1,0 +1,18 @@
+{
+  "name": "b173-wiki",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A Minecraft Beta 1.7.3 wiki, built from Markdown into a static site.",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "dev": "node tools/serve.mjs",
+    "check": "node tools/build.mjs --check",
+    "new": "node tools/new-page.mjs"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "markdown-it": "^14.1.0"
+  },
+  "engines": { "node": ">=18" }
+}

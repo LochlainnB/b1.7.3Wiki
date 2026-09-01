@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Item",
+    "networkId": 1,
+    "class": "class_142"
+  },
+  {
+    "name": "Painting",
+    "networkId": 9,
+    "class": "class_107"
+  },
+  {
+    "name": "Arrow",
+    "networkId": 10,
+    "class": "class_410"
+  },
+  {
+    "name": "Snowball",
+    "networkId": 11,
+    "class": "class_484"
+  },
+  {
+    "name": "PrimedTnt",
+    "networkId": 20,
+    "class": "class_365"
+  },
+  {
+    "name": "FallingSand",
+    "networkId": 21,
+    "class": "class_226"
+  },
+  {
+    "name": "Minecart",
+    "networkId": 40,
+    "class": "class_549"
+  },
+  {
+    "name": "Boat",
+    "networkId": 41,
+    "class": "class_113"
+  },
+  {
+    "name": "Mob",
+    "networkId": 48,
+    "class": "LivingEntity"
+  },
+  {
+    "name": "Monster",
+    "networkId": 49,
+    "class": "class_146"
+  },
+  {
+    "name": "Creeper",
+    "networkId": 50,
+    "class": "class_114"
+  },
+  {
+    "name": "Skeleton",
+    "networkId": 51,
+    "class": "class_90"
+  },
+  {
+    "name": "Spider",
+    "networkId": 52,
+    "class": "class_558"
+  },
+  {
+    "name": "Giant",
+    "networkId": 53,
+    "class": "class_311"
+  },
+  {
+    "name": "Zombie",
+    "networkId": 54,
+    "class": "class_480"
+  },
+  {
+    "name": "Slime",
+    "networkId": 55,
+    "class": "class_451"
+  },
+  {
+    "name": "Ghast",
+    "networkId": 56,
+    "class": "class_364"
+  },
+  {
+    "name": "PigZombie",
+    "networkId": 57,
+    "class": "class_535"
+  },
+  {
+    "name": "Pig",
+    "networkId": 90,
+    "class": "class_443"
+  },
+  {
+    "name": "Sheep",
+    "networkId": 91,
+    "class": "class_613"
+  },
+  {
+    "name": "Cow",
+    "networkId": 92,
+    "class": "class_466"
+  },
+  {
+    "name": "Chicken",
+    "networkId": 93,
+    "class": "class_313"
+  },
+  {
+    "name": "Squid",
+    "networkId": 94,
+    "class": "class_151"
+  },
+  {
+    "name": "Wolf",
+    "networkId": 95,
+    "class": "class_121"
+  }
+]

@@ -1,0 +1,1274 @@
+[
+  {
+    "id": 256,
+    "key": "shovelIron",
+    "name": "Iron Shovel",
+    "langKey": "item.shovelIron",
+    "class": "class_501",
+    "icon": {
+      "x": 2,
+      "y": 5
+    },
+    "field": "d"
+  },
+  {
+    "id": 257,
+    "key": "pickaxeIron",
+    "name": "Iron Pickaxe",
+    "langKey": "item.pickaxeIron",
+    "class": "class_116",
+    "icon": {
+      "x": 2,
+      "y": 6
+    },
+    "field": "e"
+  },
+  {
+    "id": 258,
+    "key": "hatchetIron",
+    "name": "Iron Axe",
+    "langKey": "item.hatchetIron",
+    "class": "class_420",
+    "icon": {
+      "x": 2,
+      "y": 7
+    },
+    "field": "f"
+  },
+  {
+    "id": 259,
+    "key": "flintAndSteel",
+    "name": "Flint and Steel",
+    "langKey": "item.flintAndSteel",
+    "class": "class_539",
+    "icon": {
+      "x": 5,
+      "y": 0
+    },
+    "field": "g"
+  },
+  {
+    "id": 260,
+    "key": "apple",
+    "name": "Apple",
+    "langKey": "item.apple",
+    "class": "class_554",
+    "icon": {
+      "x": 10,
+      "y": 0
+    },
+    "field": "h"
+  },
+  {
+    "id": 261,
+    "key": "bow",
+    "name": "Bow",
+    "langKey": "item.bow",
+    "class": "class_367",
+    "icon": {
+      "x": 5,
+      "y": 1
+    },
+    "field": "i"
+  },
+  {
+    "id": 262,
+    "key": "arrow",
+    "name": "Arrow",
+    "langKey": "item.arrow",
+    "class": "Item",
+    "icon": {
+      "x": 5,
+      "y": 2
+    },
+    "field": "j"
+  },
+  {
+    "id": 263,
+    "key": "coal",
+    "name": "Coal",
+    "langKey": "item.coal",
+    "class": "class_397",
+    "icon": {
+      "x": 7,
+      "y": 0
+    },
+    "field": "k"
+  },
+  {
+    "id": 264,
+    "key": "emerald",
+    "name": "Diamond",
+    "langKey": "item.emerald",
+    "class": "Item",
+    "icon": {
+      "x": 7,
+      "y": 3
+    },
+    "field": "l"
+  },
+  {
+    "id": 265,
+    "key": "ingotIron",
+    "name": "Iron Ingot",
+    "langKey": "item.ingotIron",
+    "class": "Item",
+    "icon": {
+      "x": 7,
+      "y": 1
+    },
+    "field": "m"
+  },
+  {
+    "id": 266,
+    "key": "ingotGold",
+    "name": "Gold Ingot",
+    "langKey": "item.ingotGold",
+    "class": "Item",
+    "icon": {
+      "x": 7,
+      "y": 2
+    },
+    "field": "n"
+  },
+  {
+    "id": 267,
+    "key": "swordIron",
+    "name": "Iron Sword",
+    "langKey": "item.swordIron",
+    "class": "class_352",
+    "icon": {
+      "x": 2,
+      "y": 4
+    },
+    "field": "o"
+  },
+  {
+    "id": 268,
+    "key": "swordWood",
+    "name": "Wooden Sword",
+    "langKey": "item.swordWood",
+    "class": "class_352",
+    "icon": {
+      "x": 0,
+      "y": 4
+    },
+    "field": "p"
+  },
+  {
+    "id": 269,
+    "key": "shovelWood",
+    "name": "Wooden Shovel",
+    "langKey": "item.shovelWood",
+    "class": "class_501",
+    "icon": {
+      "x": 0,
+      "y": 5
+    },
+    "field": "q"
+  },
+  {
+    "id": 270,
+    "key": "pickaxeWood",
+    "name": "Wooden Pickaxe",
+    "langKey": "item.pickaxeWood",
+    "class": "class_116",
+    "icon": {
+      "x": 0,
+      "y": 6
+    },
+    "field": "r"
+  },
+  {
+    "id": 271,
+    "key": "hatchetWood",
+    "name": "Wooden Axe",
+    "langKey": "item.hatchetWood",
+    "class": "class_420",
+    "icon": {
+      "x": 0,
+      "y": 7
+    },
+    "field": "s"
+  },
+  {
+    "id": 272,
+    "key": "swordStone",
+    "name": "Stone Sword",
+    "langKey": "item.swordStone",
+    "class": "class_352",
+    "icon": {
+      "x": 1,
+      "y": 4
+    },
+    "field": "t"
+  },
+  {
+    "id": 273,
+    "key": "shovelStone",
+    "name": "Stone Shovel",
+    "langKey": "item.shovelStone",
+    "class": "class_501",
+    "icon": {
+      "x": 1,
+      "y": 5
+    },
+    "field": "u"
+  },
+  {
+    "id": 274,
+    "key": "pickaxeStone",
+    "name": "Stone Pickaxe",
+    "langKey": "item.pickaxeStone",
+    "class": "class_116",
+    "icon": {
+      "x": 1,
+      "y": 6
+    },
+    "field": "v"
+  },
+  {
+    "id": 275,
+    "key": "hatchetStone",
+    "name": "Stone Axe",
+    "langKey": "item.hatchetStone",
+    "class": "class_420",
+    "icon": {
+      "x": 1,
+      "y": 7
+    },
+    "field": "w"
+  },
+  {
+    "id": 276,
+    "key": "swordDiamond",
+    "name": "Diamond Sword",
+    "langKey": "item.swordDiamond",
+    "class": "class_352",
+    "icon": {
+      "x": 3,
+      "y": 4
+    },
+    "field": "x"
+  },
+  {
+    "id": 277,
+    "key": "shovelDiamond",
+    "name": "Diamond Shovel",
+    "langKey": "item.shovelDiamond",
+    "class": "class_501",
+    "icon": {
+      "x": 3,
+      "y": 5
+    },
+    "field": "y"
+  },
+  {
+    "id": 278,
+    "key": "pickaxeDiamond",
+    "name": "Diamond Pickaxe",
+    "langKey": "item.pickaxeDiamond",
+    "class": "class_116",
+    "icon": {
+      "x": 3,
+      "y": 6
+    },
+    "field": "z"
+  },
+  {
+    "id": 279,
+    "key": "hatchetDiamond",
+    "name": "Diamond Axe",
+    "langKey": "item.hatchetDiamond",
+    "class": "class_420",
+    "icon": {
+      "x": 3,
+      "y": 7
+    },
+    "field": "A"
+  },
+  {
+    "id": 280,
+    "key": "stick",
+    "name": "Stick",
+    "langKey": "item.stick",
+    "class": "Item",
+    "icon": {
+      "x": 5,
+      "y": 3
+    },
+    "field": "B"
+  },
+  {
+    "id": 281,
+    "key": "bowl",
+    "name": "Bowl",
+    "langKey": "item.bowl",
+    "class": "Item",
+    "icon": {
+      "x": 7,
+      "y": 4
+    },
+    "field": "C"
+  },
+  {
+    "id": 282,
+    "key": "mushroomStew",
+    "name": "Mushroom Stew",
+    "langKey": "item.mushroomStew",
+    "class": "class_495",
+    "icon": {
+      "x": 8,
+      "y": 4
+    },
+    "field": "D"
+  },
+  {
+    "id": 283,
+    "key": "swordGold",
+    "name": "Golden Sword",
+    "langKey": "item.swordGold",
+    "class": "class_352",
+    "icon": {
+      "x": 4,
+      "y": 4
+    },
+    "field": "E"
+  },
+  {
+    "id": 284,
+    "key": "shovelGold",
+    "name": "Golden Shovel",
+    "langKey": "item.shovelGold",
+    "class": "class_501",
+    "icon": {
+      "x": 4,
+      "y": 5
+    },
+    "field": "F"
+  },
+  {
+    "id": 285,
+    "key": "pickaxeGold",
+    "name": "Golden Pickaxe",
+    "langKey": "item.pickaxeGold",
+    "class": "class_116",
+    "icon": {
+      "x": 4,
+      "y": 6
+    },
+    "field": "G"
+  },
+  {
+    "id": 286,
+    "key": "hatchetGold",
+    "name": "Golden Axe",
+    "langKey": "item.hatchetGold",
+    "class": "class_420",
+    "icon": {
+      "x": 4,
+      "y": 7
+    },
+    "field": "H"
+  },
+  {
+    "id": 287,
+    "key": "string",
+    "name": "String",
+    "langKey": "item.string",
+    "class": "Item",
+    "icon": {
+      "x": 8,
+      "y": 0
+    },
+    "field": "I"
+  },
+  {
+    "id": 288,
+    "key": "feather",
+    "name": "Feather",
+    "langKey": "item.feather",
+    "class": "Item",
+    "icon": {
+      "x": 8,
+      "y": 1
+    },
+    "field": "J"
+  },
+  {
+    "id": 289,
+    "key": "sulphur",
+    "name": "Gunpowder",
+    "langKey": "item.sulphur",
+    "class": "Item",
+    "icon": {
+      "x": 8,
+      "y": 2
+    },
+    "field": "K"
+  },
+  {
+    "id": 290,
+    "key": "hoeWood",
+    "name": "Wooden Hoe",
+    "langKey": "item.hoeWood",
+    "class": "class_249",
+    "icon": {
+      "x": 0,
+      "y": 8
+    },
+    "field": "L"
+  },
+  {
+    "id": 291,
+    "key": "hoeStone",
+    "name": "Stone Hoe",
+    "langKey": "item.hoeStone",
+    "class": "class_249",
+    "icon": {
+      "x": 1,
+      "y": 8
+    },
+    "field": "M"
+  },
+  {
+    "id": 292,
+    "key": "hoeIron",
+    "name": "Iron Hoe",
+    "langKey": "item.hoeIron",
+    "class": "class_249",
+    "icon": {
+      "x": 2,
+      "y": 8
+    },
+    "field": "N"
+  },
+  {
+    "id": 293,
+    "key": "hoeDiamond",
+    "name": "Diamond Hoe",
+    "langKey": "item.hoeDiamond",
+    "class": "class_249",
+    "icon": {
+      "x": 3,
+      "y": 8
+    },
+    "field": "O"
+  },
+  {
+    "id": 294,
+    "key": "hoeGold",
+    "name": "Golden Hoe",
+    "langKey": "item.hoeGold",
+    "class": "class_249",
+    "icon": {
+      "x": 4,
+      "y": 8
+    },
+    "field": "P"
+  },
+  {
+    "id": 295,
+    "key": "seeds",
+    "name": "Seeds",
+    "langKey": "item.seeds",
+    "class": "class_380",
+    "icon": {
+      "x": 9,
+      "y": 0
+    },
+    "field": "Q"
+  },
+  {
+    "id": 296,
+    "key": "wheat",
+    "name": "Wheat",
+    "langKey": "item.wheat",
+    "class": "Item",
+    "icon": {
+      "x": 9,
+      "y": 1
+    },
+    "field": "R"
+  },
+  {
+    "id": 297,
+    "key": "bread",
+    "name": "Bread",
+    "langKey": "item.bread",
+    "class": "class_554",
+    "icon": {
+      "x": 9,
+      "y": 2
+    },
+    "field": "S"
+  },
+  {
+    "id": 298,
+    "key": "helmetCloth",
+    "name": "Leather Cap",
+    "langKey": "item.helmetCloth",
+    "class": "class_500",
+    "icon": {
+      "x": 0,
+      "y": 0
+    },
+    "field": "T"
+  },
+  {
+    "id": 299,
+    "key": "chestplateCloth",
+    "name": "Leather Tunic",
+    "langKey": "item.chestplateCloth",
+    "class": "class_500",
+    "icon": {
+      "x": 0,
+      "y": 1
+    },
+    "field": "U"
+  },
+  {
+    "id": 300,
+    "key": "leggingsCloth",
+    "name": "Leather Pants",
+    "langKey": "item.leggingsCloth",
+    "class": "class_500",
+    "icon": {
+      "x": 0,
+      "y": 2
+    },
+    "field": "V"
+  },
+  {
+    "id": 301,
+    "key": "bootsCloth",
+    "name": "Leather Boots",
+    "langKey": "item.bootsCloth",
+    "class": "class_500",
+    "icon": {
+      "x": 0,
+      "y": 3
+    },
+    "field": "W"
+  },
+  {
+    "id": 302,
+    "key": "helmetChain",
+    "name": "Chain Helmet",
+    "langKey": "item.helmetChain",
+    "class": "class_500",
+    "icon": {
+      "x": 1,
+      "y": 0
+    },
+    "field": "X"
+  },
+  {
+    "id": 303,
+    "key": "chestplateChain",
+    "name": "Chain Chestplate",
+    "langKey": "item.chestplateChain",
+    "class": "class_500",
+    "icon": {
+      "x": 1,
+      "y": 1
+    },
+    "field": "Y"
+  },
+  {
+    "id": 304,
+    "key": "leggingsChain",
+    "name": "Chain Leggings",
+    "langKey": "item.leggingsChain",
+    "class": "class_500",
+    "icon": {
+      "x": 1,
+      "y": 2
+    },
+    "field": "Z"
+  },
+  {
+    "id": 305,
+    "key": "bootsChain",
+    "name": "Chain Boots",
+    "langKey": "item.bootsChain",
+    "class": "class_500",
+    "icon": {
+      "x": 1,
+      "y": 3
+    },
+    "field": "aa"
+  },
+  {
+    "id": 306,
+    "key": "helmetIron",
+    "name": "Iron Helmet",
+    "langKey": "item.helmetIron",
+    "class": "class_500",
+    "icon": {
+      "x": 2,
+      "y": 0
+    },
+    "field": "ab"
+  },
+  {
+    "id": 307,
+    "key": "chestplateIron",
+    "name": "Iron Chestplate",
+    "langKey": "item.chestplateIron",
+    "class": "class_500",
+    "icon": {
+      "x": 2,
+      "y": 1
+    },
+    "field": "ac"
+  },
+  {
+    "id": 308,
+    "key": "leggingsIron",
+    "name": "Iron Leggings",
+    "langKey": "item.leggingsIron",
+    "class": "class_500",
+    "icon": {
+      "x": 2,
+      "y": 2
+    },
+    "field": "ad"
+  },
+  {
+    "id": 309,
+    "key": "bootsIron",
+    "name": "Iron Boots",
+    "langKey": "item.bootsIron",
+    "class": "class_500",
+    "icon": {
+      "x": 2,
+      "y": 3
+    },
+    "field": "ae"
+  },
+  {
+    "id": 310,
+    "key": "helmetDiamond",
+    "name": "Diamond Helmet",
+    "langKey": "item.helmetDiamond",
+    "class": "class_500",
+    "icon": {
+      "x": 3,
+      "y": 0
+    },
+    "field": "af"
+  },
+  {
+    "id": 311,
+    "key": "chestplateDiamond",
+    "name": "Diamond Chestplate",
+    "langKey": "item.chestplateDiamond",
+    "class": "class_500",
+    "icon": {
+      "x": 3,
+      "y": 1
+    },
+    "field": "ag"
+  },
+  {
+    "id": 312,
+    "key": "leggingsDiamond",
+    "name": "Diamond Leggings",
+    "langKey": "item.leggingsDiamond",
+    "class": "class_500",
+    "icon": {
+      "x": 3,
+      "y": 2
+    },
+    "field": "ah"
+  },
+  {
+    "id": 313,
+    "key": "bootsDiamond",
+    "name": "Diamond Boots",
+    "langKey": "item.bootsDiamond",
+    "class": "class_500",
+    "icon": {
+      "x": 3,
+      "y": 3
+    },
+    "field": "ai"
+  },
+  {
+    "id": 314,
+    "key": "helmetGold",
+    "name": "Golden Helmet",
+    "langKey": "item.helmetGold",
+    "class": "class_500",
+    "icon": {
+      "x": 4,
+      "y": 0
+    },
+    "field": "aj"
+  },
+  {
+    "id": 315,
+    "key": "chestplateGold",
+    "name": "Golden Chestplate",
+    "langKey": "item.chestplateGold",
+    "class": "class_500",
+    "icon": {
+      "x": 4,
+      "y": 1
+    },
+    "field": "ak"
+  },
+  {
+    "id": 316,
+    "key": "leggingsGold",
+    "name": "Golden Leggings",
+    "langKey": "item.leggingsGold",
+    "class": "class_500",
+    "icon": {
+      "x": 4,
+      "y": 2
+    },
+    "field": "al"
+  },
+  {
+    "id": 317,
+    "key": "bootsGold",
+    "name": "Golden boots",
+    "langKey": "item.bootsGold",
+    "class": "class_500",
+    "icon": {
+      "x": 4,
+      "y": 3
+    },
+    "field": "am"
+  },
+  {
+    "id": 318,
+    "key": "flint",
+    "name": "Flint",
+    "langKey": "item.flint",
+    "class": "Item",
+    "icon": {
+      "x": 6,
+      "y": 0
+    },
+    "field": "an"
+  },
+  {
+    "id": 319,
+    "key": "porkchopRaw",
+    "name": "Raw Porkchop",
+    "langKey": "item.porkchopRaw",
+    "class": "class_554",
+    "icon": {
+      "x": 7,
+      "y": 5
+    },
+    "field": "ao"
+  },
+  {
+    "id": 320,
+    "key": "porkchopCooked",
+    "name": "Cooked Porkchop",
+    "langKey": "item.porkchopCooked",
+    "class": "class_554",
+    "icon": {
+      "x": 8,
+      "y": 5
+    },
+    "field": "ap"
+  },
+  {
+    "id": 321,
+    "key": "painting",
+    "name": "Painting",
+    "langKey": "item.painting",
+    "class": "class_551",
+    "icon": {
+      "x": 10,
+      "y": 1
+    },
+    "field": "aq"
+  },
+  {
+    "id": 322,
+    "key": "appleGold",
+    "name": "Golden Apple",
+    "langKey": "item.appleGold",
+    "class": "class_554",
+    "icon": {
+      "x": 11,
+      "y": 0
+    },
+    "field": "ar"
+  },
+  {
+    "id": 323,
+    "key": "sign",
+    "name": "Sign",
+    "langKey": "item.sign",
+    "class": "class_482",
+    "icon": {
+      "x": 10,
+      "y": 2
+    },
+    "field": "as"
+  },
+  {
+    "id": 324,
+    "key": "doorWood",
+    "name": "Wooden Door",
+    "langKey": "item.doorWood",
+    "class": "class_177",
+    "icon": {
+      "x": 11,
+      "y": 2
+    },
+    "field": "at"
+  },
+  {
+    "id": 325,
+    "key": "bucket",
+    "name": "Bucket",
+    "langKey": "item.bucket",
+    "class": "class_220",
+    "icon": {
+      "x": 10,
+      "y": 4
+    },
+    "field": "au"
+  },
+  {
+    "id": 326,
+    "key": "bucketWater",
+    "name": "Water Bucket",
+    "langKey": "item.bucketWater",
+    "class": "class_220",
+    "icon": {
+      "x": 11,
+      "y": 4
+    },
+    "field": "av"
+  },
+  {
+    "id": 327,
+    "key": "bucketLava",
+    "name": "Lava bucket",
+    "langKey": "item.bucketLava",
+    "class": "class_220",
+    "icon": {
+      "x": 12,
+      "y": 4
+    },
+    "field": "aw"
+  },
+  {
+    "id": 328,
+    "key": "minecart",
+    "name": "Minecart",
+    "langKey": "item.minecart",
+    "class": "class_381",
+    "icon": {
+      "x": 7,
+      "y": 8
+    },
+    "field": "ax"
+  },
+  {
+    "id": 329,
+    "key": "saddle",
+    "name": "Saddle",
+    "langKey": "item.saddle",
+    "class": "class_401",
+    "icon": {
+      "x": 8,
+      "y": 6
+    },
+    "field": "ay"
+  },
+  {
+    "id": 330,
+    "key": "doorIron",
+    "name": "Iron Door",
+    "langKey": "item.doorIron",
+    "class": "class_177",
+    "icon": {
+      "x": 12,
+      "y": 2
+    },
+    "field": "az"
+  },
+  {
+    "id": 331,
+    "key": "redstone",
+    "name": "Redstone",
+    "langKey": "item.redstone",
+    "class": "class_183",
+    "icon": {
+      "x": 8,
+      "y": 3
+    },
+    "field": "aA"
+  },
+  {
+    "id": 332,
+    "key": "snowball",
+    "name": "Snowball",
+    "langKey": "item.snowball",
+    "class": "class_626",
+    "icon": {
+      "x": 14,
+      "y": 0
+    },
+    "field": "aB"
+  },
+  {
+    "id": 333,
+    "key": "boat",
+    "name": "Boat",
+    "langKey": "item.boat",
+    "class": "class_483",
+    "icon": {
+      "x": 8,
+      "y": 8
+    },
+    "field": "aC"
+  },
+  {
+    "id": 334,
+    "key": "leather",
+    "name": "Leather",
+    "langKey": "item.leather",
+    "class": "Item",
+    "icon": {
+      "x": 7,
+      "y": 6
+    },
+    "field": "aD"
+  },
+  {
+    "id": 335,
+    "key": "milk",
+    "name": "Milk",
+    "langKey": "item.milk",
+    "class": "class_220",
+    "icon": {
+      "x": 13,
+      "y": 4
+    },
+    "field": "aE"
+  },
+  {
+    "id": 336,
+    "key": "brick",
+    "name": "Brick",
+    "langKey": "item.brick",
+    "class": "Item",
+    "icon": {
+      "x": 6,
+      "y": 1
+    },
+    "field": "aF"
+  },
+  {
+    "id": 337,
+    "key": "clay",
+    "name": "Clay",
+    "langKey": "item.clay",
+    "class": "Item",
+    "icon": {
+      "x": 9,
+      "y": 3
+    },
+    "field": "aG"
+  },
+  {
+    "id": 338,
+    "key": "reeds",
+    "name": "Sugar Canes",
+    "langKey": "item.reeds",
+    "class": "class_262",
+    "icon": {
+      "x": 11,
+      "y": 1
+    },
+    "field": "aH"
+  },
+  {
+    "id": 339,
+    "key": "paper",
+    "name": "Paper",
+    "langKey": "item.paper",
+    "class": "Item",
+    "icon": {
+      "x": 10,
+      "y": 3
+    },
+    "field": "aI"
+  },
+  {
+    "id": 340,
+    "key": "book",
+    "name": "Book",
+    "langKey": "item.book",
+    "class": "Item",
+    "icon": {
+      "x": 11,
+      "y": 3
+    },
+    "field": "aJ"
+  },
+  {
+    "id": 341,
+    "key": "slimeball",
+    "name": "Slimeball",
+    "langKey": "item.slimeball",
+    "class": "Item",
+    "icon": {
+      "x": 14,
+      "y": 1
+    },
+    "field": "aK"
+  },
+  {
+    "id": 342,
+    "key": "minecartChest",
+    "name": "Minecart with Chest",
+    "langKey": "item.minecartChest",
+    "class": "class_381",
+    "icon": {
+      "x": 7,
+      "y": 9
+    },
+    "field": "aL"
+  },
+  {
+    "id": 343,
+    "key": "minecartFurnace",
+    "name": "Minecart with Furnace",
+    "langKey": "item.minecartFurnace",
+    "class": "class_381",
+    "icon": {
+      "x": 7,
+      "y": 10
+    },
+    "field": "aM"
+  },
+  {
+    "id": 344,
+    "key": "egg",
+    "name": "Egg",
+    "langKey": "item.egg",
+    "class": "class_280",
+    "icon": {
+      "x": 12,
+      "y": 0
+    },
+    "field": "aN"
+  },
+  {
+    "id": 345,
+    "key": "compass",
+    "name": "Compass",
+    "langKey": "item.compass",
+    "class": "Item",
+    "icon": {
+      "x": 6,
+      "y": 3
+    },
+    "field": "aO"
+  },
+  {
+    "id": 346,
+    "key": "fishingRod",
+    "name": "Fishing Rod",
+    "langKey": "item.fishingRod",
+    "class": "class_607",
+    "icon": {
+      "x": 5,
+      "y": 4
+    },
+    "field": "aP"
+  },
+  {
+    "id": 347,
+    "key": "clock",
+    "name": "Clock",
+    "langKey": "item.clock",
+    "class": "Item",
+    "icon": {
+      "x": 6,
+      "y": 4
+    },
+    "field": "aQ"
+  },
+  {
+    "id": 348,
+    "key": "yellowDust",
+    "name": "Glowstone Dust",
+    "langKey": "item.yellowDust",
+    "class": "Item",
+    "icon": {
+      "x": 9,
+      "y": 4
+    },
+    "field": "aR"
+  },
+  {
+    "id": 349,
+    "key": "fishRaw",
+    "name": "Raw Fish",
+    "langKey": "item.fishRaw",
+    "class": "class_554",
+    "icon": {
+      "x": 9,
+      "y": 5
+    },
+    "field": "aS"
+  },
+  {
+    "id": 350,
+    "key": "fishCooked",
+    "name": "Cooked Fish",
+    "langKey": "item.fishCooked",
+    "class": "class_554",
+    "icon": {
+      "x": 10,
+      "y": 5
+    },
+    "field": "aT"
+  },
+  {
+    "id": 351,
+    "key": "dyePowder",
+    "name": "dyePowder",
+    "langKey": "item.dyePowder",
+    "class": "class_242",
+    "icon": {
+      "x": 14,
+      "y": 4
+    },
+    "field": "aU"
+  },
+  {
+    "id": 352,
+    "key": "bone",
+    "name": "Bone",
+    "langKey": "item.bone",
+    "class": "Item",
+    "icon": {
+      "x": 12,
+      "y": 1
+    },
+    "field": "aV"
+  },
+  {
+    "id": 353,
+    "key": "sugar",
+    "name": "Sugar",
+    "langKey": "item.sugar",
+    "class": "Item",
+    "icon": {
+      "x": 13,
+      "y": 0
+    },
+    "field": "aW"
+  },
+  {
+    "id": 354,
+    "key": "cake",
+    "name": "Cake",
+    "langKey": "item.cake",
+    "class": "class_262",
+    "icon": {
+      "x": 13,
+      "y": 1
+    },
+    "field": "aX"
+  },
+  {
+    "id": 355,
+    "key": "bed",
+    "name": "Bed",
+    "langKey": "item.bed",
+    "class": "class_261",
+    "icon": {
+      "x": 13,
+      "y": 2
+    },
+    "field": "aY"
+  },
+  {
+    "id": 356,
+    "key": "diode",
+    "name": "Redstone Repeater",
+    "langKey": "item.diode",
+    "class": "class_262",
+    "icon": {
+      "x": 6,
+      "y": 5
+    },
+    "field": "aZ"
+  },
+  {
+    "id": 357,
+    "key": "cookie",
+    "name": "Cookie",
+    "langKey": "item.cookie",
+    "class": "class_355",
+    "icon": {
+      "x": 12,
+      "y": 5
+    },
+    "field": "ba"
+  },
+  {
+    "id": 358,
+    "key": "map",
+    "name": "Map",
+    "langKey": "item.map",
+    "class": "class_125",
+    "icon": {
+      "x": 12,
+      "y": 3
+    },
+    "field": "bb"
+  },
+  {
+    "id": 359,
+    "key": "shears",
+    "name": "Shears",
+    "langKey": "item.shears",
+    "class": "class_126",
+    "icon": {
+      "x": 13,
+      "y": 5
+    },
+    "field": "bc"
+  },
+  {
+    "id": 2256,
+    "key": "record",
+    "name": "Music Disc",
+    "langKey": "item.record",
+    "class": "class_449",
+    "icon": {
+      "x": 0,
+      "y": 15
+    },
+    "field": "bd"
+  },
+  {
+    "id": 2257,
+    "key": "record",
+    "name": "Music Disc",
+    "langKey": "item.record",
+    "class": "class_449",
+    "icon": {
+      "x": 1,
+      "y": 15
+    },
+    "field": "be"
+  }
+]

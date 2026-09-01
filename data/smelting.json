@@ -1,0 +1,86 @@
+[
+  {
+    "input": {
+      "block": 15
+    },
+    "output": {
+      "item": 265
+    }
+  },
+  {
+    "input": {
+      "block": 14
+    },
+    "output": {
+      "item": 266
+    }
+  },
+  {
+    "input": {
+      "block": 56
+    },
+    "output": {
+      "item": 264
+    }
+  },
+  {
+    "input": {
+      "block": 12
+    },
+    "output": {
+      "block": 20
+    }
+  },
+  {
+    "input": {
+      "item": 319
+    },
+    "output": {
+      "item": 320
+    }
+  },
+  {
+    "input": {
+      "item": 349
+    },
+    "output": {
+      "item": 350
+    }
+  },
+  {
+    "input": {
+      "block": 4
+    },
+    "output": {
+      "block": 1
+    }
+  },
+  {
+    "input": {
+      "item": 337
+    },
+    "output": {
+      "item": 336
+    }
+  },
+  {
+    "input": {
+      "block": 81
+    },
+    "output": {
+      "item": 351,
+      "count": 1,
+      "damage": 2
+    }
+  },
+  {
+    "input": {
+      "block": 17
+    },
+    "output": {
+      "item": 263,
+      "count": 1,
+      "damage": 1
+    }
+  }
+]

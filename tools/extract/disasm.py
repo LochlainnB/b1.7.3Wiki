@@ -162,6 +162,11 @@ def trace_calls(cf, method_name='<clinit>', desc=None):
                     stack.append(args[0])              # unwrap Character/Integer boxing
                 else:
                     stack.append({'call': '%s.%s' % (owner, name), 'args': args, 'recv': recv})
+        elif op == 0xb4:                                                            # getfield
+            # Block.oreIron.blockID and friends: keep the base reference, since the
+            # identity of the object is what callers actually care about here.
+            base = pop(1)[0]
+            stack.append(base if isinstance(base, dict) and 'ref' in base else None)
         elif op == 0xc0:      pass                                                  # checkcast
         else:
             # any other opcode: conservatively clear what it would consume

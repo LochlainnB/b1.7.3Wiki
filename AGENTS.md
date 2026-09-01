@@ -180,7 +180,7 @@ Everything else in `data/` is overwritten by the extractors.
 - Lead sentence bolds the page name and defines it.
 - Section order: Obtaining, Usage, Behaviour, Data values. Skip what does not apply.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
-- Commit messages: short imperative subject, then why. Commit often.
+- Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
 
 ## Citing the source
 

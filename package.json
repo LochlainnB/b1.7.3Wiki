@@ -8,11 +8,14 @@
     "build": "node tools/build.mjs",
     "dev": "node tools/serve.mjs",
     "check": "node tools/build.mjs --check",
-    "new": "node tools/new-page.mjs"
+    "new": "node tools/new-page.mjs",
+    "sourcemap": "node tools/sourcemap.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
     "markdown-it": "^14.1.0"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }

@@ -47,7 +47,8 @@ export function findSource(root) {
       // An explicitly configured path that is not there is worth saying out
       // loud; the conventional sibling simply not existing is not.
       if (from !== 'sibling directory') {
-        return { dir, ok: false, reason: `${from} points at ${dir}, which has no ${CLIENT_SRC}/Block.java` };
+        const want = join(CLIENT_SRC, 'Block.java').replace(/\\/g, '/');
+        return { dir, ok: false, reason: `${from} points at ${dir}, which has no ${want}` };
       }
       continue;
     }

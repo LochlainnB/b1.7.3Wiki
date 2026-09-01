@@ -19,9 +19,23 @@ editorial rule below, and the template list.
 - If you cannot tell whether a behaviour is 1.7.3 or a later version, leave it
   out, or leave an HTML comment saying what needs checking. Do not guess.
 
-The authoritative source for behaviour is the Beta 1.7.3 client and server jar.
-There is a `babric-b1.7.3` skill available for resolving names and testing
-runtime behaviour against a real server when a claim needs verifying.
+The authoritative source for behaviour is the game itself. A full decompiled and
+deobfuscated copy of Beta 1.7.3 sits outside this repository:
+
+```
+C:\Users\Lochlainn\Documents\Source\Minecraft\b1.7.3Source
+```
+
+It is read-only, and it is never vendored here — it is Mojang's code with no
+licence attached, so it must stay out of this repo and out of `site/`.
+
+Two skills use it:
+
+- **`b173-wiki`** (`.claude/skills/b173-wiki/`) — the workflow for answering a
+  question from the wiki, falling back to the source, and offering to write the
+  result back. Its `SOURCEMAP.md` maps a topic to the classes that answer it.
+- **`babric-b1.7.3`** — obfuscated names, mappings and mixin targets. For
+  modding, not for game facts.
 
 ## Commands
 
@@ -29,12 +43,23 @@ runtime behaviour against a real server when a claim needs verifying.
 npm install            once
 npm run dev            build, serve on :8173, rebuild on save
 npm run build          one-off build into site/
-npm run check          validate only, write nothing
+npm run check          the full test suite: validate content, verify data
+npm run sourcemap      regenerate the skill's SOURCEMAP.md
 npm run new -- block "Mossy Cobblestone"    scaffold a page
 ```
 
 **The build must end with `0 errors`.** Warnings are the editorial to-do list
 (mostly red links) and are expected to be non-zero.
+
+`npm run check` does two things. It validates every page — frontmatter, links,
+templates, sprites — and it replays `Block`, `Item`, `EntityList`,
+`FurnaceRecipes` and `CraftingManager` out of the decompiled source and compares
+them against `data/`. A number that disagrees with the game is an error;
+something the extractors never picked up is a warning. Without the source
+installed the second half is skipped and says so, rather than failing.
+
+The verification is deliberately not part of `npm run dev`: `data/` only changes
+when the extractors are rerun, and a save-triggered rebuild should stay fast.
 
 ## Layout
 
@@ -48,6 +73,9 @@ theme/             wiki.css and wiki.js.
 tools/             the build (Node) and the extractors (Python).
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
+wiki.local.json    optional, gitignored. {"sourceDir": "..."} if the decompiled
+                   source is not the sibling directory b1.7.3Source.
+.claude/skills/    the b173-wiki skill and its generated SOURCEMAP.md.
 ```
 
 ## Writing a page
@@ -153,3 +181,19 @@ Everything else in `data/` is overwritten by the extractors.
 - Section order: Obtaining, Usage, Behaviour, Data values. Skip what does not apply.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - Commit messages: short imperative subject, then why. Commit often.
+
+## Citing the source
+
+When a fact comes from reading the decompiled game, record where, as an HTML
+comment after the passage:
+
+```markdown
+Slimes spawn only below Y=16, and only in chunks where a hash of the world seed
+and the chunk coordinates comes out to zero.
+<!-- src: EntitySlime.java:134 getCanSpawnHere -->
+```
+
+The comment does not render. It lets the next editor check the claim in one step
+instead of re-deriving it, which matters on a wiki written mostly by agents that
+cannot see each other's reasoning. Line numbers are stable: the source is a
+fixed decompile and never changes.

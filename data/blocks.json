@@ -502,7 +502,7 @@
     "texture": 29,
     "hardness": 0.0,
     "blastResistance": 0.0,
-    "lightEmission": 2,
+    "lightEmission": 1,
     "lightOpacity": null,
     "field": "ag"
   },
@@ -983,7 +983,7 @@
     "texture": 99,
     "hardness": 0.0,
     "blastResistance": 0.0,
-    "lightEmission": 8,
+    "lightEmission": 7,
     "lightOpacity": null,
     "field": "aR"
   },

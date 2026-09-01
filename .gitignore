@@ -3,3 +3,5 @@ site/
 .DS_Store
 *.log
 minecraft.wiki-examples/
+wiki.local.json
+__pycache__/

@@ -19,6 +19,8 @@ import { slug, splitAnchor, anchorId, relative } from './lib/slug.mjs';
 import { generatedPages } from './lib/indexes.mjs';
 import { buildSearchIndex } from './lib/search.mjs';
 import { report } from './lib/integrity.mjs';
+import { findSource } from './lib/source.mjs';
+import { verifyData } from './lib/verify.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -155,6 +157,21 @@ async function main() {
 
   const outputs = [];
   for (const page of pages) outputs.push([page, renderPage(page, ctx, renderer)]);
+
+  // Cross-check data/ against the decompiled source. This is the full test
+  // suite, so it runs for `npm run check` rather than on every dev rebuild:
+  // data/ only changes when the extractors are rerun, and a save-triggered
+  // rebuild should stay fast.
+  if (checkOnly) {
+    const source = findSource(ROOT);
+    const verdict = verifyData(source, data);
+    problems.push(...verdict.problems);
+    if (!quiet) {
+      console.log(verdict.ran
+        ? `\nVerified against ${source.dir}\n  ${verdict.summary}`
+        : `\nSource cross-check skipped: ${verdict.summary}`);
+    }
+  }
 
   const stats = report({ pages, problems, links, backlinks: ctx.backlinks, quiet });
 

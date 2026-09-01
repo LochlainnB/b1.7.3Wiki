@@ -24,6 +24,7 @@ import hashlib
 import io
 import json
 import os
+import struct
 import sys
 import zipfile
 
@@ -91,6 +92,20 @@ def num(v, default=None):
 
 def first_arg(argsets):
     return argsets[0][0] if argsets and argsets[0] else None
+
+
+def light_level(v):
+    """Block.setLightValue: lightValue[id] = (int)(15.0F * var1).
+
+    A C-style cast truncates, so a redstone torch's 0.5 is light 7, not 8, and
+    a brown mushroom's 0.125 is light 1, not 2. Rounding here would overstate
+    half the light sources in the game. The multiply is done in float32 to
+    match the JVM rather than Python's doubles.
+    """
+    if not v:
+        return 0
+    f32 = lambda x: struct.unpack('<f', struct.pack('<f', x))[0]
+    return int(f32(15.0 * f32(v)))
 
 
 def super_args(jar, cls_obf, parent_obf):
@@ -168,7 +183,7 @@ def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
             'texture': texture,
             'hardness': round(hardness, 4) if hardness is not None else None,
             'blastResistance': round(blast / 5.0, 4),
-            'lightEmission': int(round(light * 15)) if light else 0,
+            'lightEmission': light_level(light),
             'lightOpacity': opacity,
             'field': r['field'],
         }

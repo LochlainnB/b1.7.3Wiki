@@ -20,7 +20,7 @@ export default {
     biome: { label: 'Biome', plural: 'Biomes', index: 'Biomes' },
     mechanic: { label: 'Mechanic', plural: 'Mechanics', index: 'Game mechanics' },
     guide: { label: 'Guide', plural: 'Guides', index: 'Guides' },
-    wiki: { label: 'Wiki', plural: 'Wiki', index: 'About this wiki' },
+    wiki: { label: 'Wiki', plural: 'Wiki', index: 'Wiki pages' },
   },
 
   // Left sidebar. Each portlet becomes a #p-<id> block in the Vector sidebar.

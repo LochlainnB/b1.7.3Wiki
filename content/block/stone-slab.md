@@ -1,22 +1,20 @@
 ---
-title: stone Slab
-description: stone Slab in Minecraft Beta 1.7.3.
+title: Stone Slab
+description: Stone Slab in Minecraft Beta 1.7.3.
 type: block
-subject: stoneSlab
-aliases: [stoneSlab]
 categories: [Blocks]
 stub: true
 ---
 
 {{stub|block}}
 
-**stone Slab** is a block in Minecraft Beta 1.7.3. It has a hardness of 2 and a blast resistance of 6.
+**Stone Slab** is a block in Minecraft Beta 1.7.3. It has a hardness of 2 and a blast resistance of 6.
 
 ## Obtaining
 
 ### Crafting
 
-{{crafting|stoneSlab}}
+{{crafting|Stone Slab}}
 
 ## Usage
 
@@ -24,5 +22,5 @@ stub: true
 
 ## Data values
 
-- Block ID: `43`, `44`
+- Block ID: `44`
 - Translation key: `tile.stoneSlab`

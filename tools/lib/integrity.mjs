@@ -43,6 +43,23 @@ export function report({ pages, problems, links, backlinks, quiet }) {
     if (!page.generated) checkFrontmatter(page, all);
   }
 
+  // Two pages sharing a title make [[links]] ambiguous: whichever loads first
+  // wins and the other becomes unreachable by name.
+  const byTitle = new Map();
+  for (const p of pages) {
+    const key = p.title.toLowerCase();
+    if (!byTitle.has(key)) byTitle.set(key, []);
+    byTitle.get(key).push(p);
+  }
+  for (const [, group] of byTitle) {
+    if (group.length < 2) continue;
+    all.push({
+      page: group.map((p) => p.relFile).join(' + '),
+      level: 'error',
+      message: `duplicate page title "${group[0].title}" - [[links]] to it are ambiguous`,
+    });
+  }
+
   // Orphans: real pages nothing links to. Index and generated pages are
   // reachable through navigation, so they do not count.
   const orphans = pages.filter((p) =>

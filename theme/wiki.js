@@ -19,9 +19,14 @@
   var indexPromise = null;
   function loadIndex() {
     if (!indexPromise) {
-      indexPromise = fetch(BASE + 'assets/search-index.json')
-        .then(function (r) { return r.json(); })
-        .catch(function () { return { docs: [] }; });
+      indexPromise = new Promise(function (resolve) {
+        if (window.__WIKI_SEARCH__) { resolve(window.__WIKI_SEARCH__); return; }
+        var el = document.createElement('script');
+        el.src = BASE + 'assets/search-index.js';
+        el.onload = function () { resolve(window.__WIKI_SEARCH__ || { docs: [] }); };
+        el.onerror = function () { resolve({ docs: [] }); };
+        document.head.appendChild(el);
+      });
     }
     return indexPromise;
   }

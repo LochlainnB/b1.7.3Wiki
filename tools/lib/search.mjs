@@ -13,7 +13,12 @@ const stripTags = (html) => html
 function articleText(html) {
   const start = html.indexOf('<div class="mw-parser-output">');
   const end = html.indexOf('</div>\n    </div>', start);
-  const slice = start === -1 ? html : html.slice(start, end === -1 ? undefined : end);
+  let slice = start === -1 ? html : html.slice(start, end === -1 ? undefined : end);
+  // Stub notices and hatnotes are boilerplate. Left in, "this article is a stub,
+  // you can help" would be the snippet on every unwritten page.
+  slice = slice
+    .replace(/<div class="msgbox[\s\S]*?<\/div><\/div>/g, ' ')
+    .replace(/<div class="hatnote[\s\S]*?<\/div>/g, ' ');
   return stripTags(slice);
 }
 
@@ -37,8 +42,9 @@ export function buildSearchIndex(pages, outputs) {
       t: page.title,
       n: page.namespace || '',
       d: page.fm.description || text.slice(0, 180),
-      // Enough body text to match on, without shipping the whole wiki twice.
-      b: text.slice(0, 1200).toLowerCase(),
+      // Generated listings contain every page name on the wiki; indexing their
+      // bodies would make them match almost any query.
+      b: page.generated ? '' : text.slice(0, 1200).toLowerCase(),
       h: headings(html).slice(0, 24),
       s: page.fm.stub ? 1 : 0,
     });

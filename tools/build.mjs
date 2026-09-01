@@ -4,7 +4,8 @@
 //   node tools/build.mjs            build
 //   node tools/build.mjs --check    validate only, write nothing
 //   node tools/build.mjs --quiet    only report problems
-import { mkdirSync, writeFileSync, rmSync, cpSync, existsSync, statSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, cpSync,
+         existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -20,6 +21,17 @@ import { buildSearchIndex } from './lib/search.mjs';
 import { report } from './lib/integrity.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+/** Every file under a directory, recursively. Missing directory yields none. */
+function walkFiles(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) walkFiles(full, out);
+    else out.push(full);
+  }
+  return out;
+}
 
 /**
  * Per-page rendering context. Templates, the infobox and the layout all talk to
@@ -148,22 +160,32 @@ async function main() {
 
   if (!checkOnly) {
     const outDir = join(ROOT, config.outDir);
-    rmSync(outDir, { recursive: true, force: true });
-    for (const [page, html] of outputs) {
-      mkdirSync(dirname(page.outPath), { recursive: true });
-      writeFileSync(page.outPath, html, 'utf8');
+    // Write over the previous build and prune what is left behind, rather than
+    // clearing the directory first: with `npm run dev` running, wiping would
+    // 404 every page for the length of each rebuild.
+    const written = new Set();
+    const emit = (path, contents) => {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, contents);
+      written.add(resolve(path));
+    };
+
+    for (const [page, html] of outputs) emit(page.outPath, html);
+
+    if (existsSync(join(ROOT, 'assets'))) {
+      cpSync(join(ROOT, 'assets'), join(outDir, 'assets'), { recursive: true, force: true });
+      for (const f of walkFiles(join(outDir, 'assets'))) written.add(resolve(f));
     }
-    for (const dir of ['assets']) {
-      if (existsSync(join(ROOT, dir))) {
-        cpSync(join(ROOT, dir), join(outDir, dir), { recursive: true });
-      }
+    emit(join(outDir, 'assets', 'wiki.css'), readFileSync(join(ROOT, 'theme', 'wiki.css')));
+    emit(join(outDir, 'assets', 'wiki.js'), readFileSync(join(ROOT, 'theme', 'wiki.js')));
+    // Shipped as a script rather than JSON: fetch() is blocked on file://, so
+    // this keeps search working when the site is opened straight off disk.
+    emit(join(outDir, 'assets', 'search-index.js'),
+      'window.__WIKI_SEARCH__=' + JSON.stringify(buildSearchIndex(pages, outputs)) + ';');
+
+    for (const f of walkFiles(outDir)) {
+      if (!written.has(resolve(f))) rmSync(f, { force: true });
     }
-    cpSync(join(ROOT, 'theme', 'wiki.css'), join(outDir, 'assets', 'wiki.css'));
-    cpSync(join(ROOT, 'theme', 'wiki.js'), join(outDir, 'assets', 'wiki.js'));
-    writeFileSync(
-      join(outDir, 'assets', 'search-index.json'),
-      JSON.stringify(buildSearchIndex(pages, outputs)),
-      'utf8');
     if (!quiet) {
       console.log(`\nBuilt ${outputs.length} pages into ${config.outDir}/ in ${Date.now() - t0}ms`);
     }

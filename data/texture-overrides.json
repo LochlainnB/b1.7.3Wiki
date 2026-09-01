@@ -1,7 +1,6 @@
 {
   "_note": "Inventory tile for blocks whose texture is chosen per-face in code rather than passed to the Block constructor, so tools/extract/gamedata.py cannot read it. Keyed by block id; values are terrain.png tile indices (index = row * 16 + column). Edit a number here and re-run tools/extract/sprites.py to change a block's sprite.",
   "_uncertain": [
-    23,
     26,
     95
   ],
@@ -38,5 +37,6 @@
     "94": 147,
     "95": 27,
     "96": 84
-  }
+  },
+  "_verified": "Block tiles were checked against rendered crops of terrain.png: 44 is the furnace front, 46 the dispenser front, 5 the slab side, 64 white wool, 131/147 the repeater off/on."
 }

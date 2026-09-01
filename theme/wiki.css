@@ -33,6 +33,8 @@
   --content-border-left-color: #171717;
   --content-secondary-text-color: #555;
   --tab-rule-color: #a7d7f9;
+  --tab-fade-color: #e8f2f8;
+  --tab-top-color: #fff;
   --grass-accent: #6ba41e;
 
   /* Infobox: the green header the Java Edition pages use ------------------ */
@@ -77,6 +79,8 @@
   --content-border-left-color: #000;
   --content-secondary-text-color: #9aa0a6;
   --tab-rule-color: #36506b;
+  --tab-fade-color: #1f2a35;
+  --tab-top-color: #16191d;
 
   color-scheme: dark;
 }
@@ -246,7 +250,7 @@ body {
   padding: 0;
   line-height: 1.125em;
   white-space: nowrap;
-  background-image: linear-gradient(to top, var(--tab-rule-color) 0, rgba(232, 242, 248, 0.35) 1px, transparent 100%);
+  background-image: linear-gradient(to top, var(--tab-rule-color) 0, var(--tab-fade-color) 1px, var(--tab-top-color) 100%);
   background-position: left bottom;
   background-repeat: repeat-x;
 }
@@ -507,6 +511,9 @@ blockquote {
 .mcui-Crafting_Table .mcui-row { display: block; }
 
 .invslot {
+  /* The game's slot is a 32px well plus a 2px bevel, and the large output slot
+     adds 8px of padding around that. Content-box keeps those sizes literal. */
+  box-sizing: content-box;
   position: relative;
   display: inline-block;
   width: 32px;
@@ -535,6 +542,7 @@ blockquote {
 
 .invslot-item,
 .invslot-item a:first-child {
+  box-sizing: content-box;
   position: relative;
   display: block;
   width: 32px; height: 32px;

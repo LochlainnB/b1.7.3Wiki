@@ -192,7 +192,7 @@
       "index": 88,
       "file": "assets/sprites/terrain/88.png"
     },
-    "deadbush": {
+    "dead-bush": {
       "sheet": "terrain",
       "index": 55,
       "file": "assets/sprites/terrain/55.png"
@@ -257,11 +257,6 @@
       "index": 67,
       "file": "assets/sprites/items/67.png"
     },
-    "diode": {
-      "sheet": "terrain",
-      "index": 1,
-      "file": "assets/sprites/terrain/1.png"
-    },
     "dirt": {
       "sheet": "terrain",
       "index": 2,
@@ -269,8 +264,13 @@
     },
     "dispenser": {
       "sheet": "terrain",
-      "index": 45,
-      "file": "assets/sprites/terrain/45.png"
+      "index": 46,
+      "file": "assets/sprites/terrain/46.png"
+    },
+    "double-stone-slab": {
+      "sheet": "terrain",
+      "index": 5,
+      "file": "assets/sprites/terrain/5.png"
     },
     "dyepowder": {
       "sheet": "items",
@@ -324,8 +324,8 @@
     },
     "furnace": {
       "sheet": "terrain",
-      "index": 1,
-      "file": "assets/sprites/terrain/1.png"
+      "index": 44,
+      "file": "assets/sprites/terrain/44.png"
     },
     "glass": {
       "sheet": "terrain",
@@ -688,9 +688,9 @@
       "file": "assets/sprites/terrain/51.png"
     },
     "redstone-repeater": {
-      "sheet": "items",
-      "index": 86,
-      "file": "assets/sprites/items/86.png"
+      "sheet": "terrain",
+      "index": 147,
+      "file": "assets/sprites/terrain/147.png"
     },
     "redstone-torch": {
       "sheet": "terrain",
@@ -797,6 +797,11 @@
       "index": 81,
       "file": "assets/sprites/items/81.png"
     },
+    "stone-slab": {
+      "sheet": "terrain",
+      "index": 5,
+      "file": "assets/sprites/terrain/5.png"
+    },
     "stone-stairs": {
       "sheet": "terrain",
       "index": 16,
@@ -806,11 +811,6 @@
       "sheet": "items",
       "index": 65,
       "file": "assets/sprites/items/65.png"
-    },
-    "stoneslab": {
-      "sheet": "terrain",
-      "index": 0,
-      "file": "assets/sprites/terrain/0.png"
     },
     "string": {
       "sheet": "items",
@@ -832,7 +832,7 @@
       "index": 27,
       "file": "assets/sprites/items/27.png"
     },
-    "tallgrass": {
+    "tall-grass": {
       "sheet": "terrain",
       "index": 39,
       "file": "assets/sprites/terrain/39.png"

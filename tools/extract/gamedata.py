@@ -29,7 +29,7 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from classfile import ClassFile
-from disasm import trace_clinit, trace_calls
+from disasm import trace_clinit, trace_calls, params_of
 from mappings import load as load_mappings
 
 # Block builder methods, by obfuscated name (see module docstring for evidence)
@@ -105,7 +105,16 @@ def super_args(jar, cls_obf, parent_obf):
     return None
 
 
-def extract_blocks(jar, mp, lang_names, lang_descs):
+def load_name_overrides(out_dir):
+    """Names for the few blocks/items en_US.lang never gives one."""
+    path = os.path.join(out_dir, 'name-overrides.json')
+    if not os.path.exists(path):
+        return {}, {}
+    doc = json.load(io.open(path, encoding='utf-8'))
+    return doc.get('byBlockId', {}), doc.get('byItemId', {})
+
+
+def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
     obf = mp.find_class('net/minecraft/block/Block')
     cf = jar.cls(obf)
     recs = trace_clinit(cf)
@@ -121,7 +130,12 @@ def extract_blocks(jar, mp, lang_names, lang_descs):
         if not 0 < bid < 256:
             continue
         calls = const_calls(r)
-        texture = args[1] if len(args) > 1 and isinstance(args[1], int) else None
+        # args[1] is only a texture index when the constructor actually declares
+        # a second int. StoneSlabBlock(int, boolean) would otherwise report its
+        # flag as a texture.
+        cparams = params_of(r['ctor_desc']) if r.get('ctor_desc') else []
+        texture = (args[1] if len(args) > 1 and isinstance(args[1], int)
+                   and len(cparams) > 1 and cparams[1] == 'I' else None)
         key = hardness = light = opacity = None
         # Beta 1.7.3 Block: setHardness raises blastResistance to hardness*5,
         # setResistance sets it to f*3, and explosions divide it by 5. Order of
@@ -147,7 +161,8 @@ def extract_blocks(jar, mp, lang_names, lang_descs):
         entry = {
             'id': bid,
             'key': key,
-            'name': lang_names.get(lang_key) or key or 'Block %d' % bid,
+            'name': ((overrides or {}).get(str(bid))
+                     or lang_names.get(lang_key) or key or 'Block %d' % bid),
             'langKey': lang_key,
             'class': mp.simple(r['ctor']),
             'texture': texture,
@@ -165,7 +180,7 @@ def extract_blocks(jar, mp, lang_names, lang_descs):
     return blocks, by_field, obf
 
 
-def extract_items(jar, mp, lang_names):
+def extract_items(jar, mp, lang_names, overrides=None):
     obf = (mp.find_class('net/minecraft/Item')
            or mp.find_class('net/minecraft/item/Item'))
     cf = jar.cls(obf)
@@ -189,7 +204,8 @@ def extract_items(jar, mp, lang_names):
         items.append({
             'id': iid,
             'key': key,
-            'name': lang_names.get(lang_key) or key or 'Item %d' % iid,
+            'name': ((overrides or {}).get(str(iid))
+                     or lang_names.get(lang_key) or key or 'Item %d' % iid),
             'langKey': lang_key,
             'class': mp.simple(r['ctor']),
             'icon': icon,
@@ -375,8 +391,9 @@ def main():
                        os.path.join(a.cache, 'barn.tiny'))
     lang_names, lang_descs = parse_lang(jar)
 
-    blocks, bfield, block_obf = extract_blocks(jar, mp, lang_names, lang_descs)
-    items, ifield, item_obf = extract_items(jar, mp, lang_names)
+    block_names, item_names = load_name_overrides(a.out)
+    blocks, bfield, block_obf = extract_blocks(jar, mp, lang_names, lang_descs, block_names)
+    items, ifield, item_obf = extract_items(jar, mp, lang_names, item_names)
     entities = extract_entities(jar, mp)
     biomes = extract_biomes(jar, mp)
     recipes = extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf)

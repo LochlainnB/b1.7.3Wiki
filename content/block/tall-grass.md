@@ -1,6 +1,6 @@
 ---
-title: tallgrass
-description: tallgrass in Minecraft Beta 1.7.3.
+title: Tall Grass
+description: Tall Grass in Minecraft Beta 1.7.3.
 type: block
 categories: [Blocks]
 stub: true
@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**tallgrass** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
+**Tall Grass** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
 
 ## Obtaining
 

@@ -1,0 +1,12 @@
+{
+  "_note": "Display names for the handful of blocks and items that have no .name entry in lang/en_US.lang, so gamedata.py has nothing to read. Keyed by numeric id. These are the names the game and its community use for them.",
+  "byBlockId": {
+    "31": "Tall Grass",
+    "32": "Dead Bush",
+    "43": "Double Stone Slab",
+    "44": "Stone Slab",
+    "93": "Redstone Repeater",
+    "94": "Redstone Repeater"
+  },
+  "byItemId": {}
+}

@@ -1,6 +1,6 @@
 ---
-title: deadbush
-description: deadbush in Minecraft Beta 1.7.3.
+title: Dead Bush
+description: Dead Bush in Minecraft Beta 1.7.3.
 type: block
 categories: [Blocks]
 stub: true
@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**deadbush** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
+**Dead Bush** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
 
 ## Obtaining
 

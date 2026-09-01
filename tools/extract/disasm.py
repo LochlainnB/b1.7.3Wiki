@@ -64,7 +64,8 @@ def trace_clinit(cf):
     for pc, op, operand in disassemble(code):
         if op == 0xbb:                                    # new
             if cur is not None: records.append(cur)
-            cur = {'ctor': cf.cls_name(u2(operand)), 'args': None, 'calls': [], 'field': None}
+            cur = {'ctor': cf.cls_name(u2(operand)), 'args': None, 'ctor_desc': None,
+                   'calls': [], 'field': None}
             pending = []
         elif op in ICONST:   pending.append(ICONST[op])
         elif op in FCONST:   pending.append(FCONST[op])
@@ -81,6 +82,7 @@ def trace_clinit(cf):
             owner, name, desc = cf.ref(u2(operand))
             if name == '<init>' and cur is not None and cur['args'] is None:
                 cur['args'] = pending
+                cur['ctor_desc'] = desc
             pending = []
         elif op in (0xb6, 0xb8, 0xb9):                                              # invoke*
             owner, name, desc = cf.ref(u2(operand))
@@ -171,6 +173,30 @@ def trace_calls(cf, method_name='<clinit>', desc=None):
         else:
             # any other opcode: conservatively clear what it would consume
             if 0x99 <= op <= 0xa8: pop(1)
+    return out
+
+
+def params_of(desc):
+    """Parameter type letters of a descriptor: '(IZ)V' -> ['I', 'Z']."""
+    inner = desc[desc.index('(') + 1: desc.rindex(')')]
+    out = []
+    i = 0
+    while i < len(inner):
+        c = inner[i]
+        if c == 'L':
+            j = inner.index(';', i) + 1
+            out.append(inner[i:j]); i = j
+        elif c == '[':
+            j = i + 1
+            while j < len(inner) and inner[j] == '[':
+                j += 1
+            if inner[j] == 'L':
+                j = inner.index(';', j) + 1
+            else:
+                j += 1
+            out.append(inner[i:j]); i = j
+        else:
+            out.append(c); i += 1
     return out
 
 

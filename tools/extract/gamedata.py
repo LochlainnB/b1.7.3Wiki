@@ -126,12 +126,18 @@ def super_args(jar, cls_obf, parent_obf):
 
 
 def load_name_overrides(out_dir):
-    """Names for the few blocks/items en_US.lang never gives one."""
+    """Names for the few blocks/items en_US.lang never gives one.
+
+    Subtypes are covered too. Wool and slabs name themselves, because the game
+    picks a translation key per damage value and en_US.lang answers; tall grass
+    does not, so the fern hiding at metadata 2 has no name to be found and one
+    is supplied here.
+    """
     path = os.path.join(out_dir, 'name-overrides.json')
     if not os.path.exists(path):
-        return {}, {}
+        return {}, {}, {}
     doc = json.load(io.open(path, encoding='utf-8'))
-    return doc.get('byBlockId', {}), doc.get('byItemId', {})
+    return doc.get('byBlockId', {}), doc.get('byItemId', {}), doc.get('variantsByBlockId', {})
 
 
 def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
@@ -352,7 +358,11 @@ def extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf):
     scf = jar.cls(stack_obf)
     sfields = {mp.member(stack_obf, f['name'], f['desc']): f['name']
                for f in scf.fields}
-    F_ID, F_COUNT, F_DAMAGE = sfields['itemId'], sfields['count'], sfields['damage']
+    # Obj keys a field by the class that declares it, so an obfuscated
+    # hierarchy cannot have two classes share one slot.
+    F_ID = (stack_obf, sfields['itemId'])
+    F_COUNT = (stack_obf, sfields['count'])
+    F_DAMAGE = (stack_obf, sfields['damage'])
 
     def field_hook(ref, name, desc):
         """Resolve `Block.stone.blockID` and `Item.stick.shiftedIndex`.
@@ -512,8 +522,9 @@ def extract_variants(jar, mp, lang_names, blocks, items, bfield, ifield,
                for f in scf.fields}
     ifields = {mp.member(item_obf, f['name'], f['desc']): f['name']
                for f in icf.fields}
-    F_DAMAGE, F_ID = sfields['damage'], sfields['itemId']
-    F_KEY = ifields.get('translationKey')
+    F_DAMAGE = (stack_obf, sfields['damage'])
+    F_ID = (stack_obf, sfields['itemId'])
+    F_KEY = (item_obf, ifields['translationKey']) if 'translationKey' in ifields else None
 
     owners = label_classes(jar, bfield, ifield, block_obf, item_obf)
     by_id = {('block', b['id']): b for b in blocks}
@@ -611,7 +622,7 @@ def main():
                        os.path.join(cache, 'barn.tiny'))
     lang_names, lang_descs = parse_lang(jar)
 
-    block_names, item_names = load_name_overrides(a.out)
+    block_names, item_names, variant_names = load_name_overrides(a.out)
     blocks, bfield, block_obf = extract_blocks(jar, mp, lang_names, lang_descs, block_names)
     items, ifield, item_obf = extract_items(jar, mp, lang_names, item_names)
     entities = extract_entities(jar, mp)
@@ -620,13 +631,14 @@ def main():
     smelting = extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf)
 
     stack_obf = mp.find_class('net/minecraft/item/ItemStack')
-    for ref, names in extract_variants(jar, mp, lang_names, blocks, items,
-                                       bfield, ifield, block_obf, item_obf,
-                                       stack_obf).items():
-        kind, ident = ref
+    variants = extract_variants(jar, mp, lang_names, blocks, items,
+                                bfield, ifield, block_obf, item_obf, stack_obf)
+    for ident, names in variant_names.items():
+        variants.setdefault(('block', int(ident)), {}).update(names)
+    for (kind, ident), names in variants.items():
         for entry in (blocks if kind == 'block' else items):
             if entry['id'] == ident:
-                entry['variants'] = names
+                entry['variants'] = {k: names[k] for k in sorted(names, key=int)}
 
     os.makedirs(a.out, exist_ok=True)
 

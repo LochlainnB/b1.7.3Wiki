@@ -19,10 +19,10 @@ seven generator classes that build them in loops over material tables:
 Those arguments do not exist anywhere in the bytecode as constants -- they only
 exist once the loops have run. So we run them.
 
-What is modelled: locals, the operand stack, 32-bit int arithmetic, arrays,
-branches, instance fields, and calls into other game classes. What is not:
-class initialisers, exceptions, threads, string methods, floating point beyond
-loading a constant.
+What is modelled: locals, the operand stack, 32-bit int and float
+arithmetic, arrays, branches, instance fields, and calls into other game
+classes. What is not: class initialisers, exceptions, threads, string methods,
+64-bit arithmetic.
 
 Static fields of game classes stay *symbolic*. `Block.stone` evaluates to
 Ref('uu', 'ba'), which is exactly what a recipe wants to know, so Block's
@@ -31,6 +31,7 @@ enormous <clinit> never has to run. The caller resolves Refs to ids afterwards.
 Anything outside that is a hard error rather than a guess -- a wrong recipe is
 worse than a missing one, and a silent one is worse than both.
 """
+import math
 import struct
 
 from disasm import disassemble, params_of, u2
@@ -66,7 +67,12 @@ class ArrayRef(object):
 
 
 class Obj(object):
-    """An instance created by `new`. Fields are whatever the code puts there."""
+    """An instance created by `new`.
+
+    Fields are keyed by (declaring class, name), not by name alone: an
+    obfuscated hierarchy reuses letters freely, so BlockStairs.a (the block it
+    copies) and Block.a would otherwise be the same slot.
+    """
     __slots__ = ('cls', 'fields')
 
     def __init__(self, cls):
@@ -85,6 +91,16 @@ def i32(v):
     """Wrap to a signed 32-bit int, the way every Java int operation does."""
     v &= 0xFFFFFFFF
     return v - 0x100000000 if v & 0x80000000 else v
+
+
+def f32(v):
+    """Round to the nearest 32-bit float, the way every Java float op does.
+
+    Block.setHardness raises a block's blast resistance to hardness * 5 in
+    float arithmetic, so doing the multiply in Python's doubles would drift
+    away from the number the game actually holds.
+    """
+    return struct.unpack('<f', struct.pack('<f', v))[0]
 
 
 def arg_slots(desc):
@@ -127,6 +143,33 @@ IFCOND = {0x99: lambda a: a == 0, 0x9a: lambda a: a != 0, 0x9b: lambda a: a < 0,
 ICMP = {0x9f: lambda a, b: a == b, 0xa0: lambda a, b: a != b,
         0xa1: lambda a, b: a < b, 0xa2: lambda a, b: a >= b,
         0xa3: lambda a, b: a > b, 0xa4: lambda a, b: a <= b}
+# fadd/fsub/fmul/fdiv/frem, and the d-prefixed opcode of each is exactly one
+# higher, so the double family reuses this table. Java answers infinity or NaN
+# where Python raises, which is what `zero` covers.
+FLOAT_OPS = {
+    0x62: lambda a, b: a + b,
+    0x66: lambda a, b: a - b,
+    0x6a: lambda a, b: a * b,
+    0x6e: lambda a, b: a / b if b else zero_div(a),
+    0x72: lambda a, b: math.fmod(a, b) if b else float('nan'),
+}
+
+
+def zero_div(a):
+    return float('nan') if a == 0 else math.copysign(float('inf'), a)
+
+
+def trunc(v):
+    """Java's float-to-int cast: toward zero, NaN to 0, saturating at the ends."""
+    if v != v:
+        return 0
+    if v >= 2147483647.0:
+        return 2147483647
+    if v <= -2147483648.0:
+        return -2147483648
+    return int(v)
+
+
 ICONST = {0x02: -1, 0x03: 0, 0x04: 1, 0x05: 2, 0x06: 3, 0x07: 4, 0x08: 5}
 FCONST = {0x0b: 0.0, 0x0c: 1.0, 0x0d: 2.0}
 LCONST = {0x09: 0, 0x0a: 1}
@@ -151,6 +194,7 @@ class Interp(object):
         self.field_hook = None
         self.statics = {}
         self._classes = {}
+        self._owners = {}
         self._tried_clinit = set()
 
     # -- class loading -----------------------------------------------------
@@ -175,8 +219,18 @@ class Interp(object):
         return None, None
 
     # -- calling -----------------------------------------------------------
-    def call(self, owner, name, desc, recv, args, static=False):
+    def call(self, owner, name, desc, recv, args, static=False, virtual=False):
+        """Run a method. `virtual` dispatches on the receiver's actual class.
+
+        The constant pool names the class the *caller* saw, so Block's
+        `getBlockTextureFromSideAndMetadata` calling `this.getBlockTextureFromSide`
+        reads as a call on Block. Resolving there would hand every block the
+        base implementation and quietly lose the furnace its front face.
+        """
         hook = self.hooks.get((owner, name, desc))
+        if virtual and isinstance(recv, Obj):
+            hook = self.hooks.get((recv.cls, name, desc), hook)
+            owner = recv.cls
         if hook is not None:
             return hook(self, recv, args)
         if owner.startswith('java/') or owner.startswith('['):
@@ -217,16 +271,17 @@ class Interp(object):
             # Real concatenation: getItemNameIS builds a stack's translation
             # key this way ("tile.cloth" + "." + "magenta"), and the answer is
             # the whole point of running it.
+            key = (owner, 'value')
             if name == '<init>':
                 if isinstance(recv, Obj):
-                    recv.fields['_'] = args[0] if args and isinstance(args[0], str) else ''
+                    recv.fields[key] = args[0] if args and isinstance(args[0], str) else ''
                 return self.NOTHING
             if name == 'append':
                 if isinstance(recv, Obj):
-                    recv.fields['_'] = recv.fields.get('_', '') + self._text(args[0])
+                    recv.fields[key] = recv.fields.get(key, '') + self._text(args[0])
                 return recv
             if name == 'toString':
-                return recv.fields.get('_', '') if isinstance(recv, Obj) else ''
+                return recv.fields.get(key, '') if isinstance(recv, Obj) else ''
         if name == '<init>':
             return self.NOTHING                      # new ArrayList(), new HashMap()
         if name == 'valueOf' and len(args) == 1:
@@ -345,6 +400,28 @@ class Interp(object):
             elif op == 0x7e:  a, b = pop(2); stack.append(i32(a & b))
             elif op == 0x80:  a, b = pop(2); stack.append(i32(a | b))
             elif op == 0x82:  a, b = pop(2); stack.append(i32(a ^ b))
+            # float and double arithmetic
+            elif op in FLOAT_OPS:
+                a, b = pop(2)
+                stack.append(f32(FLOAT_OPS[op](a, b)))
+            elif op - 1 in FLOAT_OPS:
+                a, b = pop(2)
+                stack.append(FLOAT_OPS[op - 1](a, b))
+            elif op == 0x76:  stack.append(f32(-pop(1)[0]))          # fneg
+            elif op == 0x77:  stack.append(-pop(1)[0])               # dneg
+            elif op in (0x86, 0x90):                                 # i2f, d2f
+                stack.append(f32(pop(1)[0]))
+            elif op in (0x87, 0x8d):                                 # i2d, f2d
+                stack.append(float(pop(1)[0]))
+            elif op in (0x8b, 0x8e):                                 # f2i, d2i
+                stack.append(trunc(pop(1)[0]))
+            elif op in (0x95, 0x96, 0x97, 0x98):                     # f/dcmpl, f/dcmpg
+                a, b = pop(2)
+                if a != a or b != b:                                 # NaN
+                    stack.append(-1 if op in (0x95, 0x97) else 1)
+                else:
+                    stack.append((a > b) - (a < b))
+
             elif op == 0x84:                                         # iinc
                 idx = operand[0]
                 local[idx] = i32(local.get(idx, 0) + struct.unpack_from('>b', operand, 1)[0])
@@ -388,7 +465,7 @@ class Interp(object):
                 stack.append(self._getstatic(owner, name, desc))
             elif op == 0xb3:                                         # putstatic
                 owner, name, desc = cf.ref(u2(operand))
-                self.statics[(owner, name)] = pop(1)[0]
+                self.statics[(self._declares(owner, name), name)] = pop(1)[0]
             elif op == 0xb4:                                         # getfield
                 owner, name, desc = cf.ref(u2(operand))
                 obj = pop(1)[0]
@@ -398,7 +475,7 @@ class Interp(object):
                 obj, val = pop(2)
                 if not isinstance(obj, Obj):
                     raise Unsupported('putfield on %r' % (obj,))
-                obj.fields[name] = val
+                obj.fields[(self._declares(owner, name), name)] = val
 
             # objects and calls
             elif op == 0xbb:                                         # new
@@ -420,7 +497,8 @@ class Interp(object):
                 owner, name, desc = cf.ref(u2(operand))
                 args = pop(arg_slots(desc))
                 recv = pop(1)[0] if op != 0xb8 else self.NOTHING
-                res = self.call(owner, name, desc, recv, args, static=(op == 0xb8))
+                res = self.call(owner, name, desc, recv, args,
+                                static=(op == 0xb8), virtual=op in (0xb6, 0xb9))
                 if not desc.endswith(')V') and res is not self.NOTHING:
                     stack.append(res)
             else:
@@ -435,7 +513,33 @@ class Interp(object):
     # this rule leaves them symbolic, which is what the callers want anyway.
     CONST_TABLES = ('[Ljava/lang/String;', '[I')
 
+    def _declares(self, owner, name):
+        """The class a field is really declared on.
+
+        A constant pool names the class the code said, not the one holding the
+        field: BlockContainer's constructor writes `isBlockContainer[id]`,
+        which is Block's array. Stopping at the named class would hand back a
+        symbolic Ref for a field we are already holding a value for, and would
+        let two classes in one hierarchy share an instance field slot.
+        """
+        hit = self._owners.get((owner, name))
+        if hit is not None:
+            return hit
+        hit, seen, cur = owner, set(), owner
+        while cur and cur not in seen:
+            seen.add(cur)
+            cf = self.cls(cur)
+            if cf is None:
+                break
+            if any(f['name'] == name for f in cf.fields):
+                hit = cur
+                break
+            cur = cf.super
+        self._owners[(owner, name)] = hit
+        return hit
+
     def _getstatic(self, owner, name, desc):
+        owner = self._declares(owner, name)
         key = (owner, name)
         if key in self.statics:
             return self.statics[key]
@@ -476,7 +580,8 @@ class Interp(object):
 
     def _getfield(self, obj, owner, name, desc):
         if isinstance(obj, Obj):
-            return obj.fields.get(name, default_for('()' + desc))
+            key = (self._declares(owner, name), name)
+            return obj.fields.get(key, default_for('()' + desc))
         if isinstance(obj, (Ref, ArrayRef)) and self.field_hook is not None:
             v = self.field_hook(obj, name, desc)
             if v is not self.NOTHING:

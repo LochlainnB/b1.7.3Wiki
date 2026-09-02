@@ -1,5 +1,6 @@
 {
   "_note": "Display names for the handful of blocks and items that have no .name entry in lang/en_US.lang, so gamedata.py has nothing to read. Keyed by numeric id. These are the names the game and its community use for them.",
+  "_variantNote": "Names for metadata values en_US.lang has no key for. Block 31 is one id holding three plants -- a dead shrub, tall grass and a fern -- and the game never names any of them.",
   "byBlockId": {
     "31": "Tall Grass",
     "32": "Dead Bush",
@@ -8,5 +9,11 @@
     "93": "Redstone Repeater",
     "94": "Redstone Repeater"
   },
-  "byItemId": {}
+  "byItemId": {},
+  "variantsByBlockId": {
+    "31": {
+      "1": "Tall Grass",
+      "2": "Fern"
+    }
+  }
 }

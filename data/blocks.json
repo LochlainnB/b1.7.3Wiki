@@ -400,7 +400,11 @@
     "blastResistance": 0.0,
     "lightEmission": 0,
     "lightOpacity": null,
-    "field": "Y"
+    "field": "Y",
+    "variants": {
+      "1": "Tall Grass",
+      "2": "Fern"
+    }
   },
   {
     "id": 32,

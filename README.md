@@ -27,9 +27,10 @@ and smelting recipe are read directly out of the Beta 1.7.3 client jar by
 That means the reference data is correct by construction, and the part humans
 (or language models) write is the prose.
 
-The extractors are dependency-free Python: a Java class-file parser and an
-abstract interpreter that reads static initialisers, plus a small PNG codec for
-slicing the texture sheets.
+The extractors are dependency-free Python: a Java class-file parser, an
+abstract interpreter that reads static initialisers, a concrete JVM interpreter
+that *runs* the game's crafting registration rather than pattern-matching it,
+and a small PNG codec for slicing the texture sheets.
 
 ## Commands
 
@@ -37,13 +38,23 @@ slicing the texture sheets.
 |---|---|
 | `npm run dev` | Build, serve on `:8173`, rebuild on save |
 | `npm run build` | One-off build into `site/` |
-| `npm run check` | Validate content, write nothing |
+| `npm run check` | The full test suite: validate content, verify `data/` |
 | `npm run new -- block "Mossy Cobblestone"` | Scaffold a page |
+| `npm run sourcemap` | Regenerate the skill's `SOURCEMAP.md` |
 | `node tools/seed.mjs` | Stub every block/item/entity/biome not yet written |
+| `node tools/seed.mjs --force` | Rebuild existing stubs from newly extracted data |
 
 The build reports broken links, missing sprites, unknown templates and bad
-frontmatter, naming the file responsible. Errors fail the build; warnings are
-the editorial to-do list.
+frontmatter, naming the file responsible. Recipes are checked in both
+directions: a page asking for a recipe the data does not have, and a recipe in
+the data that the page never shows. Errors fail the build; warnings are the
+editorial to-do list.
+
+`npm run check` adds a second half, replaying `Block`, `Item`, `EntityList`,
+`FurnaceRecipes` and the whole crafting registry out of a decompiled copy of
+the game and comparing
+them against `data/` — an independent second opinion on the extractors. It is
+skipped, with a note, when no decompiled source is installed.
 
 ## Layout
 
@@ -55,6 +66,8 @@ theme/          wiki.css, wiki.js
 tools/          build (Node) and extractors (Python)
 site/           build output (generated, gitignored)
 wiki.config.js  title, sidebar, namespaces, footer
+wiki.local.json optional, gitignored — where the jar, mappings and source live
+.claude/skills/ the b173-wiki skill and its generated source map
 ```
 
 ## Editing
@@ -71,9 +84,15 @@ else** — no version history, no comparisons to later releases.
 Only needed if the extractors change:
 
 ```bash
-python tools/extract/gamedata.py --jar <client.jar> --cache <BabricKit/cache> --out data
-python tools/extract/sprites.py  --jar <client.jar> --out .
+python tools/extract/gamedata.py --out data
+python tools/extract/sprites.py  --out .
 ```
+
+The client jar and the Babric mappings are Mojang's, shipped without a licence,
+so they are never vendored here. `tools/extract/paths.py` finds them: `B173_JAR`
+and `B173_CACHE`, then `"jarPath"` and `"cachePath"` in `wiki.local.json`, then
+the sibling directory `../BabricKit/cache`. Pointing at the cache is normally
+enough, since the jar sits beside the mappings; `--jar` and `--cache` override.
 
 `data/texture-overrides.json` and `data/name-overrides.json` are hand-maintained
 and survive regeneration; everything else in `data/` is overwritten.

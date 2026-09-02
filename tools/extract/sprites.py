@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Slice Beta 1.7.3 texture sheets into per-tile sprites and build a manifest.
 
-    python tools/extract/sprites.py --jar <client.jar> --out . [--contact-sheet F]
+    python tools/extract/sprites.py --out . [--contact-sheet F]
+
+The jar is found automatically; see paths.py for the three ways to say where
+it is.
 
 terrain.png and gui/items.png are both 256x256, i.e. a 16x16 grid of 16x16
 tiles indexed row-major. Blocks record a terrain index and items record (x, y)

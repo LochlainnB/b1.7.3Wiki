@@ -274,41 +274,97 @@ function compareSmelting(source, data, blockFields, itemFields, add) {
 
 /**
  * Crafting is checked by output, not by pattern: the point is to notice recipes
- * that never reached data/ at all.
+ * that never reached data/ at all, and outputs that reached it from nowhere.
  *
- * Most of the game's recipes are not written out one by one. Seven generator
- * classes build them in loops over a material table, and the bytecode extractor
- * does not follow those loops - so every tool, weapon, armour piece, dye and
- * ingot-block conversion is currently absent.
+ * data/recipes.json is produced by *running* the registration bytecode (see
+ * tools/extract/interp.py). Reading the decompiled Java is a genuinely separate
+ * derivation, which is what makes the comparison worth anything -- so the
+ * generator classes are read here too rather than waved through.
  */
 const GENERATORS = ['RecipesTools', 'RecipesWeapons', 'RecipesIngots', 'RecipesFood',
                     'RecipesCrafting', 'RecipesArmor', 'RecipesDyes'];
+
+/** Top-level `{...}` groups of a `new Object[][]{{a, b}, {c, d}}` literal. */
+function tableGroups(rhs) {
+  const start = rhs.indexOf('{');
+  if (start < 0) return [];
+  const groups = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = start; i < rhs.length; i++) {
+    if (rhs[i] === '{') {
+      if (++depth === 2) from = i + 1;
+    } else if (rhs[i] === '}') {
+      if (depth-- === 2) groups.push(rhs.slice(from, i));
+      if (depth === 0) break;
+    }
+  }
+  return groups;
+}
+
+/** Every recipe output a class names, whether written out or built in a loop. */
+function recipeOutputs(src, blockFields, itemFields) {
+  const outputs = new Set();
+  const take = (text) => {
+    const ref = resolveRef(text, blockFields, itemFields);
+    if (ref) outputs.add(idOf(ref));
+  };
+
+  const re = /add(?:Shapeless)?Recipe\(\s*((?:new ItemStack\(\s*)?(?:Block|Item)\.\w+)/g;
+  let m;
+  while ((m = re.exec(src))) take(m[1].includes('new ItemStack') ? m[1] : `new ItemStack(${m[1]}`);
+
+  // The loop-driven generators keep their outputs in a material table. Where
+  // the class also declares recipePatterns, the table's first row is the set
+  // of materials -- ingredients, not outputs -- and every later row is a row
+  // of results. RecipesIngots has no patterns and both columns are outputs.
+  const table = /recipeItems\s*=\s*(new Object\[\]\[\]\{[\s\S]*?\});/.exec(src);
+  if (table) {
+    const groups = tableGroups(table[1]);
+    const rows = /recipePatterns/.test(src) ? groups.slice(1) : groups;
+    for (const row of rows) {
+      const rr = /(?:new ItemStack\(\s*)?(?:Block|Item)\.\w+/g;
+      let g;
+      while ((g = rr.exec(row))) {
+        take(g[0].includes('new ItemStack') ? g[0] : `new ItemStack(${g[0]}`);
+      }
+    }
+  }
+  return outputs;
+}
 
 function compareRecipes(source, data, blockFields, itemFields, add) {
   const src = readClass(source, 'CraftingManager');
   if (!src) return add('warn', 'CraftingManager.java not found in the source tree');
 
-  const outputs = new Set();
-  const re = /add(?:Shapeless)?Recipe\(\s*(new ItemStack\([^,)]*(?:,\s*\d+)?(?:,\s*\d+)?\))/g;
-  let m;
-  while ((m = re.exec(src))) {
-    const ref = resolveRef(m[1], blockFields, itemFields);
-    if (ref) outputs.add(idOf(ref));
+  const outputs = recipeOutputs(src, blockFields, itemFields);
+  const missingClasses = [];
+  for (const g of GENERATORS) {
+    if (!src.includes(`new ${g}()`)) continue;
+    const gsrc = readClass(source, g);
+    if (!gsrc) {
+      missingClasses.push(g);
+      continue;
+    }
+    for (const id of recipeOutputs(gsrc, blockFields, itemFields)) outputs.add(id);
   }
-  const mine = new Set(data.recipes.map((r) => idOf(r.output)));
+  if (missingClasses.length) {
+    add('warn', `${missingClasses.join(', ')} not found in the source tree, so those ` +
+      `recipes were not cross-checked`);
+  }
 
+  const mine = new Set(data.recipes.map((r) => idOf(r.output)));
   let checked = 0;
   for (const id of outputs) {
     if (mine.has(id)) checked++;
-    else add('error', `CraftingManager.java registers a recipe producing id ${id}, ` +
+    else add('error', `the source registers a crafting recipe producing id ${id}, ` +
       `but data/recipes.json has none`);
   }
-
-  const present = GENERATORS.filter((g) => src.includes(`new ${g}()`));
-  if (present.length) {
-    add('warn', `data/recipes.json holds only the recipes CraftingManager writes out individually. ` +
-      `${present.length} generator classes (${present.join(', ')}) build the rest in loops, so no ` +
-      `tool, weapon, armour, dye or ingot-block recipe is in the data`);
+  for (const id of mine) {
+    if (!outputs.has(id)) {
+      add('error', `data/recipes.json has a recipe producing id ${id}, which no ` +
+        `addRecipe call or material table in the source names as an output`);
+    }
   }
   return { checked };
 }

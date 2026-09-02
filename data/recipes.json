@@ -2,6 +2,1695 @@
   {
     "type": "shaped",
     "output": {
+      "item": 270,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      " # ",
+      " # "
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 269,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "#",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 271,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      "X#",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 290,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      " #",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 274,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      " # ",
+      " # "
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 273,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "#",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 275,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      "X#",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 291,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      " #",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 257,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      " # ",
+      " # "
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 256,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "#",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 258,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      "X#",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 292,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      " #",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 278,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      " # ",
+      " # "
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 277,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "#",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 279,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      "X#",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 293,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      " #",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 285,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      " # ",
+      " # "
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 284,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "#",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 286,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      "X#",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 294,
+      "count": 1
+    },
+    "pattern": [
+      "XX",
+      " #",
+      " #"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 359,
+      "count": 1
+    },
+    "pattern": [
+      " #",
+      "# "
+    ],
+    "key": {
+      "#": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 268,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "X",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 272,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "X",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 267,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "X",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 276,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "X",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 283,
+      "count": 1
+    },
+    "pattern": [
+      "X",
+      "X",
+      "#"
+    ],
+    "key": {
+      "#": {
+        "item": 280
+      },
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 261,
+      "count": 1
+    },
+    "pattern": [
+      " #X",
+      "# X",
+      " #X"
+    ],
+    "key": {
+      "X": {
+        "item": 287
+      },
+      "#": {
+        "item": 280
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 262,
+      "count": 4
+    },
+    "pattern": [
+      "X",
+      "#",
+      "Y"
+    ],
+    "key": {
+      "Y": {
+        "item": 288
+      },
+      "X": {
+        "item": 318
+      },
+      "#": {
+        "item": 280
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 41,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "###",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 266,
+      "count": 9
+    },
+    "pattern": [
+      "#"
+    ],
+    "key": {
+      "#": {
+        "block": 41
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 42,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "###",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 265,
+      "count": 9
+    },
+    "pattern": [
+      "#"
+    ],
+    "key": {
+      "#": {
+        "block": 42
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 57,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "###",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 264,
+      "count": 9
+    },
+    "pattern": [
+      "#"
+    ],
+    "key": {
+      "#": {
+        "block": 57
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 22,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "###",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": 351,
+        "damage": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 351,
+      "count": 9,
+      "damage": 4
+    },
+    "pattern": [
+      "#"
+    ],
+    "key": {
+      "#": {
+        "block": 22
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 282,
+      "count": 1
+    },
+    "pattern": [
+      "Y",
+      "X",
+      "#"
+    ],
+    "key": {
+      "X": {
+        "block": 39
+      },
+      "Y": {
+        "block": 40
+      },
+      "#": {
+        "item": 281
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 282,
+      "count": 1
+    },
+    "pattern": [
+      "Y",
+      "X",
+      "#"
+    ],
+    "key": {
+      "X": {
+        "block": 40
+      },
+      "Y": {
+        "block": 39
+      },
+      "#": {
+        "item": 281
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 357,
+      "count": 8
+    },
+    "pattern": [
+      "#X#"
+    ],
+    "key": {
+      "X": {
+        "item": 351,
+        "damage": 3
+      },
+      "#": {
+        "item": 296
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 54,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "# #",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 61,
+      "count": 1
+    },
+    "pattern": [
+      "###",
+      "# #",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "block": 4
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 58,
+      "count": 1
+    },
+    "pattern": [
+      "##",
+      "##"
+    ],
+    "key": {
+      "#": {
+        "block": 5
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "block": 24,
+      "count": 1
+    },
+    "pattern": [
+      "##",
+      "##"
+    ],
+    "key": {
+      "#": {
+        "block": 12
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 298,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 334
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 299,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "XXX",
+      "XXX"
+    ],
+    "key": {
+      "X": {
+        "item": 334
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 300,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 334
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 301,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 334
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 302,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "block": 51
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 303,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "XXX",
+      "XXX"
+    ],
+    "key": {
+      "X": {
+        "block": 51
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 304,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "block": 51
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 305,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "block": 51
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 306,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 307,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "XXX",
+      "XXX"
+    ],
+    "key": {
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 308,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 309,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 265
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 310,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 311,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "XXX",
+      "XXX"
+    ],
+    "key": {
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 312,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 313,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 264
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 314,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 315,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "XXX",
+      "XXX"
+    ],
+    "key": {
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 316,
+      "count": 1
+    },
+    "pattern": [
+      "XXX",
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shaped",
+    "output": {
+      "item": 317,
+      "count": 1
+    },
+    "pattern": [
+      "X X",
+      "X X"
+    ],
+    "key": {
+      "X": {
+        "item": 266
+      }
+    }
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 15
+    },
+    "ingredients": [
+      {
+        "item": 351
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 14
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 13
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 2
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 12
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 3
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 11
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 10
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 5
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 9
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 6
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 8
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 7
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 7
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 8
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 6
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 9
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 5
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 10
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 4
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 11
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 3
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 12
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 2
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 13
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1,
+      "damage": 1
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 14
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "block": 35,
+      "count": 1
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 15
+      },
+      {
+        "block": 35
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 11
+    },
+    "ingredients": [
+      {
+        "block": 37
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 1
+    },
+    "ingredients": [
+      {
+        "block": 38
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 3,
+      "damage": 15
+    },
+    "ingredients": [
+      {
+        "item": 352
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 9
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 14
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "item": 351,
+        "damage": 11
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 10
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 2
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 8
+    },
+    "ingredients": [
+      {
+        "item": 351
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 7
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 8
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 3,
+      "damage": 7
+    },
+    "ingredients": [
+      {
+        "item": 351
+      },
+      {
+        "item": 351,
+        "damage": 15
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 12
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 6
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "item": 351,
+        "damage": 2
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 5
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "item": 351,
+        "damage": 1
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 2,
+      "damage": 13
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 5
+      },
+      {
+        "item": 351,
+        "damage": 9
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 3,
+      "damage": 13
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "item": 351,
+        "damage": 9
+      }
+    ]
+  },
+  {
+    "type": "shapeless",
+    "output": {
+      "item": 351,
+      "count": 4,
+      "damage": 13
+    },
+    "ingredients": [
+      {
+        "item": 351,
+        "damage": 4
+      },
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "item": 351,
+        "damage": 1
+      },
+      {
+        "item": 351,
+        "damage": 15
+      }
+    ]
+  },
+  {
+    "type": "shaped",
+    "output": {
       "item": 339,
       "count": 3
     },
@@ -227,8 +1916,7 @@
     "type": "shaped",
     "output": {
       "block": 44,
-      "count": 3,
-      "damage": 0
+      "count": 3
     },
     "pattern": [
       "###"
@@ -462,7 +2150,6 @@
     "key": {
       "X": {
         "item": 263,
-        "count": 1,
         "damage": 1
       },
       "#": {
@@ -1035,489 +2722,6 @@
       },
       "X": {
         "block": 5
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 359
-    },
-    "pattern": [
-      " #",
-      "# "
-    ],
-    "key": {
-      "#": {
-        "item": 265
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "block": 54
-    },
-    "pattern": [
-      "###",
-      "# #",
-      "###"
-    ],
-    "key": {
-      "#": {
-        "block": 5
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "block": 61
-    },
-    "pattern": [
-      "###",
-      "# #",
-      "###"
-    ],
-    "key": {
-      "#": {
-        "block": 4
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "block": 58
-    },
-    "pattern": [
-      "##",
-      "##"
-    ],
-    "key": {
-      "#": {
-        "block": 5
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "block": 24
-    },
-    "pattern": [
-      "##",
-      "##"
-    ],
-    "key": {
-      "#": {
-        "block": 12
-      }
-    }
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 11
-    },
-    "ingredients": [
-      {
-        "block": 37
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 1
-    },
-    "ingredients": [
-      {
-        "block": 38
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 3,
-      "damage": 15
-    },
-    "ingredients": [
-      {
-        "item": 352
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 9
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 14
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 11
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 10
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 2
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 8
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 0
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 7
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 8
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 3,
-      "damage": 7
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 0
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 12
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 4
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 6
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 4
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 2
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 5
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 4
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 2,
-      "damage": 13
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 5
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 9
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 3,
-      "damage": 13
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 4
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 9
-      }
-    ]
-  },
-  {
-    "type": "shapeless",
-    "output": {
-      "item": 351,
-      "count": 4,
-      "damage": 13
-    },
-    "ingredients": [
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 4
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 1
-      },
-      {
-        "item": 351,
-        "count": 1,
-        "damage": 15
-      }
-    ]
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 282
-    },
-    "pattern": [
-      "Y",
-      "X",
-      "#"
-    ],
-    "key": {
-      "X": {
-        "block": 39
-      },
-      "Y": {
-        "block": 40
-      },
-      "#": {
-        "item": 281
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 282
-    },
-    "pattern": [
-      "Y",
-      "X",
-      "#"
-    ],
-    "key": {
-      "X": {
-        "block": 40
-      },
-      "Y": {
-        "block": 39
-      },
-      "#": {
-        "item": 281
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 357,
-      "count": 8
-    },
-    "pattern": [
-      "#X#"
-    ],
-    "key": {
-      "X": {
-        "item": 351,
-        "count": 1,
-        "damage": 3
-      },
-      "#": {
-        "item": 296
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 261,
-      "count": 1
-    },
-    "pattern": [
-      " #X",
-      "# X",
-      " #X"
-    ],
-    "key": {
-      "X": {
-        "item": 287
-      },
-      "#": {
-        "item": 280
-      }
-    }
-  },
-  {
-    "type": "shaped",
-    "output": {
-      "item": 262,
-      "count": 4
-    },
-    "pattern": [
-      "X",
-      "#",
-      "Y"
-    ],
-    "key": {
-      "Y": {
-        "item": 288
-      },
-      "X": {
-        "item": 318
-      },
-      "#": {
-        "item": 280
       }
     }
   }

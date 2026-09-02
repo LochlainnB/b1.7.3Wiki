@@ -93,7 +93,11 @@
       "x": 7,
       "y": 0
     },
-    "field": "k"
+    "field": "k",
+    "variants": {
+      "0": "Coal",
+      "1": "Charcoal"
+    }
   },
   {
     "id": 264,
@@ -1149,7 +1153,25 @@
       "x": 14,
       "y": 4
     },
-    "field": "aU"
+    "field": "aU",
+    "variants": {
+      "0": "Ink Sac",
+      "1": "Rose Red",
+      "2": "Cactus Green",
+      "3": "Cocoa Beans",
+      "4": "Lapis Lazuli",
+      "5": "Purple Dye",
+      "6": "Cyan Dye",
+      "7": "Light Gray Dye",
+      "8": "Gray Dye",
+      "9": "Pink Dye",
+      "10": "Lime Dye",
+      "11": "Dandelion Yellow",
+      "12": "Light Blue Dye",
+      "13": "Magenta Dye",
+      "14": "Orange Dye",
+      "15": "Bone Meal"
+    }
   },
   {
     "id": 352,

@@ -30,7 +30,8 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from classfile import ClassFile
-from disasm import trace_clinit, trace_calls, params_of
+from disasm import disassemble, trace_clinit, trace_calls, params_of, u2
+from interp import ArrayRef, Interp, Obj, Ref, Unsupported
 from mappings import load as load_mappings
 
 # Block builder methods, by obfuscated name (see module docstring for evidence)
@@ -307,66 +308,260 @@ def resolve(v, bfield, ifield, block_obf, item_obf):
 
 
 def extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf):
+    """Every crafting recipe, by running CraftingManager's constructor.
+
+    Most of the game's recipes are not constants anywhere in the bytecode.
+    CraftingManager writes about sixty out one call at a time and hands the
+    rest to seven generator classes that build them in loops over material
+    tables -- every tool, weapon, armour piece, dye and ingot-block conversion.
+    Recovering those statically means reimplementing the loops by hand;
+    running them does not. See interp.py.
+
+    Recipes come out in registration order (tools, weapons, ingots, food,
+    crafting, armour, dyes, then CraftingManager's own). The game finishes by
+    sorting the list with RecipeSorter, but that orders by matching priority --
+    shaped before shapeless, larger recipes first -- which is a lookup detail,
+    not something a reader wants, so the sort is skipped.
+    """
     stack_obf = mp.find_class('net/minecraft/item/ItemStack')
-    shaped_desc = '(L%s;[Ljava/lang/Object;)V' % stack_obf
+    varargs = '(L%s;[Ljava/lang/Object;)V' % stack_obf
 
     manager = None
     for name in jar.classes():
         cf = jar.cls(name)
         if cf is not None and sum(1 for m in cf.methods
-                                  if m['desc'] == shaped_desc) >= 2:
+                                  if m['desc'] == varargs) >= 2:
             manager = name
             break
     if manager is None:
         return []
 
-    # The shaped variant is the larger method: it parses the pattern rows.
+    # Of the two varargs registrars, the shaped one is much the larger: it is
+    # the one that parses the pattern rows into a grid.
     mcf = jar.cls(manager)
     sizes = {m['name']: len(mcf.code_of(m) or b'')
-             for m in mcf.methods if m['desc'] == shaped_desc}
-    shaped_name = max(sizes, key=sizes.get) if sizes else None
+             for m in mcf.methods if m['desc'] == varargs}
+    shaped_name = max(sizes, key=sizes.get)
 
-    # The manager registers some recipes itself and delegates the rest.
-    helper_desc = '(L%s;)V' % manager
-    sources = [(manager, '<init>')]
-    for name in jar.classes():
-        cf = jar.cls(name)
-        if cf is None or name == manager:
-            continue
-        for m in cf.methods:
-            if m['desc'] == helper_desc:
-                sources.append((name, m['name']))
+    # ItemStack's fields, by their mapped names, so the ints the constructors
+    # leave behind can be read back without hard-coding obfuscated letters.
+    scf = jar.cls(stack_obf)
+    sfields = {mp.member(stack_obf, f['name'], f['desc']): f['name']
+               for f in scf.fields}
+    F_ID, F_COUNT, F_DAMAGE = sfields['itemId'], sfields['count'], sfields['damage']
+
+    def field_hook(ref, name, desc):
+        """Resolve `Block.stone.blockID` and `Item.stick.shiftedIndex`.
+
+        Both are the mapped name `id`. Answering here is what lets the recipe
+        code run without ever executing Block's or Item's static initialiser.
+        """
+        if isinstance(ref, ArrayRef):
+            # Item.itemsList[n] is the item form of block n, so its id is n.
+            if isinstance(ref.index, int) and 0 <= ref.index < 256:
+                return ref.index
+            return Interp.NOTHING
+        if desc == 'I' and mp.member(ref.owner, name, desc) == 'id':
+            if ref.owner == block_obf and ref.name in bfield:
+                return bfield[ref.name]
+            if ref.owner == item_obf and ref.name in ifield:
+                return ifield[ref.name]
+        return Interp.NOTHING
+
+    def value(v, ingredient=False):
+        """A recipe argument as {'block'|'item': id, ...}, or None.
+
+        An ingredient never carries a count. Both recipe classes match on
+        itemID and damage alone and never look at stackSize, so the 9 in
+        RecipesIngots' `new ItemStack(Item.ingotGold, 9)` is the *output* of
+        the reverse recipe leaking into the forward one's ingredient slot --
+        a grid cell still only ever takes one item. Damage -1 is the game's
+        "any metadata" wildcard, which is the absence of a constraint.
+        """
+        if isinstance(v, Obj) and v.cls == stack_obf:
+            ident = v.fields.get(F_ID)
+            if not isinstance(ident, int):
+                return None
+            out = {'block': ident} if ident < 256 else {'item': ident}
+            if not ingredient:
+                out['count'] = v.fields.get(F_COUNT, 1)
+            damage = v.fields.get(F_DAMAGE, 0)
+            if damage and damage != -1:
+                out['damage'] = damage
+            return out
+        if isinstance(v, Ref):
+            if v.owner == block_obf and v.name in bfield:
+                return {'block': bfield[v.name]}
+            if v.owner == item_obf and v.name in ifield:
+                return {'item': ifield[v.name]}
+        if isinstance(v, ArrayRef) and isinstance(v.index, int) and v.index < 256:
+            return {'block': v.index}
+        return None
 
     recipes = []
-    for cls_name, meth in sources:
-        cf = jar.cls(cls_name)
-        for c in trace_calls(cf, meth):
-            if c['desc'] != shaped_desc:
-                continue
-            out = resolve(c['args'][0], bfield, ifield, block_obf, item_obf)
-            arr = c['args'][1]
-            if out is None or not isinstance(arr, list):
-                continue
-            rows = [x for x in arr if isinstance(x, str)]
-            rest = [x for x in arr if not isinstance(x, str)]
-            if c['name'] == shaped_name and rows:
-                key = {}
-                for i in range(0, len(rest) - 1, 2):
-                    ch, ing = rest[i], rest[i + 1]
-                    if isinstance(ch, int):
-                        r = resolve(ing, bfield, ifield, block_obf, item_obf)
-                        if r:
-                            key[chr(ch)] = r
-                if key:
-                    recipes.append({'type': 'shaped', 'output': out,
-                                    'pattern': rows, 'key': key})
+
+    def register(shaped, args):
+        out = value(args[0])
+        arr = args[1]
+        if out is None or not isinstance(arr, list):
+            return
+        if shaped:
+            # The first vararg is either a String[] of rows (what the loop-
+            # driven generators pass) or a run of loose row strings.
+            if arr and isinstance(arr[0], list):
+                rows, rest = [r for r in arr[0] if isinstance(r, str)], arr[1:]
             else:
-                ings = [resolve(x, bfield, ifield, block_obf, item_obf) for x in arr]
-                ings = [i for i in ings if i]
-                if ings:
-                    recipes.append({'type': 'shapeless', 'output': out,
-                                    'ingredients': ings})
+                n = 0
+                while n < len(arr) and isinstance(arr[n], str):
+                    n += 1
+                rows, rest = arr[:n], arr[n:]
+            key = {}
+            for i in range(0, len(rest) - 1, 2):
+                ch, ing = rest[i], rest[i + 1]
+                got = value(ing, ingredient=True)
+                if isinstance(ch, int) and got:
+                    key[chr(ch)] = got
+            if rows and key:
+                recipes.append({'type': 'shaped', 'output': out,
+                                'pattern': rows, 'key': key})
+        else:
+            ings = [got for got in (value(x, ingredient=True) for x in arr) if got]
+            if ings:
+                recipes.append({'type': 'shapeless', 'output': out,
+                                'ingredients': ings})
+
+    interp = Interp(jar.cls)
+    interp.field_hook = field_hook
+    for nm in sizes:
+        interp.hooks[(manager, nm, varargs)] = (
+            lambda shaped: lambda it, recv, args: (register(shaped, args),
+                                                   Interp.NOTHING)[1]
+        )(nm == shaped_name)
+    interp.call(manager, '<init>', '()V', Obj(manager), [])
     return recipes
+
+
+def label_classes(jar, bfield, ifield, block_obf, item_obf):
+    """Which class names each id's stacks: {('block'|'item', id): class}.
+
+    An item's namer is simply the class its constructor made, straight out of
+    Item's <clinit>. A block's is chosen separately, at the end of Block's
+    <clinit>, by assigning into Item.itemsList:
+
+        Item.itemsList[cloth.blockID] = new ItemCloth(...).setItemName("cloth")
+
+    which is the only statement in the game that gives wool and slabs their
+    per-metadata names, so it is read here rather than assumed.
+    """
+    out = {}
+    icf = jar.cls(item_obf)
+    for r in trace_clinit(icf):
+        if r['field'] in ifield:
+            out[('item', ifield[r['field']])] = r['ctor']
+
+    bcf = jar.cls(block_obf)
+    code = bcf.code_of(bcf.method('<clinit>'))
+    items_list = '[L%s;' % item_obf
+    into_items = last_block = last_new = None
+    for _pc, op, operand in disassemble(code):
+        if op == 0xb2:                                        # getstatic
+            owner, name, desc = bcf.ref(u2(operand))
+            if desc == items_list:
+                into_items = True
+            elif owner == block_obf and name in bfield:
+                last_block = bfield[name]
+        elif op == 0xbb:                                      # new
+            last_new = bcf.cls_name(u2(operand))
+        elif op == 0x53:                                      # aastore
+            if into_items and last_block is not None and last_new is not None:
+                out[('block', last_block)] = last_new
+            into_items = last_new = None
+    return out
+
+
+def extract_variants(jar, mp, lang_names, blocks, items, bfield, ifield,
+                     block_obf, item_obf, stack_obf):
+    """Display names for the ids whose damage value selects a subtype.
+
+    Wool, dye, slabs and coal all pack several things into one id and pick a
+    translation key from the damage value -- `~damage & 15` for wool, a table
+    index for slabs, a plain comparison for charcoal. Rather than restate any
+    of that, run the game's own labelling method (getItemNameIS) once per
+    damage value and look the answer up in en_US.lang.
+
+    Ids whose sixteen answers are all the same have no subtypes, which is how
+    the ordinary items fall out without being listed anywhere.
+    """
+    name_is = '(L%s;)Ljava/lang/String;' % stack_obf
+    plain = '()Ljava/lang/String;'
+    icf = jar.cls(item_obf)
+    getter = next((m['name'] for m in icf.methods if m['desc'] == name_is), None)
+    plain_getter = next((m['name'] for m in icf.methods
+                         if m['desc'] == plain
+                         and mp.member(item_obf, m['name'], plain) == 'getTranslationKey'),
+                        None)
+    if getter is None or plain_getter is None:
+        return {}
+
+    scf = jar.cls(stack_obf)
+    sfields = {mp.member(stack_obf, f['name'], f['desc']): f['name']
+               for f in scf.fields}
+    ifields = {mp.member(item_obf, f['name'], f['desc']): f['name']
+               for f in icf.fields}
+    F_DAMAGE, F_ID = sfields['damage'], sfields['itemId']
+    F_KEY = ifields.get('translationKey')
+
+    owners = label_classes(jar, bfield, ifield, block_obf, item_obf)
+    by_id = {('block', b['id']): b for b in blocks}
+    by_id.update({('item', i['id']): i for i in items})
+
+    variants = {}
+    for ref, cls_obf in sorted(owners.items()):
+        entry = by_id.get(ref)
+        if entry is None or not entry.get('langKey'):
+            continue
+        cf = jar.cls(cls_obf)
+        if cf is None or cf.method(getter, name_is) is None:
+            continue                          # inherits the plain name
+
+        interp = Interp(jar.cls)
+        # getItemName() is the key of the stack's own kind. ItemBlock overrides
+        # it to go through Block.blocksList, which is deliberately symbolic
+        # here, so answer it outright for every class in the chain. An override
+        # shares its parent's obfuscated name, and barn leaves ItemBlock's
+        # members unmapped, so the name has to come from Item's mapping.
+        chain, cur = [], cls_obf
+        while cur and len(chain) < 8:
+            chain.append(cur)
+            c = jar.cls(cur)
+            cur = c.super if c else None
+        for c_obf in chain:
+            interp.hooks[(c_obf, plain_getter, plain)] = (
+                lambda key: lambda it, recv, args: key)(entry['langKey'])
+
+        found = {}
+        for damage in range(16):
+            recv = Obj(cls_obf)
+            if F_KEY:
+                recv.fields[F_KEY] = entry['langKey']
+            stack = Obj(stack_obf)
+            stack.fields[F_ID] = entry['id']
+            stack.fields[F_DAMAGE] = damage
+            try:
+                key = interp.call(cls_obf, getter, name_is, recv, [stack])
+            except Unsupported:
+                break                     # names this one a way we cannot follow
+            label = lang_names.get(key) if isinstance(key, str) else None
+            if label:
+                found[damage] = label
+        if len(set(found.values())) > 1:
+            # Damage 0 is the default and always worth stating. Beyond it, a
+            # value that lands back on the plain name says nothing a reader
+            # cannot get from the fallback -- coal is coal at every damage but
+            # 1 -- so only the ones that differ are kept.
+            variants[ref] = {str(d): n for d, n in sorted(found.items())
+                             if d == 0 or n != entry['name']}
+    return variants
 
 
 def extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf):
@@ -413,6 +608,15 @@ def main():
     biomes = extract_biomes(jar, mp)
     recipes = extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf)
     smelting = extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf)
+
+    stack_obf = mp.find_class('net/minecraft/item/ItemStack')
+    for ref, names in extract_variants(jar, mp, lang_names, blocks, items,
+                                       bfield, ifield, block_obf, item_obf,
+                                       stack_obf).items():
+        kind, ident = ref
+        for entry in (blocks if kind == 'block' else items):
+            if entry['id'] == ident:
+                entry['variants'] = names
 
     os.makedirs(a.out, exist_ok=True)
 

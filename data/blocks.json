@@ -452,7 +452,25 @@
     "blastResistance": 0.8,
     "lightEmission": 0,
     "lightOpacity": null,
-    "field": "ac"
+    "field": "ac",
+    "variants": {
+      "0": "Wool",
+      "1": "Orange Wool",
+      "2": "Magenta Wool",
+      "3": "Light Blue Wool",
+      "4": "Yellow Wool",
+      "5": "Lime Wool",
+      "6": "Pink Wool",
+      "7": "Gray Wool",
+      "8": "Light Gray Wool",
+      "9": "Cyan Wool",
+      "10": "Purple Wool",
+      "11": "Blue Wool",
+      "12": "Brown Wool",
+      "13": "Green Wool",
+      "14": "Red Wool",
+      "15": "Black Wool"
+    }
   },
   {
     "id": 36,
@@ -569,7 +587,12 @@
     "blastResistance": 6.0,
     "lightEmission": 0,
     "lightOpacity": null,
-    "field": "al"
+    "field": "al",
+    "variants": {
+      "0": "Stone Slab",
+      "1": "Sandstone Slab",
+      "2": "Wooden Slab"
+    }
   },
   {
     "id": 45,

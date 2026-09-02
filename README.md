@@ -32,6 +32,15 @@ abstract interpreter that reads static initialisers, a concrete JVM interpreter
 that *runs* the game's crafting registration rather than pattern-matching it,
 and a small PNG codec for slicing the texture sheets.
 
+Sprites go through the same door. Block and Item's initialisers are executed,
+and the registry they leave behind is asked what
+`RenderItem.drawItemIntoGui` would ask — cube or flat tile, which tile on each
+face, what tint — then that is rasterised into the three-quarter cube the
+inventory shows, lit by the GUI's own two lamps. So all sixteen wools are
+sixteen colours, a furnace shows its front, and the portal, the clock and the
+compass show the tiles the game generates for itself instead of the
+placeholders left in the sheets.
+
 ## Commands
 
 | Command | Does |
@@ -94,8 +103,8 @@ and `B173_CACHE`, then `"jarPath"` and `"cachePath"` in `wiki.local.json`, then
 the sibling directory `../BabricKit/cache`. Pointing at the cache is normally
 enough, since the jar sits beside the mappings; `--jar` and `--cache` override.
 
-`data/texture-overrides.json` and `data/name-overrides.json` are hand-maintained
-and survive regeneration; everything else in `data/` is overwritten.
+`data/name-overrides.json` is hand-maintained and survives regeneration;
+everything else in `data/` is overwritten.
 
 ## Deploying
 

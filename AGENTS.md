@@ -80,12 +80,17 @@ when the extractors are rerun, and a save-triggered rebuild should stay fast.
 content/           the wiki. Markdown + YAML frontmatter. EDIT THIS.
   block/ item/ entity/ biome/ mechanic/ guide/ wiki/
 data/              game data extracted from the jar. GENERATED - do not hand-edit,
-                   except the two *-overrides.json files.
-assets/            sprites and textures sliced from the jar. GENERATED.
+                   except name-overrides.json.
+assets/            sprites, inventory icons and textures from the jar. GENERATED.
 theme/             wiki.css and wiki.js.
 tools/             the build (Node) and the extractors (Python).
   extract/interp.py  a small JVM interpreter; the recipe extractor runs the
                    game's registration code rather than pattern-matching it.
+  extract/appearance.py  runs Block's and Item's initialisers and asks the
+                   result what the inventory draws for each stack.
+  extract/isometric.py   draws it: the three-quarter cube, lit as the GUI lights it.
+  extract/animated.py    the portal, clock and compass tiles, which the game
+                   generates at load rather than shipping.
   extract/paths.py   finds the client jar and the Babric mappings.
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
@@ -135,10 +140,15 @@ every crafting and smelting recipe are extracted from the client jar into
   block, item or entity. You do not write it.
 - Recipes come from `{{crafting}}`, `{{smelting}}` and `{{used in}}`.
 - Ids come from `{{id|Name}}`.
-- Subtypes name themselves. One id can hold several things — item 351 is Ink Sac
-  at damage 0 and Lapis Lazuli at 4, block 35 is all sixteen wools — and
-  `data/` carries a `variants` map for those, read out of the game's own
-  labelling code. Recipes show the variant name and link the base page.
+- Subtypes name themselves, and now look like themselves. One id can hold
+  several things — item 351 is Ink Sac at damage 0 and Lapis Lazuli at 4, block
+  35 is all sixteen wools — and `data/` carries a `variants` map for those, read
+  out of the game's own labelling code. Each gets its own icon, so a recipe
+  shows magenta wool as magenta; the name still links the base page.
+- Sprites are inventory icons, not textures. A block is drawn as the small
+  three-quarter cube a player sees in a slot, with the right tile on each face,
+  so a furnace shows its front and a log shows its rings. Nothing needs saying
+  on a page for that: `{{sprite}}`, `{{slot}}` and the infobox all use it.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.
@@ -203,12 +213,10 @@ anyone has actually written. Use it when new data should reach pages that were
 scaffolded before it existed — a page seeded before its recipe was extracted has
 no `{{crafting}}` on it, and only a reseed will add one.
 
-Two files in `data/` are hand-maintained and safe to edit:
-
-- `texture-overrides.json` — the inventory tile for blocks that pick their
-  texture per face in code, so it cannot be read from the constructor.
-- `name-overrides.json` — display names for the handful of blocks that have no
-  entry in `lang/en_US.lang`.
+One file in `data/` is hand-maintained and safe to edit: `name-overrides.json`,
+which supplies display names for the handful of blocks and subtypes that have no
+entry in `lang/en_US.lang` — block 31 is a dead shrub, tall grass and a fern
+under one id, and the game names none of them.
 
 Everything else in `data/` is overwritten by the extractors.
 

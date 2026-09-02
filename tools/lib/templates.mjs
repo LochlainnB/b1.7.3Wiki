@@ -40,6 +40,12 @@ export function renderTemplate(name, args, named, ctx) {
 function invslot(ctx, name, { count, large = false, plain = false, title } = {}) {
   const cls = ['invslot', large && 'invslot-large', plain && 'invslot-plain']
     .filter(Boolean).join(' ');
+  // A cell may carry a subtype label ("Magenta Wool") alongside the name that
+  // owns the sprite and the page ("Wool"). Show the label, link the name.
+  if (name && typeof name === 'object') {
+    title = title || name.label;
+    name = name.name;
+  }
   if (!name) return `<span class="${cls}"></span>`;
   const inner = ctx.sprite(name, { link: true, title: title || name });
   const stack = count && count > 1
@@ -51,7 +57,7 @@ function invslot(ctx, name, { count, large = false, plain = false, title } = {})
 function refSlot(ctx, ref, opts) {
   const rec = ctx.data.resolveRef(ref);
   if (!rec) return invslot(ctx, null, opts);
-  return invslot(ctx, rec.name, { ...opts, count: ref.count });
+  return invslot(ctx, rec.name, { ...opts, count: ref.count, title: rec.label });
 }
 
 function craftingGrid(ctx, cells, output, count) {
@@ -83,7 +89,7 @@ function cellsFromPattern(ctx, pattern, keyMap) {
       const ref = keyMap[ch];
       if (!ref) return;
       const rec = typeof ref === 'string' ? { name: ref } : ctx.data.resolveRef(ref);
-      if (rec) cells[r * 3 + c] = rec.name;
+      if (rec) cells[r * 3 + c] = { name: rec.name, label: rec.label };
     });
   });
   return cells;
@@ -97,7 +103,7 @@ function recipeToGrid(ctx, recipe) {
     const cells = new Array(9).fill(null);
     recipe.ingredients.slice(0, 9).forEach((ref, i) => {
       const rec = ctx.data.resolveRef(ref);
-      if (rec) cells[i] = rec.name;
+      if (rec) cells[i] = { name: rec.name, label: rec.label };
     });
     return craftingGrid(ctx, cells, recipe.output);
   }
@@ -186,7 +192,7 @@ define(['used-in', 'usedin', 'crafting-uses'], ({ args, named, ctx }) => {
   }
   const rows = recipes.map((r) => {
     const out = ctx.data.resolveRef(r.output);
-    return `<tr><td>${out ? ctx.linkWrap(out.name, ctx.sprite(out.name) + ' ' + escapeHtml(out.name)) : '?'}</td>` +
+    return `<tr><td>${out ? ctx.linkWrap(out.name, ctx.sprite(out.name) + ' ' + escapeHtml(out.label)) : '?'}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`;
   });
   return `<table class="wikitable recipe-uses"><thead><tr><th>Result</th><th>Recipe</th></tr></thead>` +
@@ -297,9 +303,9 @@ define(['recipe-list', 'all-recipes'], ({ named, ctx }) => {
   const rows = list
     .map((r) => ({ r, out: ctx.data.resolveRef(r.output) }))
     .filter((x) => x.out)
-    .sort((a, b) => a.out.name.localeCompare(b.out.name))
+    .sort((a, b) => a.out.label.localeCompare(b.out.label))
     .map(({ r, out }) =>
-      `<tr><td>${ctx.linkWrap(out.name, `${ctx.sprite(out.name)} ${escapeHtml(out.name)}`)}</td>` +
+      `<tr><td>${ctx.linkWrap(out.name, `${ctx.sprite(out.name)} ${escapeHtml(out.label)}`)}</td>` +
       `<td>${r.output.count || 1}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`);
   return `<table class="wikitable recipe-list"><thead><tr><th>Result</th><th>Qty</th>` +

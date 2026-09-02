@@ -31,16 +31,29 @@ export function loadData(root) {
   for (const i of items) if (!bySlug.has(slug(i.name))) bySlug.set(slug(i.name), { kind: 'item', ...i });
   for (const e of entities) if (!bySlug.has(slug(e.name))) bySlug.set(slug(e.name), { kind: 'entity', ...e });
 
-  /** Resolve a recipe reference ({block:4} / {item:280}) to a data record. */
+  /**
+   * Resolve a recipe reference ({block:4} / {item:280}) to a data record.
+   *
+   * `name` stays the id's own name, because that is what has a sprite and a
+   * page. `label` is what the game would call this particular stack: an id
+   * with subtypes picks its name from the damage value, so item 351 is "Ink
+   * Sac" at damage 0 and "Lapis Lazuli" at 4. Callers show the label and link
+   * the name.
+   */
+  function withLabel(rec, ref) {
+    const variant = rec.variants && rec.variants[String(ref.damage ?? 0)];
+    return { ...rec, count: ref.count, damage: ref.damage, label: variant || rec.name };
+  }
+
   function resolveRef(ref) {
     if (!ref) return null;
     if (ref.block != null) {
       const b = blockById.get(ref.block);
-      return b ? { kind: 'block', ...b, count: ref.count, damage: ref.damage } : null;
+      return b ? withLabel({ kind: 'block', ...b }, ref) : null;
     }
     if (ref.item != null) {
       const i = itemById.get(ref.item);
-      return i ? { kind: 'item', ...i, count: ref.count, damage: ref.damage } : null;
+      return i ? withLabel({ kind: 'item', ...i }, ref) : null;
     }
     return null;
   }

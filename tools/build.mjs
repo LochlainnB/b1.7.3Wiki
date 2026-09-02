@@ -80,7 +80,9 @@ function makeContext({ config, data, pages, index, problems, links }) {
       return { hit: hit ? hit.page : null, anchor };
     },
 
-    linkWrap(target, innerHtml, extraClass = '') {
+    // `title` overrides the tooltip without changing where the link goes, so a
+    // subtype can read "Magenta Wool" while still pointing at the Wool page.
+    linkWrap(target, innerHtml, extraClass = '', title = '') {
       const { hit, anchor } = ctx.resolveLink(target);
       const cls = [extraClass, hit ? '' : 'new'].filter(Boolean).join(' ');
       const clsAttr = cls ? ` class="${cls}"` : '';
@@ -90,7 +92,7 @@ function makeContext({ config, data, pages, index, problems, links }) {
           `title="${escapeHtml(target)} (page does not exist)">${innerHtml}</a>`;
       }
       const frag = anchor ? `#${anchorId(anchor)}` : '';
-      return `<a href="${ctx.hrefFor(hit.url)}${frag}"${clsAttr} title="${escapeHtml(hit.title)}">${innerHtml}</a>`;
+      return `<a href="${ctx.hrefFor(hit.url)}${frag}"${clsAttr} title="${escapeHtml(title || hit.title)}">${innerHtml}</a>`;
     },
 
     hrefWrap(url, innerHtml, extraClass = '') {
@@ -110,7 +112,7 @@ function makeContext({ config, data, pages, index, problems, links }) {
         `<img class="pixel-image" src="${ctx.hrefFor('/' + sp.file)}" ` +
         `width="${size}" height="${size}" loading="lazy" decoding="async" ` +
         `alt="${escapeHtml(title || name)}"></span>`;
-      return link ? ctx.linkWrap(name, img) : img;
+      return link ? ctx.linkWrap(name, img, '', title) : img;
     },
   };
   return ctx;

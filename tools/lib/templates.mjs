@@ -36,18 +36,32 @@ export function renderTemplate(name, args, named, ctx) {
 // Inventory primitives
 // ---------------------------------------------------------------------------
 
+/**
+ * The name whose sprite a resolved reference should show.
+ *
+ * A stack's label is its subtype ("Magenta Wool") and its name is the id that
+ * owns the page ("Wool"). Sixteen wools and sixteen dyes each have an icon of
+ * their own, so the label is preferred wherever the manifest has one; the link
+ * and the page stay with the name.
+ */
+function spriteName(ctx, name, label) {
+  return label && ctx.data.sprite(label) ? label : name;
+}
+
 /** One inventory slot, optionally holding a linked item sprite and a count. */
-function invslot(ctx, name, { count, large = false, plain = false, title } = {}) {
+function invslot(ctx, name, { count, large = false, plain = false, title, label } = {}) {
   const cls = ['invslot', large && 'invslot-large', plain && 'invslot-plain']
     .filter(Boolean).join(' ');
   // A cell may carry a subtype label ("Magenta Wool") alongside the name that
-  // owns the sprite and the page ("Wool"). Show the label, link the name.
+  // owns the page ("Wool"). Show the subtype, link the name.
   if (name && typeof name === 'object') {
     title = title || name.label;
+    label = label || name.label;
     name = name.name;
   }
   if (!name) return `<span class="${cls}"></span>`;
-  const inner = ctx.sprite(name, { link: true, title: title || name });
+  const icon = ctx.sprite(spriteName(ctx, name, label), { link: false, title: title || name });
+  const inner = ctx.linkWrap(name, icon, '', title || name);
   const stack = count && count > 1
     ? `<span class="invslot-stacksize">${escapeHtml(count)}</span>` : '';
   return `<span class="${cls}"><span class="invslot-item invslot-item-image">${inner}</span>${stack}</span>`;
@@ -57,7 +71,7 @@ function invslot(ctx, name, { count, large = false, plain = false, title } = {})
 function refSlot(ctx, ref, opts) {
   const rec = ctx.data.resolveRef(ref);
   if (!rec) return invslot(ctx, null, opts);
-  return invslot(ctx, rec.name, { ...opts, count: ref.count, title: rec.label });
+  return invslot(ctx, rec.name, { ...opts, count: ref.count, title: rec.label, label: rec.label });
 }
 
 function craftingGrid(ctx, cells, output, count) {
@@ -195,7 +209,8 @@ define(['used-in', 'usedin', 'crafting-uses'], ({ args, named, ctx }) => {
   }
   const rows = recipes.map((r) => {
     const out = ctx.data.resolveRef(r.output);
-    return `<tr><td>${out ? ctx.linkWrap(out.name, ctx.sprite(out.name) + ' ' + escapeHtml(out.label)) : '?'}</td>` +
+    const icon = out ? ctx.sprite(spriteName(ctx, out.name, out.label)) : '';
+    return `<tr><td>${out ? ctx.linkWrap(out.name, `${icon} ${escapeHtml(out.label)}`) : '?'}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`;
   });
   return `<table class="wikitable recipe-uses"><thead><tr><th>Result</th><th>Recipe</th></tr></thead>` +
@@ -308,7 +323,8 @@ define(['recipe-list', 'all-recipes'], ({ named, ctx }) => {
     .filter((x) => x.out)
     .sort((a, b) => a.out.label.localeCompare(b.out.label))
     .map(({ r, out }) =>
-      `<tr><td>${ctx.linkWrap(out.name, `${ctx.sprite(out.name)} ${escapeHtml(out.label)}`)}</td>` +
+      `<tr><td>${ctx.linkWrap(out.name,
+        `${ctx.sprite(spriteName(ctx, out.name, out.label))} ${escapeHtml(out.label)}`)}</td>` +
       `<td>${r.output.count || 1}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`);
   return `<table class="wikitable recipe-list"><thead><tr><th>Result</th><th>Qty</th>` +

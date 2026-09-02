@@ -10,6 +10,9 @@ stub: true
 
 **Tall Grass** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
 
+Block ID `31` holds three plants, told apart by metadata: a dead shrub at 0,
+tall grass at 1 and a [[Fern]] at 2.
+
 ## Obtaining
 
 <!-- How is it obtained? Mining, crafting, mob drops, generation. -->

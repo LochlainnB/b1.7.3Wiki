@@ -30,6 +30,17 @@ export function loadData(root) {
   for (const b of blocks) if (!bySlug.has(slug(b.name))) bySlug.set(slug(b.name), { kind: 'block', ...b });
   for (const i of items) if (!bySlug.has(slug(i.name))) bySlug.set(slug(i.name), { kind: 'item', ...i });
   for (const e of entities) if (!bySlug.has(slug(e.name))) bySlug.set(slug(e.name), { kind: 'entity', ...e });
+  // Subtypes answer to their own names too. A page called "Fern" or "Magenta
+  // Wool" is a page about one damage value of a block, and it wants that
+  // block's id and hardness; the damage comes with it so the infobox can say
+  // which one. A subtype named after its own id -- wool's damage 0 is "Wool"
+  // -- is already indexed, hence the guard.
+  const variantsOf = (rec, kind) => Object.entries(rec.variants || {})
+    .filter(([, name]) => !bySlug.has(slug(name)))
+    .forEach(([damage, name]) => bySlug.set(slug(name),
+      { kind, ...rec, damage: Number(damage), label: name }));
+  for (const b of blocks) variantsOf(b, 'block');
+  for (const i of items) variantsOf(i, 'item');
 
   /**
    * Resolve a recipe reference ({block:4} / {item:280}) to a data record.

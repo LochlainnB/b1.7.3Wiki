@@ -24,8 +24,10 @@ function autoRows(rec, ctx) {
         : rec.lightOpacity >= 255 ? 'Opaque' : `Filters light (${rec.lightOpacity})`]);
     }
     rows.push(['Block ID', `<code>${rec.id}</code>`]);
+    if (rec.damage) rows.push(['Metadata', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'item') {
     rows.push(['Item ID', `<code>${rec.id}</code>`]);
+    if (rec.damage) rows.push(['Damage value', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'entity') {
     rows.push(['Entity ID', `<code>${rec.networkId}</code>`]);
   }

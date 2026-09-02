@@ -6,7 +6,10 @@ the wiki's IDs, sprites, hardness values and recipes are facts rather than
 recollections. Run this once; the JSON it writes is committed to the repo and
 the site build never needs the jar.
 
-    python tools/extract/gamedata.py --jar <client.jar> --cache <BabricKit/cache> --out data
+    python tools/extract/gamedata.py --out data
+
+The jar and the Babric mappings are found automatically; see paths.py for the
+three ways to say where they are.
 
 Setter identification
 ---------------------
@@ -33,6 +36,7 @@ from classfile import ClassFile
 from disasm import disassemble, trace_clinit, trace_calls, params_of, u2
 from interp import ArrayRef, Interp, Obj, Ref, Unsupported
 from mappings import load as load_mappings
+from paths import Missing, find_cache, find_jar
 
 # Block builder methods, by obfuscated name (see module docstring for evidence)
 B_HARDNESS = 'c'
@@ -590,15 +594,21 @@ def extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--jar', required=True)
-    ap.add_argument('--cache', required=True,
-                    help='directory holding intermediary.tiny and barn.tiny')
+    ap.add_argument('--jar', help='client.jar; found automatically if omitted')
+    ap.add_argument('--cache', help='directory holding intermediary.tiny and '
+                                    'barn.tiny; found automatically if omitted')
     ap.add_argument('--out', required=True)
     a = ap.parse_args()
 
-    jar = Jar(a.jar)
-    mp = load_mappings(os.path.join(a.cache, 'intermediary.tiny'),
-                       os.path.join(a.cache, 'barn.tiny'))
+    try:
+        cache = a.cache or find_cache().path
+        jar_path = a.jar or find_jar().path
+    except Missing as err:
+        raise SystemExit('error: %s' % err)
+
+    jar = Jar(jar_path)
+    mp = load_mappings(os.path.join(cache, 'intermediary.tiny'),
+                       os.path.join(cache, 'barn.tiny'))
     lang_names, lang_descs = parse_lang(jar)
 
     block_names, item_names = load_name_overrides(a.out)
@@ -626,7 +636,7 @@ def main():
             fh.write('\n')
         print('  %-16s %d entries' % (nm, len(obj)))
 
-    print('Extracted from %s' % os.path.basename(a.jar))
+    print('Extracted from %s' % jar_path)
     write('blocks.json', blocks)
     write('items.json', items)
     write('entities.json', entities)
@@ -635,8 +645,8 @@ def main():
     write('smelting.json', smelting)
     write('meta.json', {
         'version': 'Beta 1.7.3',
-        'source': os.path.basename(a.jar),
-        'sha1': sha1(io.open(a.jar, 'rb').read()),
+        'source': os.path.basename(jar_path),
+        'sha1': sha1(io.open(jar_path, 'rb').read()),
         'generator': 'tools/extract/gamedata.py',
     })
 

@@ -18,6 +18,7 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import png
+from paths import Missing, find_jar
 
 TILE = 16
 GRID = 16
@@ -65,12 +66,17 @@ def slice_sheet(img, outdir, prefix):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--jar', required=True)
+    ap.add_argument('--jar', help='client.jar; found automatically if omitted')
     ap.add_argument('--out', required=True, help='repository root')
     ap.add_argument('--contact-sheet', help='write an upscaled terrain sheet here')
     a = ap.parse_args()
 
-    z = zipfile.ZipFile(a.jar)
+    try:
+        jar_path = a.jar or find_jar().path
+    except Missing as err:
+        raise SystemExit('error: %s' % err)
+
+    z = zipfile.ZipFile(jar_path)
     root = a.out
     sprites_dir = os.path.join(root, 'assets', 'sprites')
     tex_dir = os.path.join(root, 'assets', 'textures')

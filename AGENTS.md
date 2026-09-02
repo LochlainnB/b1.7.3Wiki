@@ -86,10 +86,12 @@ theme/             wiki.css and wiki.js.
 tools/             the build (Node) and the extractors (Python).
   extract/interp.py  a small JVM interpreter; the recipe extractor runs the
                    game's registration code rather than pattern-matching it.
+  extract/paths.py   finds the client jar and the Babric mappings.
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
-wiki.local.json    optional, gitignored. {"sourceDir": "..."} if the decompiled
-                   source is not the sibling directory b1.7.3Source.
+wiki.local.json    optional, gitignored. Where the external, unvendored inputs
+                   are, when they are not in the conventional sibling directory:
+                   {"sourceDir": ..., "cachePath": ..., "jarPath": ...}.
 .claude/skills/    the b173-wiki skill and its generated SOURCEMAP.md.
 ```
 
@@ -178,11 +180,23 @@ Only needed if the extractors change. Requires the Beta 1.7.3 client jar and
 the Babric mappings:
 
 ```
-python tools/extract/gamedata.py --jar <client.jar> --cache <BabricKit/cache> --out data
-python tools/extract/sprites.py  --jar <client.jar> --out .
+python tools/extract/gamedata.py --out data
+python tools/extract/sprites.py  --out .
 node tools/seed.mjs              stub any newly discovered block/item/entity
 node tools/seed.mjs --force      rebuild existing stubs from the new data
 ```
+
+The jar and the mappings are Mojang's, shipped without a licence, so like the
+decompiled source they are never vendored here. `tools/extract/paths.py` finds
+them the same way `tools/lib/source.mjs` finds the source: `B173_JAR` and
+`B173_CACHE`, then `"jarPath"` and `"cachePath"` in `wiki.local.json`, then the
+sibling directory `../BabricKit/cache`. The cache is one directory holding
+`intermediary.tiny` and `barn.tiny` with the jar beside them, so pointing at it
+is normally enough. `--jar` and `--cache` still override.
+
+Unlike the source, these are not optional: the build never opens the jar, but
+the extractors are nothing without it, so a bad path is a fatal error that
+names all three ways to fix it.
 
 `--force` rewrites only files still carrying `stub: true`, and skips every page
 anyone has actually written. Use it when new data should reach pages that were

@@ -42,8 +42,9 @@ serves at `/block/mossy-cobblestone/`.
 
 **A stub is not an answer.** Most pages carry `stub: true` in their frontmatter
 and contain nothing but headings, an auto-built infobox and recipe templates.
-The infobox numbers are real and can be quoted — they are extracted from the jar
-— but empty prose sections mean the wiki has nothing to say. Treat that as a
+The infobox numbers and the recipe grids are real and can be quoted — both come
+from the extracted data — but empty prose sections mean the wiki has nothing to
+say. Treat that as a
 miss and go to the source.
 
 Watch for a **red link** in a page you read: `[[Dungeon]]` pointing at a page
@@ -127,7 +128,10 @@ Then:
 - If declined, leave no trace — no file changes, no notes.
 - If approved, make the edit, then run `npm run check` from the wiki root and
   report the result. **It must end with `0 errors`.** If the edit broke the
-  build, fix it or revert it; do not leave it failing.
+  build, fix it or revert it; do not leave it failing. A warning that names a
+  template to add — `data/ has 2 crafting recipes for "X" that this page never
+  shows` — is also yours to fix: the wiki holds that data and the page is simply
+  not displaying it.
 
 ### Writing the edit
 

@@ -60,6 +60,17 @@ function makeContext({ config, data, pages, index, problems, links }) {
       if (ctx.page) ctx.page.isStub = true;
     },
 
+    // What each page actually put on screen, per subject, so the build can
+    // catch the reverse of a template with no data behind it: data with no
+    // template in front of it. Recorded at render time rather than scanned
+    // out of the markdown, so every spelling of the template counts.
+    shown: new Map(),
+    showedRecipes(kind, subject) {
+      if (!ctx.page) return;
+      if (!ctx.shown.has(ctx.page.url)) ctx.shown.set(ctx.page.url, new Set());
+      ctx.shown.get(ctx.page.url).add(`${kind}\u0000${slug(subject)}`);
+    },
+
     /** The thing this page is about, used by data-driven templates. */
     subjectName: () => ctx.page?.fm?.subject || ctx.page?.title || '',
 
@@ -175,7 +186,9 @@ async function main() {
     }
   }
 
-  const stats = report({ pages, problems, links, backlinks: ctx.backlinks, quiet });
+  const stats = report({
+    pages, problems, links, backlinks: ctx.backlinks, data, shown: ctx.shown, quiet,
+  });
 
   if (!checkOnly) {
     const outDir = join(ROOT, config.outDir);

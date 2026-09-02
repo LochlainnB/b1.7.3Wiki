@@ -163,6 +163,7 @@ define(['crafting', 'craft'], ({ args, named, ctx }) => {
   }
   // Data-driven: every recipe that produces this thing.
   const subject = args[0] || named.for || ctx.subjectName();
+  ctx.showedRecipes('crafting', subject);
   const recipes = ctx.data.recipesFor(subject).filter((r) => r.type !== 'smelting');
   if (!recipes.length) {
     ctx.warn(`{{crafting}}: no recipe produces "${subject}"`);
@@ -176,6 +177,7 @@ define(['smelting', 'furnace'], ({ args, named, ctx }) => {
     return `<div class="mcui-wrapper">${smeltingGrid(ctx, named.input, named.output)}</div>`;
   }
   const subject = args[0] || named.for || ctx.subjectName();
+  ctx.showedRecipes('smelting', subject);
   const recipes = ctx.data.recipesFor(subject).filter((r) => r.type === 'smelting');
   if (!recipes.length) {
     ctx.warn(`{{smelting}}: nothing smelts into "${subject}"`);
@@ -186,6 +188,7 @@ define(['smelting', 'furnace'], ({ args, named, ctx }) => {
 
 define(['used-in', 'usedin', 'crafting-uses'], ({ args, named, ctx }) => {
   const subject = args[0] || named.for || ctx.subjectName();
+  ctx.showedRecipes('used in', subject);
   const recipes = ctx.data.recipesUsing(subject);
   if (!recipes.length) {
     return `<div class="mcui-wrapper mcui-empty">${escapeHtml(subject)} is not used in any recipe.</div>`;

@@ -64,6 +64,13 @@ source names. That matters because the recipes are not read out of the bytecode
 so much as executed — see below — so reading the decompiled Java is a genuinely
 independent second opinion.
 
+Page validation runs both ways too. `{{crafting}}` warns when a page asks for a
+recipe `data/` does not have; the build also warns when `data/` has a crafting,
+smelting or "used in" recipe for a page's subject that the page never displays,
+naming the template to add. That second half is the gap `0 errors` used to hide:
+a page could be missing an entire recipe section and still look clean, which
+invites writing the recipe out in prose instead.
+
 The verification is deliberately not part of `npm run dev`: `data/` only changes
 when the extractors are rerun, and a save-triggered rebuild should stay fast.
 

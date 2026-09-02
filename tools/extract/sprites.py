@@ -1,15 +1,27 @@
 #!/usr/bin/env python3
-"""Slice Beta 1.7.3 texture sheets into per-tile sprites and build a manifest.
+"""Slice Beta 1.7.3's texture sheets and render every inventory icon.
 
     python tools/extract/sprites.py --out . [--contact-sheet F]
 
 The jar is found automatically; see paths.py for the three ways to say where
 it is.
 
-terrain.png and gui/items.png are both 256x256, i.e. a 16x16 grid of 16x16
-tiles indexed row-major. Blocks record a terrain index and items record (x, y)
-icon coordinates, so the manifest can map a page slug straight to a tile
-without duplicating any image data.
+Three things happen here, in order.
+
+The sheets are decoded and the tiles the game generates for itself are put
+back (see animated.py): a shipped terrain.png has a flat blue square where the
+portal belongs, and gui/items.png has a compass with no needle and a clock
+with a magenta hole for its dial.
+
+Both sheets are then sliced tile by tile into assets/sprites/, which is what a
+page reaching for a raw texture gets. The raw sheets are copied across
+untouched, so what is under assets/textures/ is exactly what shipped.
+
+Finally every block, item and metadata variant is asked what the inventory
+draws for it (appearance.py) and the answer is rendered (isometric.py). Most
+blocks come out as the little three-quarter cube a player sees rather than one
+flat face of themselves, and a stack whose damage value picks its own tile --
+all sixteen wools, all sixteen dyes -- gets an icon of its own.
 """
 import argparse
 import io
@@ -20,8 +32,13 @@ import sys
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import animated
+import isometric
 import png
-from paths import Missing, find_jar
+from appearance import Appearance
+from gamedata import Jar
+from mappings import load as load_mappings
+from paths import Missing, find_cache, find_jar
 
 TILE = 16
 GRID = 16
@@ -41,11 +58,19 @@ RAW_TEXTURES = [
 MOB_PREFIX = 'mob/'
 ARMOR_PREFIX = 'armor/'
 
+# BlockTallGrass is drawn in the biome's grass colour in the world and left
+# grey in the inventory, which is why the wiki's tall grass looked like ash.
+# The colour is the game's own -- ColorizerGrass.getGrassColor against the
+# shipped misc/grasscolor.png -- read at the middle of the table. Metadata 0
+# is the dead shrub, which the block's own colorMultiplier leaves alone, and
+# so does this.
+WORLD_TINTED = {31: (1, 2)}
+DEFAULT_CLIMATE = (0.5, 1.0)
+
 
 def slug(name):
     """Wiki slug shared with the site build: lowercase, hyphen separated."""
-    s = re.sub(r"[^a-z0-9]+", '-', name.lower())
-    return s.strip('-')
+    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
 
 
 def write_file(path, data):
@@ -54,7 +79,7 @@ def write_file(path, data):
         fh.write(data)
 
 
-def slice_sheet(img, outdir, prefix):
+def slice_sheet(img, outdir):
     """Write every non-blank tile as <outdir>/<index>.png; return the index set."""
     written = set()
     for idx in range(GRID * GRID):
@@ -67,28 +92,113 @@ def slice_sheet(img, outdir, prefix):
     return written
 
 
+def grass_color(colorizer, climate=DEFAULT_CLIMATE):
+    """ColorizerGrass.getGrassColor, against the shipped colour table."""
+    temperature, humidity = climate
+    humidity *= temperature
+    x = int((1.0 - temperature) * 255.0)
+    y = int((1.0 - humidity) * 255.0)
+    at = (y * colorizer.w + x) * 4
+    return (colorizer.px[at] << 16) | (colorizer.px[at + 1] << 8) | colorizer.px[at + 2]
+
+
+def stacks(record):
+    """(damage, display name) for a record: its own, plus any subtypes.
+
+    A subtype whose name matches the record's own replaces it, which is how
+    "Tall Grass" ends up as the growing plant at metadata 1 rather than the
+    dead shrub the id happens to start with.
+    """
+    out = [(0, record['name'])]
+    for damage, name in sorted((record.get('variants') or {}).items(), key=lambda kv: int(kv[0])):
+        if (int(damage), name) not in out:
+            out.append((int(damage), name))
+    return out
+
+
+def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint):
+    """Render one file per named stack, and return its manifest entries."""
+    entries, missing = {}, []
+    for record in records:
+        for damage, name in stacks(record):
+            key = slug(name)
+            if key in taken and kinds.get(key) != 'flat':
+                continue                     # a block already owns this name
+            try:
+                icon = game.icon(record['id'], damage)
+            except Exception as err:
+                missing.append('%s (%s)' % (name, err))
+                continue
+            tint = icon['tint']
+            if damage in WORLD_TINTED.get(record['id'], ()):
+                tint = world_tint
+            if icon['kind'] == 'cube':
+                image = isometric.render(sheets['terrain'], icon['boxes'], tint)
+            elif tint == 0xFFFFFF:
+                # Nothing to do to the tile, so point at the slice of it.
+                index = icon['tile']
+                entries[key] = {'sheet': icon['sheet'], 'index': index,
+                                'file': 'assets/sprites/%s/%d.png' % (icon['sheet'], index)}
+                kinds[key] = 'flat'
+                continue
+            else:
+                image = isometric.flat(sheets[icon['sheet']], icon['tile'], tint)
+            write_file(os.path.join(out_dir, '%s.png' % key), png.encode(image))
+            entries[key] = {'file': 'assets/sprites/icon/%s.png' % key}
+            kinds[key] = icon['kind']
+    return entries, missing
+
+
+def prune(directory, keep):
+    """Drop generated icons no longer named by anything, so renames leave nothing."""
+    if not os.path.isdir(directory):
+        return []
+    gone = [f for f in sorted(os.listdir(directory)) if f.endswith('.png') and f not in keep]
+    for name in gone:
+        os.remove(os.path.join(directory, name))
+    return gone
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--jar', help='client.jar; found automatically if omitted')
+    ap.add_argument('--cache', help='directory holding intermediary.tiny and '
+                                    'barn.tiny; found automatically if omitted')
     ap.add_argument('--out', required=True, help='repository root')
     ap.add_argument('--contact-sheet', help='write an upscaled terrain sheet here')
     a = ap.parse_args()
 
     try:
+        cache = a.cache or find_cache().path
         jar_path = a.jar or find_jar().path
     except Missing as err:
         raise SystemExit('error: %s' % err)
 
-    z = zipfile.ZipFile(jar_path)
     root = a.out
-    sprites_dir = os.path.join(root, 'assets', 'sprites')
-    tex_dir = os.path.join(root, 'assets', 'textures')
+    data_dir = os.path.join(root, 'data')
+    blocks = json.load(io.open(os.path.join(data_dir, 'blocks.json'), encoding='utf-8'))
+    itemdefs = json.load(io.open(os.path.join(data_dir, 'items.json'), encoding='utf-8'))
 
+    z = zipfile.ZipFile(jar_path)
     terrain = png.decode(z.read('terrain.png'))
     items = png.decode(z.read('gui/items.png'))
 
-    have_terrain = slice_sheet(terrain, os.path.join(sprites_dir, 'terrain'), 'terrain')
-    have_items = slice_sheet(items, os.path.join(sprites_dir, 'items'), 'items')
+    # ---- the tiles the game draws for itself ---------------------------------
+    by_key = {b['key']: b for b in blocks}
+    item_by_key = {i['key']: i for i in itemdefs}
+    icon_index = lambda rec: rec['icon']['y'] * GRID + rec['icon']['x'] if rec else None
+    fixed = animated.patch_sheets(
+        terrain, items, png.decode(z.read('misc/dial.png')),
+        (by_key.get('portal') or {}).get('texture'),
+        icon_index(item_by_key.get('compass')),
+        icon_index(item_by_key.get('clock')))
+    print('regenerated %s' % ', '.join(fixed))
+
+    # ---- raw tiles and raw sheets -------------------------------------------
+    sprites_dir = os.path.join(root, 'assets', 'sprites')
+    tex_dir = os.path.join(root, 'assets', 'textures')
+    have_terrain = slice_sheet(terrain, os.path.join(sprites_dir, 'terrain'))
+    have_items = slice_sheet(items, os.path.join(sprites_dir, 'items'))
     print('sliced %d terrain tiles, %d item tiles' % (len(have_terrain), len(have_items)))
 
     for name in RAW_TEXTURES:
@@ -98,60 +208,53 @@ def main():
             pass
     mobs = 0
     for name in z.namelist():
-        if name.startswith(MOB_PREFIX) or name.startswith(ARMOR_PREFIX):
-            if name.endswith('.png'):
-                write_file(os.path.join(tex_dir, name.replace('/', os.sep)), z.read(name))
-                mobs += 1
+        if (name.startswith(MOB_PREFIX) or name.startswith(ARMOR_PREFIX)) and name.endswith('.png'):
+            write_file(os.path.join(tex_dir, name.replace('/', os.sep)), z.read(name))
+            mobs += 1
     print('copied %d raw sheets, %d mob/armor textures' % (len(RAW_TEXTURES), mobs))
 
     if a.contact_sheet:
         write_file(a.contact_sheet, png.encode(terrain.scale(4)))
         print('contact sheet -> %s' % a.contact_sheet)
 
-    # ---- manifest -------------------------------------------------------------
-    data_dir = os.path.join(root, 'data')
-    blocks = json.load(io.open(os.path.join(data_dir, 'blocks.json'), encoding='utf-8'))
-    itemdefs = json.load(io.open(os.path.join(data_dir, 'items.json'), encoding='utf-8'))
+    # ---- inventory icons -----------------------------------------------------
+    mp = load_mappings(os.path.join(cache, 'intermediary.tiny'),
+                       os.path.join(cache, 'barn.tiny'))
+    game = Appearance(Jar(jar_path), mp)
+    sheets = {'terrain': terrain, 'items': items}
+    world_tint = grass_color(png.decode(z.read('misc/grasscolor.png')))
+    icon_dir = os.path.join(sprites_dir, 'icon')
 
-    ov_path = os.path.join(data_dir, 'texture-overrides.json')
-    overrides = {}
-    if os.path.exists(ov_path):
-        overrides = json.load(io.open(ov_path, encoding='utf-8')).get('byBlockId', {})
+    kinds = {}
+    sprites, missing = build_icons(game, sheets, blocks, icon_dir, set(), kinds, world_tint)
+    # An item of the same name wins over a block the inventory only ever draws
+    # as a flat tile: a door, a sign, a bed and a repeater are all placed from
+    # an item, and that item's icon is the picture a player would know.
+    item_sprites, item_missing = build_icons(
+        game, sheets, itemdefs, icon_dir, set(sprites), kinds, world_tint)
+    sprites.update(item_sprites)
+    missing += item_missing
 
-    sprites, missing = {}, []
-    for b in blocks:
-        key = slug(b['name'])
-        idx = overrides.get(str(b['id']), b['texture'])
-        if idx is None or idx not in have_terrain:
-            missing.append(b['name'])
-            continue
-        sprites[key] = {'sheet': 'terrain', 'index': idx,
-                        'file': 'assets/sprites/terrain/%d.png' % idx}
-    for it in itemdefs:
-        key = slug(it['name'])
-        if key in sprites or not it['icon']:
-            continue
-        idx = it['icon']['y'] * GRID + it['icon']['x']
-        if idx not in have_items:
-            missing.append(it['name'])
-            continue
-        sprites[key] = {'sheet': 'items', 'index': idx,
-                        'file': 'assets/sprites/items/%d.png' % idx}
+    dropped = prune(icon_dir, {os.path.basename(e['file']) for e in sprites.values()})
 
     out = {
         'tile': TILE,
-        'note': 'Generated by tools/extract/sprites.py. Fix a wrong block tile by '
-                'setting its block id in data/texture-overrides.json, then re-run '
-                'that script.',
+        'note': 'Generated by tools/extract/sprites.py: what the inventory draws '
+                'for each block, item and metadata variant. Entries with a sheet '
+                'and an index are one raw tile; the rest are rendered into '
+                'assets/sprites/icon/.',
         'sprites': dict(sorted(sprites.items())),
     }
     with io.open(os.path.join(data_dir, 'sprites.json'), 'w',
                  encoding='utf-8', newline='\n') as fh:
         json.dump(out, fh, indent=2, ensure_ascii=False)
         fh.write('\n')
-    print('manifest: %d sprites, %d without a tile' % (len(sprites), len(missing)))
+    print('manifest: %d sprites, %d rendered' % (
+        len(sprites), sum(1 for e in sprites.values() if 'index' not in e)))
+    if dropped:
+        print('  removed %d icon(s) nothing names any more' % len(dropped))
     if missing:
-        print('  no tile yet: %s' % ', '.join(sorted(set(missing))))
+        print('  no icon: %s' % ', '.join(sorted(set(missing))))
 
 
 if __name__ == '__main__':

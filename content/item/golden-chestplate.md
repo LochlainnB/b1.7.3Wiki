@@ -12,7 +12,9 @@ stub: true
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Crafting
+
+{{crafting|Golden Chestplate}}
 
 ## Usage
 

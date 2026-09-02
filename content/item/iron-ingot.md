@@ -12,6 +12,10 @@ stub: true
 
 ## Obtaining
 
+### Crafting
+
+{{crafting|Iron Ingot}}
+
 ### Smelting
 
 {{smelting|Iron Ingot}}

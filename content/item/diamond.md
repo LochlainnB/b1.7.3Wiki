@@ -12,6 +12,10 @@ stub: true
 
 ## Obtaining
 
+### Crafting
+
+{{crafting|Diamond}}
+
 ### Smelting
 
 {{smelting|Diamond}}

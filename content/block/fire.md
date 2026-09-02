@@ -16,7 +16,9 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+### Crafting ingredient
+
+{{used in|Fire}}
 
 ## Data values
 

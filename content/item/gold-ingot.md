@@ -12,6 +12,10 @@ stub: true
 
 ## Obtaining
 
+### Crafting
+
+{{crafting|Gold Ingot}}
+
 ### Smelting
 
 {{smelting|Gold Ingot}}

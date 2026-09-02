@@ -12,11 +12,15 @@ stub: true
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Crafting
+
+{{crafting|Block of Iron}}
 
 ## Usage
 
-<!-- What is it for? -->
+### Crafting ingredient
+
+{{used in|Block of Iron}}
 
 ## Data values
 

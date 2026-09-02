@@ -53,10 +53,16 @@ npm run new -- block "Mossy Cobblestone"    scaffold a page
 
 `npm run check` does two things. It validates every page — frontmatter, links,
 templates, sprites — and it replays `Block`, `Item`, `EntityList`,
-`FurnaceRecipes` and `CraftingManager` out of the decompiled source and compares
-them against `data/`. A number that disagrees with the game is an error;
-something the extractors never picked up is a warning. Without the source
+`FurnaceRecipes` and the whole crafting registry out of the decompiled source
+and compares them against `data/`. A number that disagrees with the game is an
+error; something the extractors never picked up is a warning. Without the source
 installed the second half is skipped and says so, rather than failing.
+
+The crafting check runs both ways: every output the source names must be in
+`data/recipes.json`, and every output in `data/recipes.json` must be one the
+source names. That matters because the recipes are not read out of the bytecode
+so much as executed — see below — so reading the decompiled Java is a genuinely
+independent second opinion.
 
 The verification is deliberately not part of `npm run dev`: `data/` only changes
 when the extractors are rerun, and a save-triggered rebuild should stay fast.
@@ -71,6 +77,8 @@ data/              game data extracted from the jar. GENERATED - do not hand-edi
 assets/            sprites and textures sliced from the jar. GENERATED.
 theme/             wiki.css and wiki.js.
 tools/             the build (Node) and the extractors (Python).
+  extract/interp.py  a small JVM interpreter; the recipe extractor runs the
+                   game's registration code rather than pattern-matching it.
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
 wiki.local.json    optional, gitignored. {"sourceDir": "..."} if the decompiled
@@ -118,6 +126,10 @@ every crafting and smelting recipe are extracted from the client jar into
   block, item or entity. You do not write it.
 - Recipes come from `{{crafting}}`, `{{smelting}}` and `{{used in}}`.
 - Ids come from `{{id|Name}}`.
+- Subtypes name themselves. One id can hold several things — item 351 is Ink Sac
+  at damage 0 and Lapis Lazuli at 4, block 35 is all sixteen wools — and
+  `data/` carries a `variants` map for those, read out of the game's own
+  labelling code. Recipes show the variant name and link the base page.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.
@@ -162,7 +174,13 @@ the Babric mappings:
 python tools/extract/gamedata.py --jar <client.jar> --cache <BabricKit/cache> --out data
 python tools/extract/sprites.py  --jar <client.jar> --out .
 node tools/seed.mjs              stub any newly discovered block/item/entity
+node tools/seed.mjs --force      rebuild existing stubs from the new data
 ```
+
+`--force` rewrites only files still carrying `stub: true`, and skips every page
+anyone has actually written. Use it when new data should reach pages that were
+scaffolded before it existed — a page seeded before its recipe was extracted has
+no `{{crafting}}` on it, and only a reseed will add one.
 
 Two files in `data/` are hand-maintained and safe to edit:
 

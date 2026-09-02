@@ -12,11 +12,15 @@ stub: true
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Crafting
+
+{{crafting|Lapis Lazuli Block}}
 
 ## Usage
 
-<!-- What is it for? -->
+### Crafting ingredient
+
+{{used in|Lapis Lazuli Block}}
 
 ## Data values
 

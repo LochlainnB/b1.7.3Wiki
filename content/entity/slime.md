@@ -10,13 +10,17 @@ stub: true
 
 **Slime** is a mob in Minecraft Beta 1.7.3.
 
-## Obtaining
+## Spawning
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+<!-- Light level, biome, what it needs to stand on, pack size, despawning. -->
 
-## Usage
+## Drops
 
-<!-- What is it for? -->
+<!-- What it leaves on death, how much, and what changes the amount. -->
+
+## Behaviour
+
+<!-- Movement, what provokes it, how it attacks, what it does when idle. -->
 
 ## Data values
 

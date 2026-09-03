@@ -65,6 +65,13 @@ headings. Prefer this order, skipping anything that does not apply:
 3. `## Behaviour` — for mobs and mechanics
 4. `## Data values` — IDs and translation keys
 
+A mob is not obtained and then used, so mob pages take a different shape:
+
+1. `## Spawning` — light level, biome, what it needs to stand on, pack size
+2. `## Drops` — what it leaves on death, and how much
+3. `## Behaviour` — movement, what provokes it, how it attacks
+4. `## Data values` — the entity network ID
+
 Do not add a `## History` section. See the rule above.
 
 ## Linking

@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadData } from './lib/data.mjs';
 import { slug } from './lib/slug.mjs';
+import { isMob, MOB_SECTIONS } from './lib/mobs.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const [, , nsArg, ...titleParts] = process.argv;
@@ -59,15 +60,20 @@ if (nsArg === 'guide') {
 } else if (nsArg === 'mechanic') {
   lines.push('## How it works', '', '## See also', '');
 } else {
-  lines.push('## Obtaining', '');
-  if (recipes.some((r) => r.type !== 'smelting')) {
-    lines.push('### Crafting', '', `{{crafting|${title}}}`, '');
+  // Match the shape tools/seed.mjs gives the same subject.
+  if (nsArg === 'entity' && isMob(title)) {
+    lines.push(...MOB_SECTIONS);
+  } else {
+    lines.push('## Obtaining', '');
+    if (recipes.some((r) => r.type !== 'smelting')) {
+      lines.push('### Crafting', '', `{{crafting|${title}}}`, '');
+    }
+    if (recipes.some((r) => r.type === 'smelting')) {
+      lines.push('### Smelting', '', `{{smelting|${title}}}`, '');
+    }
+    lines.push('## Usage', '');
+    if (uses.length) lines.push('### Crafting ingredient', '', `{{used in|${title}}}`, '');
   }
-  if (recipes.some((r) => r.type === 'smelting')) {
-    lines.push('### Smelting', '', `{{smelting|${title}}}`, '');
-  }
-  lines.push('## Usage', '');
-  if (uses.length) lines.push('### Crafting ingredient', '', `{{used in|${title}}}`, '');
   if (rec) {
     lines.push('## Data values', '');
     if (rec.id != null) {

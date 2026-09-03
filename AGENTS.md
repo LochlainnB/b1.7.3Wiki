@@ -234,6 +234,9 @@ Everything else in `data/` is overwritten by the extractors.
   will get cobblestone".
 - Lead sentence bolds the page name and defines it.
 - Section order: Obtaining, Usage, Behaviour, Data values. Skip what does not apply.
+- A mob is not obtained and used: mob pages run Spawning, Drops, Behaviour,
+  Data values instead. `tools/lib/mobs.mjs` holds the list of which entities
+  count, and both generators read it.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
 

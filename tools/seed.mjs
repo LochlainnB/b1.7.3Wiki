@@ -13,6 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadData } from './lib/data.mjs';
 import { slug } from './lib/slug.mjs';
+import { isMob, MOB_SECTIONS } from './lib/mobs.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const force = process.argv.includes('--force');
@@ -47,9 +48,6 @@ function mergeByName() {
   return [...byName.values()];
 }
 
-const MOBS = new Set(['Creeper', 'Skeleton', 'Spider', 'Zombie', 'Slime', 'Ghast',
-  'PigZombie', 'Pig', 'Sheep', 'Cow', 'Chicken', 'Squid', 'Wolf', 'Giant']);
-
 /** Abstract or purely technical entities that should not get their own page. */
 const SKIP_ENTITIES = new Set(['Mob', 'Monster', 'Item']);
 
@@ -83,7 +81,7 @@ function leadSentence(entry) {
     return s;
   }
   if (r.kind === 'item') return `**${name}** is an item in Minecraft Beta 1.7.3.`;
-  const kind = MOBS.has(entry.name) ? 'mob' : 'entity';
+  const kind = isMob(entry.name) ? 'mob' : 'entity';
   return `**${name}** is a ${kind} in Minecraft Beta 1.7.3.`;
 }
 
@@ -92,7 +90,7 @@ const round = (n) => String(Math.round(n * 1000) / 1000);
 function categoriesFor(entry) {
   if (entry.blockIds.length) return ['Blocks'];
   if (entry.itemIds.length) return ['Items'];
-  return MOBS.has(entry.name) ? ['Mobs'] : ['Entities'];
+  return isMob(entry.name) ? ['Mobs'] : ['Entities'];
 }
 
 function dataValuesSection(entry) {
@@ -129,23 +127,28 @@ function buildPage(entry) {
     '---',
   ].filter(Boolean).join('\n');
 
-  const body = ['', '{{stub|' + ns + '}}', '', leadSentence(entry), '', '## Obtaining', ''];
+  const body = ['', '{{stub|' + ns + '}}', '', leadSentence(entry), ''];
 
-  if (recipes.length) {
-    body.push('### Crafting', '', `{{crafting|${entry.name}}}`, '');
-  }
-  if (smelts.length) {
-    body.push('### Smelting', '', `{{smelting|${entry.name}}}`, '');
-  }
-  if (!recipes.length && !smelts.length) {
-    body.push('<!-- How is it obtained? Mining, crafting, mob drops, generation. -->', '');
-  }
-
-  body.push('## Usage', '');
-  if (uses.length) {
-    body.push('### Crafting ingredient', '', `{{used in|${entry.name}}}`, '');
+  if (ns === 'entity' && isMob(entry.name)) {
+    body.push(...MOB_SECTIONS);
   } else {
-    body.push('<!-- What is it for? -->', '');
+    body.push('## Obtaining', '');
+    if (recipes.length) {
+      body.push('### Crafting', '', `{{crafting|${entry.name}}}`, '');
+    }
+    if (smelts.length) {
+      body.push('### Smelting', '', `{{smelting|${entry.name}}}`, '');
+    }
+    if (!recipes.length && !smelts.length) {
+      body.push('<!-- How is it obtained? Mining, crafting, mob drops, generation. -->', '');
+    }
+
+    body.push('## Usage', '');
+    if (uses.length) {
+      body.push('### Crafting ingredient', '', `{{used in|${entry.name}}}`, '');
+    } else {
+      body.push('<!-- What is it for? -->', '');
+    }
   }
 
   body.push('## Data values', '', dataValuesSection(entry), '');

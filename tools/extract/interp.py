@@ -195,6 +195,7 @@ class Interp(object):
         self.statics = {}
         self._classes = {}
         self._owners = {}
+        self._refs = {}
         self._tried_clinit = set()
 
     # -- class loading -----------------------------------------------------
@@ -511,7 +512,7 @@ class Interp(object):
     # String[] or int[] literals is safe to run. Block's and Item's are not --
     # they build the whole game -- and their arrays are [LBlock; / [LItem;, so
     # this rule leaves them symbolic, which is what the callers want anyway.
-    CONST_TABLES = ('[Ljava/lang/String;', '[I')
+    CONST_TABLES = ('[Ljava/lang/String;', '[I', '[[I')
 
     def _declares(self, owner, name):
         """The class a field is really declared on.
@@ -550,6 +551,7 @@ class Interp(object):
                 sub = Interp(self.loader, budget=100000)
                 sub.loader = self.loader
                 sub.field_hook = self.field_hook
+                sub._refs = self._refs
                 sub._tried_clinit = self._tried_clinit
                 try:
                     sub.call(owner, '<clinit>', '()V', None, [], static=True)
@@ -560,7 +562,14 @@ class Interp(object):
                         self.statics.setdefault(k, v)
                 if key in self.statics:
                     return self.statics[key]
-        return Ref(owner, name, desc)
+        if key not in self._refs:
+            # One static field is one value however often it is read, so the
+            # symbol standing in for it has to be the same object every time:
+            # BlockFluid picks its texture with `material == Material.lava`,
+            # and two freshly built Refs are never the same object, which gave
+            # lava the water tile.
+            self._refs[key] = Ref(owner, name, desc)
+        return self._refs[key]
 
     @staticmethod
     def _len(v):

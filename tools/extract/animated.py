@@ -5,20 +5,22 @@ the texture atlas at load with a TextureFX, and what is left behind in the file
 is whatever the artist happened to leave there: the portal is a flat blue
 square, the clock's dial is magenta, and the compass has no needle at all.
 
-These three are reproduced here, from TexturePortalFX, TextureWatchFX and
-TextureCompassFX, so a page shows the tile a player sees rather than the tile
-the file holds.
+All eight TextureFX classes the game registers are reproduced here, so a page
+shows the tile a player sees rather than the tile the file holds.
 
-Each of those classes animates: the portal cycles thirty-two frames, and the
-clock and compass turn to follow the sun and the world spawn. A wiki page is
-one picture, so each is generated in its rest state -- the portal's first
-frame, and the needle and dial at the angle a TextureFX holds before any world
-is loaded, which is what the class's own fields start at.
+Five of them have a rest state and are generated in it: the portal cycles
+thirty-two frames and takes its first, and the clock and compass turn to
+follow the sun and the world spawn, so each is drawn at the angle its own
+fields start at, before any world is loaded.
 
-The water, lava and fire tiles are generated the same way, but by simulations
-with no rest state to speak of: they are seeded from the shipped tile and
-stirred every tick, so there is no one frame to call theirs. Those are left as
-the sheet has them.
+Water, lava and fire have no rest state. They are stirred every tick from
+Math.random(), which the game never seeds, so no frame is *the* frame and
+none can be matched byte for byte. Each is instead run from a seed of this
+module's own -- the index of the tile it paints -- for long enough to settle
+into the texture it spends its life looking like. That is also why the float
+rounding in those three is looser than the portal's: with the noise arbitrary
+there is no exact answer to hit, so only the values that are stored round to
+32 bits.
 """
 import math
 import struct
@@ -44,6 +46,10 @@ class JavaRandom(object):
 
     def next_float(self):
         return f32(self._next(24) / float(1 << 24))
+
+    def next_double(self):
+        """Math.random(), which is one shared unseeded Random's nextDouble."""
+        return ((self._next(26) << 27) + self._next(27)) / float(1 << 53)
 
 
 _SIN_TABLE = None
@@ -126,6 +132,130 @@ def portal_tile():
     return frames[0]
 
 
+# How long to stir the three unseeded textures before taking a frame. Lava is
+# the slowest to fill -- a spark lands on one cell in two hundred per tick --
+# and by here all three have stopped changing shape.
+SETTLE = 240
+
+
+def water_tile(index, flowing=False, ticks=SETTLE):
+    """TextureWaterFX, or TextureWaterFlowFX when `flowing`.
+
+    A field of springs. Each cell is pushed at random, the push fades, and the
+    surface it leaves is blurred into its neighbours. The flowing tile blurs
+    upwards only and scrolls what it has by a row a tick, which is what makes
+    it look like it is running downhill.
+    """
+    rand = JavaRandom(index)
+    surface, spare = [0.0] * 256, [0.0] * 256
+    height, push = [0.0] * 256, [0.0] * 256
+    spread = 3.2 if flowing else 3.3
+    chance = 0.2 if flowing else 0.05
+    fade = 0.3 if flowing else 0.1
+    for _ in range(ticks):
+        for x in range(TILE):
+            for y in range(TILE):
+                total = 0.0
+                if flowing:
+                    for v in range(y - 2, y + 1):
+                        total += surface[x + (v & 15) * TILE]
+                else:
+                    for u in range(x - 1, x + 2):
+                        total += surface[(u & 15) + y * TILE]
+                spare[x + y * TILE] = f32(total / spread + height[x + y * TILE] * 0.8)
+        for x in range(TILE):
+            for y in range(TILE):
+                at = x + y * TILE
+                height[at] = f32(max(0.0, height[at] + push[at] * 0.05))
+                push[at] = f32(push[at] - fade)
+                if rand.next_double() < chance:
+                    push[at] = 0.5
+        surface, spare = spare, surface
+    scroll = ticks * TILE if flowing else 0
+    out = []
+    for at in range(256):
+        depth = min(1.0, max(0.0, surface[at - scroll & 255]))
+        lit = f32(depth * depth)
+        out.append((int(32.0 + lit * 32.0), int(50.0 + lit * 64.0), 255,
+                    int(146.0 + lit * 50.0)))
+    return out
+
+
+def lava_tile(index, flowing=False, ticks=SETTLE):
+    """TextureLavaFX, or TextureLavaFlowFX when `flowing`.
+
+    The same springs as water, but the blur covers all eight neighbours and is
+    fetched through an offset taken from MathHelper.sin of the *other*
+    coordinate, which curdles the surface instead of rippling it.
+    """
+    rand = JavaRandom(index)
+    heat, spare = [0.0] * 256, [0.0] * 256
+    glow, push = [0.0] * 256, [0.0] * 256
+    for _ in range(ticks):
+        for x in range(TILE):
+            for y in range(TILE):
+                at = x + y * TILE
+                across = int(mh_sin(f32(y * 3.1415927 * 2.0 / 16.0)) * 1.2)
+                down = int(mh_sin(f32(x * 3.1415927 * 2.0 / 16.0)) * 1.2)
+                total = 0.0
+                for u in range(x - 1, x + 2):
+                    for v in range(y - 1, y + 2):
+                        total += heat[(u + across & 15) + (v + down & 15) * TILE]
+                corners = (glow[at] + glow[(x + 1 & 15) + y * TILE]
+                           + glow[(x + 1 & 15) + (y + 1 & 15) * TILE]
+                           + glow[x + (y + 1 & 15) * TILE])
+                spare[at] = f32(total / 10.0 + corners / 4.0 * 0.8)
+                glow[at] = f32(max(0.0, glow[at] + push[at] * 0.01))
+                push[at] = f32(push[at] - 0.06)
+                if rand.next_double() < 0.005:
+                    push[at] = 1.5
+        heat, spare = spare, heat
+    scroll = ticks // 3 * TILE if flowing else 0
+    out = []
+    for at in range(256):
+        v = min(1.0, max(0.0, f32(heat[at - scroll & 255] * 2.0)))
+        out.append((int(v * 100.0 + 155.0), int(v * v * 255.0),
+                    int(v * v * v * v * 128.0), 255))
+    return out
+
+
+def flames_tile(index, ticks=SETTLE):
+    """TextureFlamesFX: sixteen columns, twenty rows tall.
+
+    The bottom four rows are off the tile. They are re-lit at random every
+    tick and the heat is carried up the column, so what shows is the top
+    sixteen rows of a fire whose base is out of frame. Alpha is all or nothing
+    at half brightness, which is what gives a flame its ragged edge.
+    """
+    rand = JavaRandom(index)
+    heat, spare = [0.0] * 320, [0.0] * 320
+    for _ in range(ticks):
+        for x in range(TILE):
+            for y in range(20):
+                # The weight starts at eighteen for the cell below and counts
+                # the six it then samples, on the grid or not, so the divisor
+                # always ends at twenty-four.
+                weight = 18
+                total = heat[x + (y + 1) % 20 * TILE] * weight
+                for u in range(x - 1, x + 2):
+                    for v in range(y, y + 2):
+                        if 0 <= u < TILE and 0 <= v < 20:
+                            total += heat[u + v * TILE]
+                        weight += 1
+                spare[x + y * TILE] = f32(total / (weight * 1.06))
+                if y >= 19:
+                    spare[x + y * TILE] = f32(
+                        rand.next_double() * rand.next_double()
+                        * rand.next_double() * 4.0 + rand.next_double() * 0.1 + 0.2)
+        heat, spare = spare, heat
+    out = []
+    for at in range(256):
+        v = min(1.0, max(0.0, f32(heat[at] * 1.8)))
+        out.append((int(v * 155.0 + 100.0), int(v * v * 255.0),
+                    int(v ** 10 * 255.0), 255 if v >= 0.5 else 0))
+    return out
+
+
 def compass_tile(items_sheet, index):
     """TextureCompassFX with the needle at rest.
 
@@ -172,16 +302,50 @@ def clock_tile(items_sheet, dial, index):
     return out
 
 
-def patch_sheets(terrain, items, dial, portal_index, compass_index, clock_index):
-    """Overwrite the three placeholder tiles in place. Returns what was fixed."""
+def patch_sheets(terrain, items, dial, tiles):
+    """Overwrite every placeholder tile in place. Returns what was fixed.
+
+    `tiles` gives the atlas index each TextureFX paints over, read out of the
+    game rather than typed here: 'portal', 'water', 'lava' and 'fire' on the
+    terrain sheet, 'compass' and 'clock' on the item sheet. One that is
+    missing is skipped. The second tile of each pair is the flowing or second
+    animation the game registers beside the first, at the offset that class's
+    own constructor uses.
+    """
     fixed = []
-    if portal_index is not None:
-        _write_tile(terrain, portal_index, portal_tile())
-        fixed.append('portal (terrain %d)' % portal_index)
-    if compass_index is not None:
-        _write_tile(items, compass_index, compass_tile(items, compass_index))
-        fixed.append('compass (items %d)' % compass_index)
-    if clock_index is not None and dial is not None:
-        _write_tile(items, clock_index, clock_tile(items, dial, clock_index))
-        fixed.append('clock (items %d)' % clock_index)
+
+    def paint(sheet, index, pixels, size=1):
+        """Write one tile, across the size x size block the game paints it
+        into: flowing water and lava each cover four."""
+        for dy in range(size):
+            for dx in range(size):
+                _write_tile(sheet, index + dx + dy * GRID, pixels)
+
+    def done(what, sheet, *indices):
+        fixed.append('%s (%s %s)' % (what, sheet, ', '.join(str(i) for i in indices)))
+
+    if tiles.get('portal') is not None:
+        paint(terrain, tiles['portal'], portal_tile())
+        done('portal', 'terrain', tiles['portal'])
+    if tiles.get('water') is not None:
+        still, flow = tiles['water'], tiles['water'] + 1
+        paint(terrain, still, water_tile(still))
+        paint(terrain, flow, water_tile(flow, flowing=True), 2)
+        done('water', 'terrain', still, flow)
+    if tiles.get('lava') is not None:
+        still, flow = tiles['lava'], tiles['lava'] + 1
+        paint(terrain, still, lava_tile(still))
+        paint(terrain, flow, lava_tile(flow, flowing=True), 2)
+        done('lava', 'terrain', still, flow)
+    if tiles.get('fire') is not None:
+        low, high = tiles['fire'], tiles['fire'] + GRID
+        paint(terrain, low, flames_tile(low))
+        paint(terrain, high, flames_tile(high))
+        done('fire', 'terrain', low, high)
+    if tiles.get('compass') is not None:
+        paint(items, tiles['compass'], compass_tile(items, tiles['compass']))
+        done('compass', 'items', tiles['compass'])
+    if tiles.get('clock') is not None and dial is not None:
+        paint(items, tiles['clock'], clock_tile(items, dial, tiles['clock']))
+        done('clock', 'items', tiles['clock'])
     return fixed

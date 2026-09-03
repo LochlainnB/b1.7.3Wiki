@@ -9,7 +9,7 @@ one icon.
 
 Rather than restate any of that, this module runs the game. Block's and Item's
 static initialisers are executed by interp.py, which leaves behind a registry
-of real block and item objects; each is then asked exactly what
+of real block and item objects; each is then asked what
 RenderItem.drawItemIntoGui asks:
 
     Block.getRenderType()                        a cube, or a flat icon?
@@ -18,6 +18,10 @@ RenderItem.drawItemIntoGui asks:
     Block.getRenderColor(metadata)               the cube's tint
     Item.getIconFromDamage(damage)               the tile for a flat icon
     Item.getColorFromDamage(damage)              its tint
+
+with one deliberate departure, in icon() below: a block drawn flat is asked
+for its own tile rather than its item's, because an item is blind to metadata
+and a slot draws all three plants of block 31 as tall grass.
 
 Neither initialiser runs to completion: both end in statistics bookkeeping
 this interpreter has no business modelling. Both get all the way through
@@ -31,6 +35,7 @@ it is rather than what it is called, and every rule below is one the jar can
 be checked against:
 
     getBlockTextureFromSideAndMetadata  Block's only (II)I
+    getBlockTexture                     Block's only (Lx;IIII)I
     getRenderColor / getColorFromDamage the (I)I that returns 0xFFFFFF
     getIconFromDamage                   the Item (I)I that returns iconIndex
     getRenderType                       the ()I whose overrides span 1..17
@@ -38,6 +43,7 @@ be checked against:
     setBlockBoundsForItemRender         the ()V that Block's <clinit> never calls
 """
 import collections
+import re
 
 from disasm import disassemble, u2
 from interp import Arr, Interp, Obj, Ref, Unsupported, default_for
@@ -100,6 +106,11 @@ def _putfields(cf, m):
     return [cf.ref(u2(o))[1] for _pc, op, o in disassemble(cf.code_of(m)) if op == 0xb5]
 
 
+def _stub(desc):
+    """A hook answering a call with the default value of its return type."""
+    return lambda _it, _recv, _args: default_for(desc)
+
+
 def _one(cands, what):
     if len(cands) != 1:
         raise Unsupported('expected one %s, found %r' % (what, cands))
@@ -145,6 +156,17 @@ class Appearance(object):
                                'getBlockTextureFromSideAndMetadata')
         self.m_block_tint = _one([m['name'] for m in bcf.methods if m['desc'] == '(I)I'
                                   and _const_return(bcf, m) == WHITE], 'getRenderColor')
+
+        # getBlockTexture(IBlockAccess, x, y, z, side) is the one the world
+        # asks, and Block's only method taking a reference and four ints. The
+        # answers differ: grass keeps its green top and its dirt bottom here
+        # and nowhere else.
+        self.d_world_tex = _one(sorted({m['desc'] for m in bcf.methods
+                                        if re.match(r'^\(L[^;]+;IIII\)I$', m['desc'])}),
+                                'getBlockTexture(IBlockAccess, x, y, z, side)')
+        self.m_world_tex = _one([m['name'] for m in bcf.methods
+                                 if m['desc'] == self.d_world_tex], 'getBlockTexture')
+        self.world_cls = self.d_world_tex[2:self.d_world_tex.index(';')]
         self.m_set_bounds = _one([m['name'] for m in bcf.methods if m['desc'] == '(FFFFFF)V'],
                                  'setBlockBounds')
         self.bound_fields = [(block, f) for f in
@@ -278,6 +300,12 @@ class Appearance(object):
             register((self.item_cls, self.f_items), args[0] + 256, recv, 32000)
             return Interp.NOTHING
 
+        # Nothing here has a world, and getBlockTexture wants one: BlockGrass
+        # asks whether the block above is snow. A stub that answers every
+        # question with nothing is the plain, snowless, sea-level case.
+        for m in jar.cls(self.world_cls).methods:
+            interp.hooks[(self.world_cls, m['name'], m['desc'])] = _stub(m['desc'])
+
         interp.hooks[(self.block_cls, '<init>', self.ctor_plain)] = new_block
         interp.hooks[(self.block_cls, '<init>', self.ctor_tex)] = new_textured_block
         for m in icf.methods:
@@ -318,6 +346,30 @@ class Appearance(object):
     def render_type(self, block_id):
         return self._call(self._obj(self.blocks, block_id, 'block'), self.m_render_type, '()I', [])
 
+    def texture(self, ident):
+        """A block's blockIndexInTexture.
+
+        The tile a block was registered with, which is also the tile each of
+        the game's TextureFX names in its constructor when it paints one over.
+        """
+        return self._obj(self.blocks, ident, 'block').fields.get(self.f_texture)
+
+    def world_faces(self, ident):
+        """The six tiles the world puts on a block, or None if they are the
+        inventory's.
+
+        Only a block overriding getBlockTexture answers this differently from
+        getBlockTextureFromSideAndMetadata, and only grass answers it without
+        needing a real world to answer from.
+        """
+        block = self._obj(self.blocks, ident, 'block')
+        cf = self.jar.cls(block.cls)
+        if cf is None or cf.method(self.m_world_tex, self.d_world_tex) is None:
+            return None
+        return [self.interp.call(block.cls, self.m_world_tex, self.d_world_tex,
+                                 block, [None, 0, 0, 0, side], virtual=True)
+                for side in range(6)]
+
     def _boxes(self, block, render_type, meta):
         faces = [self._call(block, self.m_tex_meta, '(II)I', [side, meta]) for side in range(6)]
         if render_type == STAIRS:
@@ -329,7 +381,7 @@ class Appearance(object):
         return [Box(bounds, faces, CACTUS_INSET if render_type == CACTUS else 0.0)]
 
     def icon(self, ident, damage=0):
-        """How the inventory draws one stack.
+        """How the game draws one stack.
 
         Either a cube of boxes carrying six terrain tiles each, or a flat tile
         from one of the two sheets. Both come with the colour the game
@@ -344,8 +396,15 @@ class Appearance(object):
                 return {'kind': 'cube', 'renderType': render_type,
                         'boxes': self._boxes(block, render_type, meta),
                         'tint': self._call(block, self.m_block_tint, '(I)I', [meta])}
+            # A flat block takes its tile from the block, at the stack's own
+            # metadata. The inventory asks the block's *item* instead, and for
+            # everything registered as a plain ItemBlock that is one tile
+            # frozen at registration: block 31 is a dead shrub, tall grass and
+            # a fern, and a slot draws all three as tall grass.
+            return {'kind': 'flat', 'sheet': 'terrain',
+                    'tile': self._call(block, self.m_tex_meta, '(II)I', [2, damage]),
+                    'tint': self._call(block, self.m_block_tint, '(I)I', [damage])}
         item = self._obj(self.items, ident, 'item')
-        return {'kind': 'flat',
-                'sheet': 'terrain' if ident < 256 else 'items',
+        return {'kind': 'flat', 'sheet': 'items',
                 'tile': self._call(item, self.m_icon_damage, '(I)I', [damage]),
                 'tint': self._call(item, self.m_item_tint, '(I)I', [damage])}

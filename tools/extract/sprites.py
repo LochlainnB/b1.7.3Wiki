@@ -9,19 +9,21 @@ it is.
 Three things happen here, in order.
 
 The sheets are decoded and the tiles the game generates for itself are put
-back (see animated.py): a shipped terrain.png has a flat blue square where the
-portal belongs, and gui/items.png has a compass with no needle and a clock
-with a magenta hole for its dial.
+back (see animated.py). A shipped terrain.png has a flat blue square where the
+portal belongs, a red FIRE TEX! placard where the flames belong and rough
+sketches of water and lava; gui/items.png has a compass with no needle and a
+clock with a magenta hole for its dial.
 
 Both sheets are then sliced tile by tile into assets/sprites/, which is what a
 page reaching for a raw texture gets. The raw sheets are copied across
 untouched, so what is under assets/textures/ is exactly what shipped.
 
-Finally every block, item and metadata variant is asked what the inventory
-draws for it (appearance.py) and the answer is rendered (isometric.py). Most
-blocks come out as the little three-quarter cube a player sees rather than one
-flat face of themselves, and a stack whose damage value picks its own tile --
-all sixteen wools, all sixteen dyes -- gets an icon of its own.
+Finally every block, item and metadata variant is asked what the game draws
+for it (appearance.py) and the answer is rendered (isometric.py). Most blocks
+come out as the little three-quarter cube a player sees rather than one flat
+face of themselves, and a stack whose damage value picks its own tile -- all
+sixteen wools, all sixteen dyes -- gets an icon of its own. Where a slot is
+misleading the world wins; see the note above WORLD_TINTED.
 """
 import argparse
 import io
@@ -35,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import animated
 import isometric
 import png
-from appearance import Appearance
+from appearance import WHITE, Appearance
 from gamedata import Jar
 from mappings import load as load_mappings
 from paths import Missing, find_cache, find_jar
@@ -58,13 +60,23 @@ RAW_TEXTURES = [
 MOB_PREFIX = 'mob/'
 ARMOR_PREFIX = 'armor/'
 
-# BlockTallGrass is drawn in the biome's grass colour in the world and left
-# grey in the inventory, which is why the wiki's tall grass looked like ash.
-# The colour is the game's own -- ColorizerGrass.getGrassColor against the
-# shipped misc/grasscolor.png -- read at the middle of the table. Metadata 0
-# is the dead shrub, which the block's own colorMultiplier leaves alone, and
+# Two blocks a slot draws differently from the world. The wiki follows the
+# world, because a slot is not where anyone meets either of them.
+#
+# Tall grass and the fern are grey in a slot and the biome's colour in the
+# world. The colour is the game's own -- ColorizerGrass.getGrassColor against
+# the shipped misc/grasscolor.png -- read at the middle of the table. Metadata
+# 0 is the dead shrub, which BlockTallGrass.colorMultiplier leaves alone, and
 # so does this.
-WORLD_TINTED = {31: (1, 2)}
+#
+# The grass block is worse off: BlockGrass overrides only the texture lookup
+# that takes a world, so a slot falls back to grass_side on all six faces and
+# the top of the cube is half dirt. getBlockTexture has grass up there and
+# dirt underneath, and RenderBlocks singles Block.grass out to tint that top
+# face and leave the other five alone.
+GRASS = 'grass'
+WORLD_TINTED = {'tallgrass': (1, 2)}
+TOP = 1
 DEFAULT_CLIMATE = (0.5, 1.0)
 
 
@@ -116,10 +128,25 @@ def stacks(record):
     return out
 
 
+def cube_look(game, record, icon, tint, world_tint):
+    """The boxes and the tint to draw a cube block with.
+
+    Every block but grass is drawn exactly as a slot draws it. Grass is asked
+    getBlockTexture instead, and tinted the way RenderBlocks tints it: the top
+    face only. See the note on GRASS above.
+    """
+    if record['key'] != GRASS:
+        return icon['boxes'], tint
+    faces = game.world_faces(record['id'])
+    return ([box._replace(faces=faces) for box in icon['boxes']],
+            tuple(world_tint if side == TOP else WHITE for side in range(6)))
+
+
 def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint):
     """Render one file per named stack, and return its manifest entries."""
     entries, missing = {}, []
     for record in records:
+        tinted = WORLD_TINTED.get(record['key'], ())
         for damage, name in stacks(record):
             key = slug(name)
             if key in taken and kinds.get(key) != 'flat':
@@ -129,11 +156,10 @@ def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint):
             except Exception as err:
                 missing.append('%s (%s)' % (name, err))
                 continue
-            tint = icon['tint']
-            if damage in WORLD_TINTED.get(record['id'], ()):
-                tint = world_tint
+            tint = world_tint if damage in tinted else icon['tint']
             if icon['kind'] == 'cube':
-                image = isometric.render(sheets['terrain'], icon['boxes'], tint)
+                boxes, tint = cube_look(game, record, icon, tint, world_tint)
+                image = isometric.render(sheets['terrain'], boxes, tint)
             elif tint == 0xFFFFFF:
                 # Nothing to do to the tile, so point at the slice of it.
                 index = icon['tile']
@@ -183,15 +209,24 @@ def main():
     terrain = png.decode(z.read('terrain.png'))
     items = png.decode(z.read('gui/items.png'))
 
+    mp = load_mappings(os.path.join(cache, 'intermediary.tiny'),
+                       os.path.join(cache, 'barn.tiny'))
+    game = Appearance(Jar(jar_path), mp)
+
     # ---- the tiles the game draws for itself ---------------------------------
+    # Every TextureFX names the tile it paints over in its own constructor,
+    # out of the block's blockIndexInTexture or the item's icon, so the six
+    # indices below are the game's and not this file's.
     by_key = {b['key']: b for b in blocks}
     item_by_key = {i['key']: i for i in itemdefs}
     icon_index = lambda rec: rec['icon']['y'] * GRID + rec['icon']['x'] if rec else None
+    block_tile = lambda key: game.texture(by_key[key]['id']) if key in by_key else None
     fixed = animated.patch_sheets(
         terrain, items, png.decode(z.read('misc/dial.png')),
-        (by_key.get('portal') or {}).get('texture'),
-        icon_index(item_by_key.get('compass')),
-        icon_index(item_by_key.get('clock')))
+        {'portal': block_tile('portal'), 'water': block_tile('water'),
+         'lava': block_tile('lava'), 'fire': block_tile('fire'),
+         'compass': icon_index(item_by_key.get('compass')),
+         'clock': icon_index(item_by_key.get('clock'))})
     print('regenerated %s' % ', '.join(fixed))
 
     # ---- raw tiles and raw sheets -------------------------------------------
@@ -218,9 +253,6 @@ def main():
         print('contact sheet -> %s' % a.contact_sheet)
 
     # ---- inventory icons -----------------------------------------------------
-    mp = load_mappings(os.path.join(cache, 'intermediary.tiny'),
-                       os.path.join(cache, 'barn.tiny'))
-    game = Appearance(Jar(jar_path), mp)
     sheets = {'terrain': terrain, 'items': items}
     world_tint = grass_color(png.decode(z.read('misc/grasscolor.png')))
     icon_dir = os.path.join(sprites_dir, 'icon')

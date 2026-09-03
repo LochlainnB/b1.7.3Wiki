@@ -170,21 +170,27 @@ def _sampler(sheet, tile, shade):
     return sample
 
 
+def _rgb(colour):
+    return ((colour >> 16 & 255) / 255.0, (colour >> 8 & 255) / 255.0,
+            (colour & 255) / 255.0)
+
+
 def render(sheet, boxes, tint=0xFFFFFF, size=SIZE):
     """One inventory icon: the boxes, textured from `sheet`, into an Image.
 
     `boxes` are (bounds, six tile indices, inset) as appearance.py reports
-    them. `tint` is the colour the game multiplies the whole block by, which
-    is white for everything but leaves.
+    them. `tint` is the colour the game multiplies the block by -- white for
+    everything but leaves -- or six of them, one per side, which is how the
+    grass block gets a green top and plain grey sides.
     """
     scale = 10.0 * size / TILE
     centre = 8.0 * size / TILE
-    tint_rgb = ((tint >> 16 & 255) / 255.0, (tint >> 8 & 255) / 255.0, (tint & 255) / 255.0)
+    tints = tint if isinstance(tint, tuple) else (tint,) * 6
     canvas = Canvas(size)
     for bounds, tiles, inset in boxes:
         for side, normal, corners, uvs in _faces(bounds, inset):
             light = _brightness(normal)
-            shade = tuple(c * light for c in tint_rgb)
+            shade = tuple(c * light for c in _rgb(tints[side]))
             sample = _sampler(sheet, tiles[side], shade)
             screen = []
             for (mx, my, mz), (u, v) in zip(corners, uvs):
@@ -201,8 +207,7 @@ def flat(sheet, tile, tint=0xFFFFFF):
     """One sheet tile as the inventory draws it: the tile, times its tint."""
     x0, y0 = tile % 16 * TILE, tile // 16 * TILE
     out = Image(TILE, TILE)
-    red, green, blue = ((tint >> 16 & 255) / 255.0, (tint >> 8 & 255) / 255.0,
-                        (tint & 255) / 255.0)
+    red, green, blue = _rgb(tint)
     for y in range(TILE):
         src = ((y0 + y) * sheet.w + x0) * 4
         dst = y * TILE * 4

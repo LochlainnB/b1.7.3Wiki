@@ -25,8 +25,8 @@
     },
     "block-34": {
       "sheet": "terrain",
-      "index": 107,
-      "file": "assets/sprites/terrain/107.png"
+      "index": 108,
+      "file": "assets/sprites/terrain/108.png"
     },
     "block-36": {
       "sheet": "terrain",
@@ -516,8 +516,8 @@
     },
     "lava": {
       "sheet": "terrain",
-      "index": 206,
-      "file": "assets/sprites/terrain/206.png"
+      "index": 238,
+      "file": "assets/sprites/terrain/238.png"
     },
     "lava-bucket": {
       "sheet": "items",
@@ -681,8 +681,8 @@
     },
     "powered-rail": {
       "sheet": "terrain",
-      "index": 179,
-      "file": "assets/sprites/terrain/179.png"
+      "index": 163,
+      "file": "assets/sprites/terrain/163.png"
     },
     "pressure-plate": {
       "file": "assets/sprites/icon/pressure-plate.png"

@@ -89,8 +89,9 @@ tools/             the build (Node) and the extractors (Python).
   extract/appearance.py  runs Block's and Item's initialisers and asks the
                    result what the inventory draws for each stack.
   extract/isometric.py   draws it: the three-quarter cube, lit as the GUI lights it.
-  extract/animated.py    the portal, clock and compass tiles, which the game
-                   generates at load rather than shipping.
+  extract/animated.py    the tiles the game generates at load rather than
+                   shipping: water, lava, fire, the portal, the clock and the
+                   compass.
   extract/paths.py   finds the client jar and the Babric mappings.
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
@@ -149,6 +150,13 @@ every crafting and smelting recipe are extracted from the client jar into
   three-quarter cube a player sees in a slot, with the right tile on each face,
   so a furnace shows its front and a log shows its rings. Nothing needs saying
   on a page for that: `{{sprite}}`, `{{slot}}` and the infobox all use it.
+- Where a slot lies, the sprite follows the world. Beta's inventory asks a
+  block's *item* for its picture, and an item is blind to metadata and to the
+  biome, so a slot puts dirt across the top of a grass block and draws all
+  three plants of block 31 as grey tall grass. The extractor asks the block
+  instead, at the stack's own metadata, and asks the grass block the texture
+  lookup that takes a world. The deviations are listed at the top of
+  `tools/extract/sprites.py`, each beside the game code it follows.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.

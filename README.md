@@ -37,9 +37,15 @@ and the registry they leave behind is asked what
 `RenderItem.drawItemIntoGui` would ask — cube or flat tile, which tile on each
 face, what tint — then that is rasterised into the three-quarter cube the
 inventory shows, lit by the GUI's own two lamps. So all sixteen wools are
-sixteen colours, a furnace shows its front, and the portal, the clock and the
-compass show the tiles the game generates for itself instead of the
-placeholders left in the sheets.
+sixteen colours, and a furnace shows its front.
+
+Nine of the sheets' tiles never ship at all: the game paints water, lava, fire, the portal,
+the clock and the compass into the atlas at load, over placeholders that in the
+file are a blue square, an orange smear and a red card reading FIRE TEX!. Each
+of those `TextureFX` classes is reimplemented, down to `java.util.Random` and
+`MathHelper`'s sine table, so a page shows the texture and not the placeholder.
+And where the inventory itself is misleading — a grass block is half dirt in a
+slot, a fern is grey tall grass — the sprite follows what the world draws.
 
 ## Commands
 

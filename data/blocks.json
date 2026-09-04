@@ -518,7 +518,7 @@
   {
     "id": 39,
     "key": "mushroom",
-    "name": "Mushroom",
+    "name": "Brown Mushroom",
     "langKey": "tile.mushroom",
     "class": "class_429",
     "texture": 29,
@@ -531,7 +531,7 @@
   {
     "id": 40,
     "key": "mushroom",
-    "name": "Mushroom",
+    "name": "Red Mushroom",
     "langKey": "tile.mushroom",
     "class": "class_429",
     "texture": 28,

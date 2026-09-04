@@ -978,7 +978,7 @@
   {
     "id": 337,
     "key": "clay",
-    "name": "Clay",
+    "name": "Clay Ball",
     "langKey": "item.clay",
     "class": "Item",
     "icon": {

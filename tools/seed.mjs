@@ -10,7 +10,8 @@
 // as far as it goes. What is missing is prose, which is what editors add.
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { loadPages, buildIndex } from './lib/content.mjs';
 import { loadData } from './lib/data.mjs';
 import { slug } from './lib/slug.mjs';
 import { isMob, MOB_SECTIONS } from './lib/mobs.mjs';
@@ -19,6 +20,14 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const force = process.argv.includes('--force');
 
 const data = loadData(ROOT);
+const config = (await import(pathToFileURL(join(ROOT, 'wiki.config.js')).href)).default;
+
+// Every name the wiki already answers to, aliases included. A stub is worth
+// writing only for something no page covers yet, and a page may well cover a
+// name that is not its title: brown and red mushrooms are one article, because
+// the game runs them through one class and the only prose worth writing is
+// about both. Without this, every reseed would put the stubs back.
+const covered = buildIndex(loadPages(ROOT, config));
 
 /** One page per display name: Beta 1.7.3 gives several ids the same name. */
 function mergeByName() {
@@ -202,6 +211,7 @@ function buildBiomePage(b) {
 let created = 0;
 let skipped = 0;
 let overwritten = 0;
+let elsewhere = 0;
 
 for (const b of data.biomes) {
   const file = join(ROOT, 'content', 'biome', `${slug(b.name)}.md`);
@@ -221,6 +231,7 @@ for (const entry of mergeByName()) {
   const ns = namespaceFor(entry);
   const file = join(ROOT, 'content', ns, `${slug(prettyName(entry.name))}.md`);
   const exists = existsSync(file);
+  if (!exists && covered.has(slug(entry.name))) { elsewhere++; continue; }
   if (exists && !force) { skipped++; continue; }
   if (exists && force && !isStubFile(file)) { skipped++; continue; }
   mkdirSync(dirname(file), { recursive: true });
@@ -228,4 +239,5 @@ for (const entry of mergeByName()) {
   if (exists) overwritten++; else created++;
 }
 
-console.log(`seeded: ${created} created, ${overwritten} rewritten, ${skipped} left alone`);
+console.log(`seeded: ${created} created, ${overwritten} rewritten, ${skipped} left alone`
+  + (elsewhere ? `, ${elsewhere} already covered under another title` : ''));

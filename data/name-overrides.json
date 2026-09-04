@@ -1,15 +1,20 @@
 {
   "_note": "Display names for the handful of blocks and items that have no .name entry in lang/en_US.lang, so gamedata.py has nothing to read. Keyed by numeric id. These are the names the game and its community use for them.",
+  "_splitNote": "The same file also splits names the game shares. A display name is the wiki's identity for a thing -- its page, its sprite, its slot in a recipe -- so two ids that answer to one name become one page, which is right for the two halves of a door and wrong for two different things. gamedata.py lists every shared name when it runs; the ones split here are the ones that were two things.",
   "_variantNote": "Names for metadata values en_US.lang has no key for. Block 31 is one id holding three plants -- a dead shrub, tall grass and a fern -- and the game never names any of them.",
   "byBlockId": {
     "31": "Tall Grass",
     "32": "Dead Bush",
+    "39": "Brown Mushroom",
+    "40": "Red Mushroom",
     "43": "Double Stone Slab",
     "44": "Stone Slab",
     "93": "Redstone Repeater",
     "94": "Redstone Repeater"
   },
-  "byItemId": {},
+  "byItemId": {
+    "337": "Clay Ball"
+  },
   "variantsByBlockId": {
     "31": {
       "1": "Tall Grass",

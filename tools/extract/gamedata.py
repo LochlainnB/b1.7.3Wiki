@@ -126,18 +126,43 @@ def super_args(jar, cls_obf, parent_obf):
 
 
 def load_name_overrides(out_dir):
-    """Names for the few blocks/items en_US.lang never gives one.
+    """Names for the few blocks/items en_US.lang never gives one, or gives twice.
 
     Subtypes are covered too. Wool and slabs name themselves, because the game
     picks a translation key per damage value and en_US.lang answers; tall grass
     does not, so the fern hiding at metadata 2 has no name to be found and one
     is supplied here.
+
+    The other job is splitting. en_US.lang answers `tile.mushroom` and
+    `item.clay` for two ids apiece, and a name is the wiki's identity for a
+    thing, so without an override the brown and the red mushroom become one
+    page with one sprite. See shared_names() below.
     """
     path = os.path.join(out_dir, 'name-overrides.json')
     if not os.path.exists(path):
         return {}, {}, {}
     doc = json.load(io.open(path, encoding='utf-8'))
     return doc.get('byBlockId', {}), doc.get('byItemId', {}), doc.get('variantsByBlockId', {})
+
+
+def shared_names(blocks, items, entities):
+    """Display names claimed by more than one id, as {name: ['block 8', ...]}.
+
+    Sharing is usually right: block 8 and 9 are the two halves of water, block
+    63 and 68 the two ways a sign stands, and one page wants both. It is wrong
+    when the ids are different things, because the loser vanishes -- it has no
+    page of its own to be found on and no sprite of its own to be drawn with.
+    Printing the list is the only way anyone notices which is which, so the
+    extractor says it out loud every run and name-overrides.json settles it.
+    """
+    out = {}
+    for kind, records in (('block', blocks), ('item', items), ('entity', entities)):
+        for rec in records:
+            if kind == 'block' and not rec.get('key'):
+                continue                      # technical blocks are unnamed
+            out.setdefault(rec['name'], []).append(
+                '%s %d' % (kind, rec.get('id', rec.get('networkId'))))
+    return {n: w for n, w in sorted(out.items()) if len(w) > 1}
 
 
 def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
@@ -661,6 +686,14 @@ def main():
         'sha1': sha1(io.open(jar_path, 'rb').read()),
         'generator': 'tools/extract/gamedata.py',
     })
+
+    shared = shared_names(blocks, items, entities)
+    if shared:
+        print('\n%d names are claimed by more than one id. Each is one page and '
+              'one sprite;\nsplit any that are two things in name-overrides.json.'
+              % len(shared))
+        for name, where in shared.items():
+            print('  %-20s %s' % (name, ', '.join(where)))
 
 
 if __name__ == '__main__':

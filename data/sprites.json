@@ -91,6 +91,11 @@
     "bricks": {
       "file": "assets/sprites/icon/bricks.png"
     },
+    "brown-mushroom": {
+      "sheet": "terrain",
+      "index": 29,
+      "file": "assets/sprites/terrain/29.png"
+    },
     "brown-wool": {
       "file": "assets/sprites/icon/brown-wool.png"
     },
@@ -143,6 +148,11 @@
     },
     "clay": {
       "file": "assets/sprites/icon/clay.png"
+    },
+    "clay-ball": {
+      "sheet": "items",
+      "index": 57,
+      "file": "assets/sprites/items/57.png"
     },
     "clock": {
       "sheet": "items",
@@ -623,11 +633,6 @@
     "moss-stone": {
       "file": "assets/sprites/icon/moss-stone.png"
     },
-    "mushroom": {
-      "sheet": "terrain",
-      "index": 28,
-      "file": "assets/sprites/terrain/28.png"
-    },
     "mushroom-stew": {
       "sheet": "items",
       "index": 72,
@@ -712,6 +717,11 @@
       "sheet": "items",
       "index": 87,
       "file": "assets/sprites/items/87.png"
+    },
+    "red-mushroom": {
+      "sheet": "terrain",
+      "index": 28,
+      "file": "assets/sprites/terrain/28.png"
     },
     "red-wool": {
       "file": "assets/sprites/icon/red-wool.png"

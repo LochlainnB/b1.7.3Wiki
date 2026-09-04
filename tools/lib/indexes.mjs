@@ -4,6 +4,7 @@
 // from the site's chrome.
 import { join } from 'node:path';
 import { statSync } from 'node:fs';
+import { subjectsOf } from './content.mjs';
 import { escapeHtml } from './templates.mjs';
 import { slug, anchorId } from './slug.mjs';
 
@@ -33,7 +34,7 @@ function pageGrid(pages, ctx) {
     .slice()
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((p) => {
-      const name = p.fm.sprite || p.fm.subject || p.title;
+      const name = p.fm.sprite || ctx.data.nameOf(subjectsOf(p)[0].name);
       const sp = ctx.data.sprite(name) ? ctx.sprite(name, { size: 32 }) : '<span class="sprite-file"></span>';
       const stub = p.fm.stub ? ' <span class="stub-flag" title="This page is a stub">stub</span>' : '';
       return `<li>${ctx.hrefWrap(p.url, `${sp}<span class="pagelist-name">${escapeHtml(p.title)}</span>`)}${stub}</li>`;

@@ -2,6 +2,7 @@
 title: Furnace
 description: Furnace in Minecraft Beta 1.7.3.
 type: block
+subject: {Unlit: block 61, Lit: block 62}
 categories: [Blocks]
 stub: true
 ---

@@ -3,17 +3,15 @@ title: Mushroom
 description: A small plant that survives only in darkness and slowly spreads to nearby blocks.
 type: block
 categories: [Blocks, Plants, Naturally generated]
+subject: {Brown: Brown Mushroom, Red: Red Mushroom}
 aliases: [Brown Mushroom, Red Mushroom]
-sprite: Brown Mushroom
-infobox: false
 ---
 
 **Mushroom** is a small plant that survives only in darkness. Two kinds exist,
-the brown mushroom {{sprite|Brown Mushroom|notext=yes}} and the red mushroom
-{{sprite|Red Mushroom|notext=yes}}. The game gives both the same name and runs
-both through the same code, so they behave identically; they differ in
-appearance, in how often they generate, and in that the brown one gives off a
-faint light where the red one gives off none.
+brown and red. The game gives both the same name and runs both through the same
+code, so they behave identically; they differ in appearance, in how often they
+generate, and in that the brown one gives off a faint light where the red one
+gives off none.
 
 ## Obtaining
 

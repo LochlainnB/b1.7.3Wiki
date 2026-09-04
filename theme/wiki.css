@@ -473,6 +473,33 @@ blockquote {
   background: var(--background-color-neutral-subtle);
 }
 
+/* An infobox covering more than one id: a sprite and a column per id, and the
+   rows they agree on spanning the lot. See tools/lib/infobox.mjs. */
+.infobox-imagearea-multi {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4em 1em;
+}
+.infobox-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+}
+.infobox-image-label {
+  font-size: 0.85em;
+  color: var(--color-subtle);
+}
+.infobox-multi thead th {
+  width: auto;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--color-subtle);
+}
+.infobox-multi tbody td { text-align: center; }
+.infobox-multi tbody td:only-of-type { text-align: left; }
+
 /* ----------------------------------------------- inventory / crafting UI -- */
 .pixel-image, .sprite-file img, .invslot img {
   image-rendering: pixelated;

@@ -2,6 +2,7 @@
 title: Redstone Repeater
 description: Redstone Repeater in Minecraft Beta 1.7.3.
 type: block
+subject: {Off: block 93, On: block 94}
 categories: [Blocks]
 stub: true
 ---

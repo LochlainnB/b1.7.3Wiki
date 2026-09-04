@@ -162,9 +162,14 @@ every crafting and smelting recipe are extracted from the client jar into
   one name, the wiki gives them one page. Sometimes that is right; when it is
   not, split them in `data/name-overrides.json`, which is where *Brown
   Mushroom*, *Red Mushroom* and *Clay Ball* come from.
-- One page may answer to several names. `aliases` in frontmatter make a page the
-  target for each of them, and `tools/seed.mjs` reads those aliases before it
-  stubs anything, so the two mushrooms stay one article across a reseed.
+- One page may answer to several names, and cover several ids. `aliases` make a
+  page the target for each name, and `tools/seed.mjs` reads them before it stubs
+  anything, so the two mushrooms stay one article across a reseed. `subject` may
+  name every id the page covers — `{Unlit: block 61, Lit: block 62}` — and the
+  infobox then carries a column each, splitting only the rows where the ids
+  disagree. Six pages needed that: a lit furnace, a lit redstone torch, glowing
+  redstone ore and a powered repeater all emit light their unlit twin does not,
+  and the infobox used to report the twin's.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.

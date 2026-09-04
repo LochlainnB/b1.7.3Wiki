@@ -2,6 +2,7 @@
 title: Redstone Torch
 description: Redstone Torch in Minecraft Beta 1.7.3.
 type: block
+subject: {Off: block 75, On: block 76}
 categories: [Blocks]
 stub: true
 ---

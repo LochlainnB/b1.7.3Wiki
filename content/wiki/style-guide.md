@@ -44,6 +44,7 @@ title: Cobblestone            # required; also the [[link]] target
 description: One sentence.    # used in search results and meta tags
 type: block                   # block | item | entity | biome | mechanic | guide | wiki
 subject: Cobblestone          # what the data templates look up, if not the title
+sprite: Cobblestone           # which icon represents the page, if not the title
 aliases: [Cobble]             # extra names that resolve to this page
 categories: [Blocks]          # shown at the foot, indexed on /wiki/categories/
 infobox:                      # extra or overriding infobox rows
@@ -54,6 +55,28 @@ toc: false                    # suppress the contents box
 ```
 
 Unknown keys produce a build warning, so a typo will not sit unnoticed.
+
+### A page about more than one id
+
+Beta gives one name to ids that are not one thing: both mushrooms are
+`tile.mushroom`, a furnace is one id lit and another unlit. When a single
+article is the right home for the pair, `subject` names them all, and the
+infobox grows a column each:
+
+```yaml
+subject: {Brown: Brown Mushroom, Red: Red Mushroom}   # by name
+subject: {Unlit: block 61, Lit: block 62}             # by id, when the name is shared
+aliases: [Brown Mushroom, Red Mushroom]               # so both names reach the page
+```
+
+The key is the column heading, so keep it to a word. Rows the ids agree on stay
+single, and only the ones that differ split, which is usually the light level
+and the id itself. Where the two have separate sprites the picture area shows
+both; where they share one it shows it once, full size.
+
+`aliases` matter here beyond linking: `tools/seed.mjs` reads them before it
+stubs anything, so a name an existing article already covers does not sprout a
+second page on the next reseed.
 
 ## Article shape
 

@@ -2,6 +2,7 @@
 // build is the only thing standing between a typo and a silently broken wiki:
 // it names the file, says what is wrong, and fails on anything structural.
 
+import { subjectsOf } from './content.mjs';
 import { slug } from './slug.mjs';
 
 const REQUIRED = ['title'];
@@ -71,23 +72,35 @@ const RECIPE_SECTIONS = [
  *
  * `shown` records what the templates actually rendered rather than what the
  * markdown says, so aliases and {{crafting|for=X}} all count.
+ *
+ * A page covering several subjects is asked about each of them, but only for
+ * what its earlier subjects did not already account for: the two stew recipes
+ * belong to the brown mushroom and the red one alike, and showing them once is
+ * showing them.
  */
 function checkRecipeCoverage(pages, data, shown, problems) {
   if (!data) return;
   for (const page of pages) {
     if (page.generated) continue;
-    const subject = page.fm.subject || page.title;
     const seen = shown.get(page.url);
-    for (const section of RECIPE_SECTIONS) {
-      const found = section.find(data, subject);
-      if (!found.length) continue;
-      if (seen && seen.has(`${section.kind}\u0000${slug(subject)}`)) continue;
-      problems.push({
-        page: page.relFile,
-        level: 'warn',
-        message: `data/ has ${section.describe(found.length, subject)} that this page ` +
-          `never shows - add ${section.template(subject)}`,
-      });
+    const accounted = new Set();
+    for (const subject of subjectsOf(page)) {
+      // A subject may point at an id rather than a name; recipes are indexed
+      // by name, so ask the data what this one is called.
+      const name = data.nameOf(subject.name);
+      for (const section of RECIPE_SECTIONS) {
+        const found = section.find(data, name);
+        const fresh = found.filter((r) => !accounted.has(r));
+        for (const r of found) accounted.add(r);
+        if (!fresh.length) continue;
+        if (seen && seen.has(`${section.kind}\u0000${slug(name)}`)) continue;
+        problems.push({
+          page: page.relFile,
+          level: 'warn',
+          message: `data/ has ${section.describe(found.length, name)} that this page ` +
+            `never shows - add ${section.template(name)}`,
+        });
+      }
     }
   }
 }

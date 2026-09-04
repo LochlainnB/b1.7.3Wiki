@@ -43,6 +43,26 @@ export function loadData(root) {
   for (const i of items) variantsOf(i, 'item');
 
   /**
+   * Look a thing up by display name, or by id when the name is not enough.
+   *
+   * "block 75" and "block 76" are both called Redstone Torch, one lit and one
+   * not, and only one of them can own the name. A page covering the pair says
+   * which it means the way a recipe does, by kind and number, and gets a record
+   * back either way.
+   */
+  const BY_ID = /^(block|item|entity)\s+(\d+)$/i;
+  function lookup(name) {
+    const byId = BY_ID.exec(String(name).trim());
+    if (!byId) return bySlug.get(slug(name)) || null;
+    const kind = byId[1].toLowerCase();
+    const id = Number(byId[2]);
+    const rec = kind === 'block' ? blockById.get(id)
+      : kind === 'item' ? itemById.get(id)
+        : entities.find((e) => e.networkId === id);
+    return rec ? { kind, ...rec } : null;
+  }
+
+  /**
    * Resolve a recipe reference ({block:4} / {item:280}) to a data record.
    *
    * `name` stays the id's own name, because that is what has a sprite and a
@@ -106,8 +126,10 @@ export function loadData(root) {
 
     blockById: (id) => blockById.get(id),
     itemById: (id) => itemById.get(id),
-    /** Look up a block/item/entity by display name or slug. */
-    lookup: (name) => bySlug.get(slug(name)) || null,
+    /** Look up a block/item/entity by display name, slug, or "block 75". */
+    lookup,
+    /** The display name of whatever a subject points at, for callers wanting one. */
+    nameOf: (name) => (lookup(name) || {}).name || String(name),
     sprite: (name) => (spriteFile.sprites || {})[slug(name)] || null,
     resolveRef,
     refSlug,

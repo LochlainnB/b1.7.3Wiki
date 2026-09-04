@@ -2,6 +2,7 @@
 // blast resistance and id without an editor retyping (or mistyping) them.
 // Anything in the page's `infobox:` frontmatter overrides or extends the
 // generated rows.
+import { subjectsOf } from './content.mjs';
 import { escapeHtml } from './templates.mjs';
 
 const fmt = (n) => (n == null ? null : String(Math.round(n * 1000) / 1000));
@@ -35,51 +36,117 @@ function autoRows(rec, ctx) {
 }
 
 /**
+ * Merge one column of generated rows per subject into rows of several values.
+ *
+ * Columns agree far more often than they differ -- both mushrooms are equally
+ * soft, both furnaces equally hard -- so a row whose values all match collapses
+ * back to one cell and the box reads as a single infobox with two exceptions,
+ * rather than a comparison table nobody asked for.
+ */
+function mergeColumns(columns, ctx) {
+  const perColumn = columns.map((c) => new Map(autoRows(c.rec, ctx)));
+  const keys = [];
+  for (const rows of perColumn) {
+    for (const key of rows.keys()) if (!keys.includes(key)) keys.push(key);
+  }
+  return keys.map((key) => [key, perColumn.map((rows) => rows.get(key) ?? '')]);
+}
+
+/**
  * Render the page's infobox, or '' when the page neither declares one nor
  * matches a known block/item/entity.
+ *
+ * `subject` may name more than one thing; see subjectsOf(). Each becomes a
+ * column, and a custom `infobox:` row still overrides all of them at once,
+ * since a value written by hand is a statement about the page as a whole.
  */
 export function renderInfobox(page, ctx) {
   const fm = page.fm || {};
   if (fm.infobox === false || fm.infobox === 'none') return '';
 
-  const subject = fm.subject || page.title;
-  const rec = ctx.data.lookup(subject);
+  const subjects = subjectsOf(page);
+  const columns = subjects
+    .map((s) => ({ ...s, rec: ctx.data.lookup(s.name) }))
+    .filter((c) => c.rec);
+  const multi = columns.length > 1;
   const custom = (fm.infobox && typeof fm.infobox === 'object' && !Array.isArray(fm.infobox))
     ? fm.infobox : {};
-  const auto = autoRows(rec, ctx);
+  const auto = columns.length ? mergeColumns(columns, ctx) : [];
   if (!auto.length && !Object.keys(custom).length) return '';
 
   // Custom values replace generated ones of the same name; the rest append,
   // keeping the generated order stable across pages.
   const seen = new Set();
   const rows = [];
-  for (const [k, v] of auto) {
+  for (const [k, values] of auto) {
     const override = Object.keys(custom).find((c) => c.toLowerCase() === k.toLowerCase());
     if (override !== undefined) {
-      rows.push([k, String(custom[override])]);
+      rows.push([k, [String(custom[override])]]);
       seen.add(override);
     } else {
-      rows.push([k, v]);
+      rows.push([k, values]);
     }
   }
   for (const [k, v] of Object.entries(custom)) {
-    if (!seen.has(k)) rows.push([k, String(v)]);
+    if (!seen.has(k)) rows.push([k, [String(v)]]);
   }
 
-  const spriteName = fm.sprite || subject;
-  const image = ctx.data.sprite(spriteName)
-    ? `<div class="infobox-imagearea">${ctx.sprite(spriteName, { size: 128, link: false })}</div>`
-    : '';
+  const image = imageArea(fm, page, columns, ctx);
 
+  const cells = (values) => {
+    const span = values.length < columns.length || values.every((v) => v === values[0]);
+    if (span) {
+      const wide = multi ? ` colspan="${columns.length}"` : '';
+      return `<td${wide}>${ctx.renderInline(String(values[0]))}</td>`;
+    }
+    return values.map((v) => `<td>${ctx.renderInline(String(v))}</td>`).join('');
+  };
+  const head = multi
+    ? `<thead><tr><td></td>${columns
+      .map((c) => `<th scope="col">${escapeHtml(c.label)}</th>`).join('')}</tr></thead>`
+    : '';
   const body = rows
-    .map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${ctx.renderInline(String(v))}</td></tr>`)
+    .map(([k, values]) => `<tr><th scope="row">${escapeHtml(k)}</th>${cells(values)}</tr>`)
     .join('');
 
   return (
     `<div class="infobox notaninfobox">` +
     `<div class="mcwiki-header infobox-title">${escapeHtml(fm.infoboxTitle || page.title)}</div>` +
     image +
-    `<table class="infobox-rows"><tbody>${body}</tbody></table>` +
+    `<table class="infobox-rows${multi ? ' infobox-multi' : ''}">${head}` +
+    `<tbody>${body}</tbody></table>` +
     `</div>`
   );
+}
+
+/**
+ * The picture above the rows: one sprite, or one per column with its label.
+ *
+ * Two sprites have to share the width one had, so they shrink; `sprite:` in
+ * frontmatter still overrides the single case, where there is one thing to
+ * point at and a page may want a subtype's icon rather than its id's.
+ */
+function imageArea(fm, page, columns, ctx) {
+  // Sprites are drawn per name, and two columns may share one: a lit furnace
+  // and an unlit one are both Furnace, and labelling one picture twice would
+  // promise a difference the wiki cannot show. Distinct pictures get labels;
+  // one picture stands alone at full size, as on any other page.
+  const shown = [];
+  for (const column of columns) {
+    const name = column.rec.name;
+    if (ctx.data.sprite(name) && !shown.some((s) => s.name === name)) {
+      shown.push({ name, label: column.label });
+    }
+  }
+  if (shown.length < 2) {
+    const only = fm.sprite || (shown[0] || {}).name || page.title;
+    return ctx.data.sprite(only)
+      ? `<div class="infobox-imagearea">${ctx.sprite(only, { size: 128, link: false })}</div>`
+      : '';
+  }
+  const size = Math.max(48, Math.floor(224 / shown.length));
+  const cells = shown.map((s) =>
+    `<span class="infobox-image">${ctx.sprite(s.name, { size, link: false })}` +
+    `<span class="infobox-image-label">${escapeHtml(s.label)}</span></span>`);
+  return `<div class="infobox-imagearea infobox-imagearea-multi">${cells.join('')}</div>`;
 }

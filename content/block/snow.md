@@ -2,6 +2,7 @@
 title: Snow
 description: Snow in Minecraft Beta 1.7.3.
 type: block
+subject: {Layer: block 78, Block: block 80}
 categories: [Blocks]
 stub: true
 ---

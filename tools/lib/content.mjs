@@ -76,6 +76,30 @@ export function loadPages(root, config) {
 }
 
 /**
+ * What a page is about, in `data/`'s terms: [{ label, name }, ...].
+ *
+ * Normally one thing, named by `subject` or by the title. A page may name
+ * several, because Beta gives one name to ids that are not one thing -- both
+ * mushrooms are `tile.mushroom`, both furnaces are `tile.furnace` -- and an
+ * article about the pair wants the facts of both:
+ *
+ *     subject: {Brown: Brown Mushroom, Red: Red Mushroom}   labelled columns
+ *     subject: [Brown Mushroom, Red Mushroom]               labelled by name
+ *
+ * The label is what the infobox writes above a column, so it is the short
+ * half of the name: a reader already knows which article they are on.
+ */
+export function subjectsOf(page) {
+  const subject = (page.fm || {}).subject;
+  if (!subject) return [{ label: page.title, name: page.title }];
+  if (typeof subject === 'string') return [{ label: page.title, name: subject }];
+  const pairs = Array.isArray(subject)
+    ? subject.map((name) => [name, name])
+    : Object.entries(subject);
+  return pairs.map(([label, name]) => ({ label: String(label), name: String(name) }));
+}
+
+/**
  * Build the lookup used to resolve [[wiki links]]: every page is addressable by
  * its title, its slug, and any aliases it declares.
  */

@@ -2,6 +2,7 @@
 title: Redstone Ore
 description: Redstone Ore in Minecraft Beta 1.7.3.
 type: block
+subject: {Ore: block 73, Glowing: block 74}
 categories: [Blocks]
 stub: true
 ---

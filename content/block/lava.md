@@ -2,6 +2,7 @@
 title: Lava
 description: Lava in Minecraft Beta 1.7.3.
 type: block
+subject: {Still: block 10, Flowing: block 11}
 categories: [Blocks]
 stub: true
 ---

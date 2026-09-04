@@ -1,16 +1,29 @@
 ---
 title: Clay
-description: Clay in Minecraft Beta 1.7.3.
+description: A soft grey block found in patches under shallow water, mined for clay balls.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Naturally generated]
 ---
 
-{{stub|block}}
-
-**Clay** is a block in Minecraft Beta 1.7.3. It has a hardness of 0.6 and a blast resistance of 0.6.
+**Clay** is a soft grey block that generates in patches beneath shallow water.
+Breaking one yields [[Clay Ball|clay balls]], which fire into [[Brick|bricks]].
+The game gives the block and the item the same name; this page is the block.
 
 ## Obtaining
+
+### Natural generation
+
+Clay generates in blobs that replace [[Sand]]. Ten attempts are made per chunk,
+each starting from a random point anywhere in the column, and an attempt is
+abandoned at once unless the block it starts on is [[Water]]. What survives is
+therefore a patch of clay in the sand of a lake or sea floor, in the shallows
+where sand reaches the surface.
+<!-- src: WorldGenClay.java:14-58 generate, ChunkProviderGenerate.java:347-352 -->
+
+The blob itself is a line of overlapping spheres running horizontally through
+32 steps, the same shape the game uses for ore, which is why a patch is a
+lens rather than a ball.
+<!-- src: WorldGenClay.java:18-55 -->
 
 ### Crafting
 
@@ -18,12 +31,14 @@ stub: true
 
 ## Usage
 
-### Crafting ingredient
+### Mining
 
-{{used in|Clay}}
+A clay block drops four [[Clay Ball|clay balls]] and never itself. A shovel is
+the effective tool, and nothing is required: the block is soft enough that bare
+hands break it and drop the same four.
+<!-- src: BlockClay.java:10-16, ItemSpade.java:19 blocksEffectiveAgainst -->
 
 ## Data values
 
-- Block ID: `82`
-- Item ID: `337`
-- Translation key: `tile.clay`
+Clay uses block ID {{id|Clay}} and the translation key `tile.clay`. The item it
+drops is a separate id: see [[Clay Ball]].

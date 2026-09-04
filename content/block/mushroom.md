@@ -3,13 +3,17 @@ title: Mushroom
 description: A small plant that survives only in darkness and slowly spreads to nearby blocks.
 type: block
 categories: [Blocks, Plants, Naturally generated]
+aliases: [Brown Mushroom, Red Mushroom]
+sprite: Brown Mushroom
+infobox: false
 ---
 
 **Mushroom** is a small plant that survives only in darkness. Two kinds exist,
-brown and red. The game gives both the same name and runs both through the same
-code, so they behave identically; they differ in appearance, in how often they
-generate, and in that the brown one gives off a faint light where the red one
-gives off none.
+the brown mushroom {{sprite|Brown Mushroom|notext=yes}} and the red mushroom
+{{sprite|Red Mushroom|notext=yes}}. The game gives both the same name and runs
+both through the same code, so they behave identically; they differ in
+appearance, in how often they generate, and in that the brown one gives off a
+faint light where the red one gives off none.
 
 ## Obtaining
 
@@ -38,7 +42,12 @@ it cannot stand on.
 
 ### Crafting ingredient
 
-{{used in|Mushroom}}
+One mushroom of each colour and a [[Bowl]] make [[Mushroom Stew]]. The two are
+stacked vertically over the bowl, and either may sit on top, so the recipe is
+registered twice.
+<!-- src: RecipesFood.java:5-6 addRecipes -->
+
+{{used in|Brown Mushroom}}
 
 ## Behaviour
 
@@ -103,5 +112,7 @@ drops the moment anything beside it is built or broken.
 
 ## Data values
 
-- Block ID: `39`, `40`
-- Translation key: `tile.mushroom`
+- Block ID: {{id|Brown Mushroom}} brown, {{id|Red Mushroom}} red
+- Translation key: `tile.mushroom` for both. The game calls each of them simply
+  *Mushroom*; **Brown Mushroom** and **Red Mushroom** are the wiki's names for
+  them, so that a recipe can say which one it wants.

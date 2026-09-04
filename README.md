@@ -110,7 +110,10 @@ the sibling directory `../BabricKit/cache`. Pointing at the cache is normally
 enough, since the jar sits beside the mappings; `--jar` and `--cache` override.
 
 `data/name-overrides.json` is hand-maintained and survives regeneration;
-everything else in `data/` is overwritten.
+everything else in `data/` is overwritten. It names the few things
+`lang/en_US.lang` leaves nameless, and splits the ones it names twice: Beta
+calls both mushrooms *Mushroom* and both the clay block and the clay ball
+*Clay*, and a name is what the wiki hands a page and a sprite to.
 
 ## Deploying
 

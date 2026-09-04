@@ -125,8 +125,8 @@ stub: true
 ```
 
 Frontmatter keys: `title` (required), `description`, `type`, `subject`,
-`aliases`, `categories`, `infobox`, `infoboxTitle`, `stub`, `toc`, `id`,
-`order`. Anything else warns, so typos surface at build time.
+`sprite`, `aliases`, `categories`, `infobox`, `infoboxTitle`, `stub`, `toc`,
+`id`, `order`. Anything else warns, so typos surface at build time.
 
 Remove `stub: true` when the page is genuinely written. That is what
 `/wiki/stubs/` tracks.
@@ -157,6 +157,14 @@ every crafting and smelting recipe are extracted from the client jar into
   instead, at the stack's own metadata, and asks the grass block the texture
   lookup that takes a world. The deviations are listed at the top of
   `tools/extract/sprites.py`, each beside the game code it follows.
+- A display name is an identity, not a label. Everything downstream keys off it
+  — the page, the sprite, the slot in a recipe — so when the game gives two ids
+  one name, the wiki gives them one page. Sometimes that is right; when it is
+  not, split them in `data/name-overrides.json`, which is where *Brown
+  Mushroom*, *Red Mushroom* and *Clay Ball* come from.
+- One page may answer to several names. `aliases` in frontmatter make a page the
+  target for each of them, and `tools/seed.mjs` reads those aliases before it
+  stubs anything, so the two mushrooms stay one article across a reseed.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.
@@ -225,6 +233,15 @@ One file in `data/` is hand-maintained and safe to edit: `name-overrides.json`,
 which supplies display names for the handful of blocks and subtypes that have no
 entry in `lang/en_US.lang` — block 31 is a dead shrub, tall grass and a fern
 under one id, and the game names none of them.
+
+It also splits names the game hands out twice. `gamedata.py` ends every run by
+listing the names claimed by more than one id, because a display name is the
+wiki's identity for a thing — its page, its sprite, its slot in a recipe — and
+two ids under one name become one page. That is right for the still and the
+flowing halves of water and wrong for the brown and the red mushroom, which is
+why 39 and 40 are named apart there, and 337 with them: `item.clay` and
+`tile.clay` are both *Clay*, and the collision had the clay block crafted out of
+four of itself.
 
 Everything else in `data/` is overwritten by the extractors.
 

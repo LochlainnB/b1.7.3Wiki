@@ -497,8 +497,12 @@ blockquote {
   font-size: 0.9em;
   color: var(--color-subtle);
 }
+/* Every value is centred, so one spanning both columns sits between them and
+   cannot be read as the first column's. A rule divides the two wherever they
+   really are two: the headings, and the rows that disagree. */
 .infobox-multi tbody td { text-align: center; }
-.infobox-multi tbody td:only-of-type { text-align: left; }
+.infobox-multi thead th + th,
+.infobox-multi tbody td + td { border-left: 1px solid var(--border-color-base); }
 
 /* ----------------------------------------------- inventory / crafting UI -- */
 .pixel-image, .sprite-file img, .invslot img {

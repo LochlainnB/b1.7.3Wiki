@@ -144,7 +144,7 @@ function footerHtml(config, ctx) {
     `</ul>` +
     `<ul id="footer-places">` +
     `<li><a href="${ctx.hrefFor('/wiki/about/')}">About</a></li>` +
-    `<li><a href="${ctx.hrefFor('/wiki/style-guide/')}">Style guide</a></li>` +
+    `<li><a href="${ctx.hrefFor('/wiki/page-templates/')}">Page templates</a></li>` +
     `<li><a href="${ctx.hrefFor('/wiki/all-pages/')}">All pages</a></li>` +
     `</ul></footer>`
   );

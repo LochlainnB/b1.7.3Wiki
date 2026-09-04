@@ -7,6 +7,11 @@ changing files directly — there is no online editor and no database.
 If you are here to write or fix an article, you mostly need two things: the
 editorial rule below, and the template list.
 
+This file is the only style guide. The wiki used to carry a second copy of these
+conventions as a page, and the two drifted; do not start another one. Conventions
+belong here, and `content/wiki/page-templates.md` stays what it is — a reference
+for the templates themselves, with live examples that have to render.
+
 ## The editorial rule
 
 **Describe Beta 1.7.3, and nothing else.**
@@ -103,6 +108,18 @@ wiki.local.json    optional, gitignored. Where the external, unvendored inputs
 
 ## Writing a page
 
+The directory a page sits in is its namespace, and decides what belongs on it:
+
+| Namespace | Directory | For |
+|---|---|---|
+| Block | `content/block/` | Anything placeable in the world |
+| Item | `content/item/` | Anything that exists only in an inventory |
+| Entity | `content/entity/` | Mobs, projectiles, vehicles |
+| Biome | `content/biome/` | The thirteen biomes |
+| Mechanic | `content/mechanic/` | Systems: crafting, redstone, mob spawning |
+| Guide | `content/guide/` | Task-oriented how-tos |
+| Wiki | `content/wiki/` | Pages about the wiki itself |
+
 A file's path is its URL: `content/block/mossy-cobblestone.md` serves at
 `/block/mossy-cobblestone/`.
 
@@ -124,9 +141,25 @@ stub: true
 ## Data values
 ```
 
-Frontmatter keys: `title` (required), `description`, `type`, `subject`,
-`sprite`, `aliases`, `categories`, `infobox`, `infoboxTitle`, `stub`, `toc`,
-`id`, `order`. Anything else warns, so typos surface at build time.
+Only `title` is required. The rest:
+
+| Key | Does |
+|---|---|
+| `title` | the page name, and what a `[[link]]` resolves against |
+| `description` | one sentence, used in search results and meta tags |
+| `type` | `block`, `item`, `entity`, `biome`, `mechanic`, `guide` or `wiki` |
+| `subject` | what the infobox and data templates look up, if not the title |
+| `sprite` | which icon represents the page, if not the title |
+| `aliases` | extra names that resolve to this page |
+| `categories` | shown at the foot, indexed on `/wiki/categories/` |
+| `infobox` | extra or overriding infobox rows |
+| `infoboxTitle` | heading for the infobox, if not the title |
+| `stub` | lists the page on `/wiki/stubs/` |
+| `toc: false` | suppresses the contents box |
+
+`redirects` is accepted as an older spelling of `aliases`, and `id` and `order`
+are accepted but nothing reads them. Anything else warns, so typos surface at
+build time — the full list is `KNOWN_KEYS` in `tools/lib/integrity.mjs`.
 
 Remove `stub: true` when the page is genuinely written. That is what
 `/wiki/stubs/` tracks.
@@ -165,11 +198,15 @@ every crafting and smelting recipe are extracted from the client jar into
 - One page may answer to several names, and cover several ids. `aliases` make a
   page the target for each name, and `tools/seed.mjs` reads them before it stubs
   anything, so the two mushrooms stay one article across a reseed. `subject` may
-  name every id the page covers — `{Unlit: block 61, Lit: block 62}` — and the
+  name every id the page covers, by name where the names differ and by id where
+  they do not — `{Brown: Brown Mushroom, Red: Red Mushroom}`, `{Unlit: block 61,
+  Lit: block 62}`. The key becomes a column heading, so keep it to a word. The
   infobox then carries a column each, splitting only the rows where the ids
-  disagree. Six pages needed that: a lit furnace, a lit redstone torch, glowing
-  redstone ore and a powered repeater all emit light their unlit twin does not,
-  and the infobox used to report the twin's.
+  disagree, which is usually the light level and the id itself; where the ids
+  have separate sprites the picture area shows both, and where they share one it
+  shows it once, full size. Six pages needed that: a lit furnace, a lit redstone
+  torch, glowing redstone ore and a powered repeater all emit light their unlit
+  twin does not, and the infobox used to report the twin's.
 
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.
@@ -255,10 +292,17 @@ Everything else in `data/` is overwritten by the extractors.
 - Plain, present tense, third person. "Cobblestone drops from stone", not "you
   will get cobblestone".
 - Lead sentence bolds the page name and defines it.
-- Section order: Obtaining, Usage, Behaviour, Data values. Skip what does not apply.
-- A mob is not obtained and used: mob pages run Spawning, Drops, Behaviour,
-  Data values instead. `tools/lib/mobs.mjs` holds the list of which entities
-  count, and both generators read it.
+- Then `##` headings, in this order, skipping what does not apply: **Obtaining**
+  (mining, crafting, drops, natural generation), **Usage** (what it does and
+  what it makes), **Behaviour** (for mobs and mechanics), **Data values** (ids
+  and translation keys).
+- A mob is not obtained and used: mob pages run **Spawning** (light level,
+  biome, what it needs to stand on, pack size), **Drops** (what it leaves on
+  death, and how much), **Behaviour** (movement, what provokes it, how it
+  attacks), **Data values** (the entity network id) instead.
+  `tools/lib/mobs.mjs` holds the list of which entities count, and both
+  generators read it.
+- Link the first mention of another subject in a section, not every mention.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
 

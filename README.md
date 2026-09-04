@@ -87,9 +87,9 @@ wiki.local.json optional, gitignored — where the jar, mappings and source live
 
 ## Editing
 
-See **[AGENTS.md](AGENTS.md)** for the full contributor guide, or the wiki's own
-[style guide](content/wiki/style-guide.md) and
-[template reference](content/wiki/page-templates.md).
+See **[AGENTS.md](AGENTS.md)** — the contributor guide and the style guide in
+one — and the [template reference](content/wiki/page-templates.md) for the
+`{{...}}` templates, with live examples.
 
 The one rule worth repeating here: **pages describe Beta 1.7.3 and nothing
 else** — no version history, no comparisons to later releases.

@@ -63,7 +63,6 @@ export default {
       label: 'This wiki',
       links: [
         { text: 'About', href: '/wiki/about/' },
-        { text: 'Style guide', href: '/wiki/style-guide/' },
         { text: 'Page templates', href: '/wiki/page-templates/' },
         { text: 'Stubs', href: '/wiki/stubs/' },
       ],

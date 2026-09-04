@@ -31,6 +31,5 @@ Prose is the part humans and language models write.
 
 ## See also
 
-- [[Style guide]] — how to write pages here
 - [[Page templates]] — the `{{...}}` templates available
 - [[Stubs]] — what still needs writing

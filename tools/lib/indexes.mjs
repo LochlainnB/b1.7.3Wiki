@@ -182,8 +182,9 @@ export function generatedPages(filePages, config, data, root) {
       `<p>You followed a link to a page that has not been written yet. Red links ` +
       `are how this wiki tracks what is missing.</p>` +
       `<p>To create it, add a Markdown file under <code>content/</code> whose ` +
-      `<code>title</code> matches the link text. See ` +
-      `${ctx.hrefWrap('/wiki/style-guide/', 'the style guide')} for the conventions, ` +
+      `<code>title</code> matches the link text. The conventions live in ` +
+      `<code>AGENTS.md</code> at the root of the repository. See ` +
+      `${ctx.hrefWrap('/wiki/page-templates/', 'the page templates')} for what can go on it, ` +
       `and ${ctx.hrefWrap('/wiki/stubs/', 'the stub list')} for what else needs work.</p>`,
   }));
 

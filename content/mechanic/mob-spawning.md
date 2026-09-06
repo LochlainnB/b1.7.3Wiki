@@ -158,8 +158,7 @@ The [[Giant|giant]] appears on no list and never spawns naturally.
 ## Monster spawners
 
 A [[Monster Spawner|monster spawner]] holds the name of one mob and runs only
-while a player is within 16 blocks. Out of range it does nothing at all, down to
-the smoke and flame particles.
+while a player is within 16 blocks.
 <!-- src: TileEntityMobSpawner.java:67 anyPlayerInRange, :71 updateEntity -->
 
 The spawner counts down a delay. At zero it makes four attempts, each of which:
@@ -168,16 +167,13 @@ The spawner counts down a delay. At zero it makes four attempts, each of which:
   horizontally and 4 vertically;
 - picks a point up to 4 blocks away in x and z and 1 block in y, biased towards
   the spawner;
-- creates the mob there and applies the mob's own conditions, exactly as a
-  natural spawn does.
+- creates the mob there and applies the mob's own light conditions, exactly as
+  a natural spawn does.
 
 A successful attempt sets the delay to 200 ticks plus a random 0 to 599 — 10 to
 about 40 seconds. A round in which nothing spawns leaves the delay at zero, and
 the spawner tries again on the next tick.
 <!-- src: TileEntityMobSpawner.java:94, :135 updateDelay -->
-
-Because the mob's own conditions still apply, lighting the room to level 8 stops
-a [[Zombie|zombie]], [[Skeleton|skeleton]] or [[Spider|spider]] spawner outright.
 
 Spawners generate only in [[Dungeon|dungeons]], one per dungeon, set to Zombie
 half the time and to Skeleton or Spider a quarter each.

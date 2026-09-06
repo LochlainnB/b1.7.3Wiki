@@ -36,9 +36,36 @@ const recipes = data.recipesFor(title);
 const uses = data.recipesUsing(title);
 
 const categoryFor = {
-  block: 'Blocks', item: 'Items', entity: 'Entities',
-  biome: 'Biomes', mechanic: 'Game mechanics', guide: 'Guides', wiki: 'Wiki',
+  block: 'Blocks', item: 'Items', entity: 'Entities', biome: 'Biomes',
+  dimension: 'Dimensions', structure: 'Structures',
+  mechanic: 'Game mechanics', guide: 'Guides', wiki: 'Wiki',
 }[nsArg];
+
+// Namespaces whose pages describe a place or a system rather than a thing in
+// data/. Nothing there answers to their titles -- no id, no recipe, no infobox
+// to build -- so they get their own headings instead of Obtaining and Usage.
+const PROSE_SECTIONS = {
+  guide: ['## Overview', '', '## Steps', '', '## See also', ''],
+  mechanic: ['## How it works', '', '## See also', ''],
+  dimension: [
+    '## Reaching it', '',
+    '<!-- How a player travels there and back, and what the trip costs. -->', '',
+    '## Terrain', '',
+    '<!-- What the generator makes: surface, caves, the blocks it is built of. -->', '',
+    '## Mobs', '',
+    '<!-- Which mobs spawn, and anything unusual about spawn rates. -->', '',
+    '## Data values', '',
+    '<!-- The dimension id. -->', '',
+  ],
+  structure: [
+    '## Generation', '',
+    '<!-- Where it generates, how often, and what decides. -->', '',
+    '## Contents', '',
+    '<!-- The blocks it is made of, and anything it holds. -->', '',
+    '## Usage', '',
+    '<!-- What a player does with it. -->', '',
+  ],
+};
 
 const lines = [
   '---',
@@ -55,10 +82,8 @@ const lines = [
   '',
 ];
 
-if (nsArg === 'guide') {
-  lines.push('## Overview', '', '## Steps', '', '## See also', '');
-} else if (nsArg === 'mechanic') {
-  lines.push('## How it works', '', '## See also', '');
+if (PROSE_SECTIONS[nsArg]) {
+  lines.push(...PROSE_SECTIONS[nsArg]);
 } else {
   // Match the shape tools/seed.mjs gives the same subject.
   if (nsArg === 'entity' && isMob(title)) {

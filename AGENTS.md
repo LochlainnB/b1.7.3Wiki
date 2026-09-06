@@ -83,7 +83,7 @@ when the extractors are rerun, and a save-triggered rebuild should stay fast.
 
 ```
 content/           the wiki. Markdown + YAML frontmatter. EDIT THIS.
-  block/ item/ entity/ biome/ mechanic/ guide/ wiki/
+  block/ item/ entity/ biome/ dimension/ structure/ mechanic/ guide/ wiki/
 data/              game data extracted from the jar. GENERATED - do not hand-edit,
                    except name-overrides.json.
 assets/            sprites, inventory icons and textures from the jar. GENERATED.
@@ -116,6 +116,8 @@ The directory a page sits in is its namespace, and decides what belongs on it:
 | Item | `content/item/` | Anything that exists only in an inventory |
 | Entity | `content/entity/` | Mobs, projectiles, vehicles |
 | Biome | `content/biome/` | The thirteen biomes |
+| Dimension | `content/dimension/` | Separate worlds: the Overworld, the Nether |
+| Structure | `content/structure/` | What the terrain generator builds: dungeons |
 | Mechanic | `content/mechanic/` | Systems: crafting, redstone, mob spawning |
 | Guide | `content/guide/` | Task-oriented how-tos |
 | Wiki | `content/wiki/` | Pages about the wiki itself |
@@ -147,7 +149,7 @@ Only `title` is required. The rest:
 |---|---|
 | `title` | the page name, and what a `[[link]]` resolves against |
 | `description` | one sentence, used in search results and meta tags |
-| `type` | `block`, `item`, `entity`, `biome`, `mechanic`, `guide` or `wiki` |
+| `type` | the page's namespace - the same word as the directory it sits in |
 | `subject` | what the infobox and data templates look up, if not the title |
 | `sprite` | which icon represents the page, if not the title |
 | `aliases` | extra names that resolve to this page |
@@ -302,6 +304,14 @@ Everything else in `data/` is overwritten by the extractors.
   attacks), **Data values** (the entity network id) instead.
   `tools/lib/mobs.mjs` holds the list of which entities count, and both
   generators read it.
+- A place is not obtained either. A dimension page runs **Reaching it** (how a
+  player travels there and back, and what the trip costs), **Terrain**,
+  **Mobs**, **Data values** (the dimension id). A structure page runs
+  **Generation** (where it appears, how often, and what decides), **Contents**
+  (the blocks it is made of, and anything it holds), **Usage**. Both shapes are
+  in `PROSE_SECTIONS` in `tools/new-page.mjs`, which is what `npm run new`
+  scaffolds; nothing in `data/` answers to a dimension or a structure, so these
+  pages carry no infobox and no recipe templates.
 - Always link the first mention of another subject in a section. Don't link further mentions within that section.
   To discover what subjects can be linked, always check what pages exist before writing.
 - When linking, use display text to match case/grammar. e.g. `Breaking clay drops [[Clay Ball|clay balls]]`

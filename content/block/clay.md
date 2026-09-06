@@ -13,9 +13,9 @@ The game gives the block and the item the same name; this page is the block.
 
 ### Natural generation
 
-Clay generates in blobs that replace [[Sand]]. Ten attempts are made per chunk,
+Clay generates in blobs that replace [[Sand|sand]]. Ten attempts are made per chunk,
 each starting from a random point anywhere in the column, and an attempt is
-abandoned at once unless the block it starts on is [[Water]]. What survives is
+abandoned at once unless the block it starts on is [[Water|water]]. What survives is
 therefore a patch of clay in the sand of a lake or sea floor, in the shallows
 where sand reaches the surface.
 <!-- src: WorldGenClay.java:14-58 generate, ChunkProviderGenerate.java:347-352 -->

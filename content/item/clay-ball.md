@@ -5,7 +5,7 @@ type: item
 categories: [Items]
 ---
 
-**Clay Ball** is the item a [[Clay]] block drops when broken. The game calls it
+**Clay Ball** is the item a [[Clay|clay]] block drops when broken. The game calls it
 simply *Clay*, the same name it gives the block, and the wiki tells the two
 apart because they are separate things with separate ids.
 
@@ -13,7 +13,7 @@ apart because they are separate things with separate ids.
 
 ### Breaking
 
-Breaking a clay block drops four clay balls, whatever it is broken with. The
+Breaking a [[Clay|clay block]] drops four clay balls, whatever it is broken with. The
 block itself never drops, so the only way to get one back is to craft it.
 <!-- src: BlockClay.java:10-16 idDropped, quantityDropped -->
 
@@ -24,8 +24,6 @@ block itself never drops, so the only way to get one back is to craft it.
 {{used in|Clay Ball}}
 
 ### Smelting
-
-A clay ball fired in a [[Furnace]] becomes a [[Brick]].
 
 {{smelting|Brick}}
 

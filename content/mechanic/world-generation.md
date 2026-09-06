@@ -80,27 +80,89 @@ interpolated between the samples, which is what gives Beta terrain its smooth,
 rounded slopes.
 <!-- src: ChunkProviderGenerate.java:43 generateTerrain -->
 
-Two noise fields supply the density, blended together by a third that selects
-between them. A fourth field sets each column's centre height, and a fifth sets
-how far the terrain is allowed to stray from it.
-<!-- src: ChunkProviderGenerate.java:206 func_4061_a -->
+### The noise fields
 
-The stray allowance is scaled by temperature multiplied by rainfall. Cold or dry
-columns are pulled flat towards their centre height, and hot wet ones keep their
-full relief. Rainforest and Swampland carry the most extreme terrain, Tundra and
-Desert the least.
+Every field the generator reads is Perlin gradient noise. A lattice of random
+gradient vectors is laid over space, and a point's value is a smoothly faded
+blend of the gradients at the corners of the cell it falls in. Values drift
+rather than jump, so a field looks like a spread of soft rounded lumps and never
+like static.
+<!-- src: NoiseGeneratorPerlin.java:35 generateNoise, with the
+     6t^5 - 15t^4 + 10t^3 fade curve -->
+
+Each field is a stack of octaves, and each octave is a separate lattice seeded
+from the world seed. Every octave has half the frequency and twice the amplitude
+of the one before it. The last octave alone therefore carries half the field's
+range and sets its shape, and the earlier octaves only roughen it.
+<!-- src: NoiseGeneratorOctaves.java:31 generateNoiseOctaves, halving the
+     coordinate scale and the amplitude divisor on each pass -->
+
+Five fields build the density:
+
+| Field | Octaves | Read in | Broadest lump | Role |
+|---|---|---|---|---|
+| Landscape A | 16 | 3D | about 190 blocks | a complete landscape |
+| Landscape B | 16 | 3D | about 190 blocks | a second complete landscape |
+| Selector | 8 | 3D | about 60 blocks | chooses between A and B |
+| Depth | 16 | 2D | about 650 blocks | the column's centre height |
+| Stretch | 10 | 2D | about 1800 blocks | how far the column may stray from its centre |
+
+<!-- src: ChunkProviderGenerate.java:30 the constructor fixes the octave counts,
+     :211-:219 func_4061_a the scales. A lump is the wavelength of the lowest
+     octave: the base scale divided by 2^(octaves-1), then by the 4-block
+     horizontal sample spacing. -->
+
+The two landscape fields are read on the 4×8×4 sample grid at the same numeric
+scale in every direction, so their lumps come out twice as tall as they are wide.
+That stretch is what produces overhangs, arches and floating islands.
+
+The selector is mapped so that a value below 0 takes landscape A whole and a
+value above 1 takes landscape B whole, with a crossfade between. Most sample
+points land outside that range, so most of the world is one landscape or the
+other and the blend shows only in narrow bands.
+<!-- src: ChunkProviderGenerate.java:282, (selector / 10 + 1) / 2 against a field
+     whose octave amplitudes sum to 255 -->
+
+The depth field separates sea from land. Below its threshold the column's centre
+height is set somewhere between y=56 and y=68 and the stretch is forced to its
+minimum, which gives the flat low ground of an ocean basin. Above the threshold
+the centre height rises as far as y=72 and the stretch is left alone.
+<!-- src: ChunkProviderGenerate.java:241-:270; the low branch zeroes the stretch
+     term before 0.5 is added back to it -->
+
+The stretch field is the broadest of the five, so whether a region is mountainous
+or gentle holds across more than a thousand blocks. It is then scaled by
+temperature multiplied by rainfall. Cold or dry columns are pulled flat towards
+their centre height, and hot wet ones keep their full relief. Rainforest and
+Swampland carry the most extreme terrain, Tundra and Desert the least.
 <!-- src: ChunkProviderGenerate.java:230, the (1 - t*h)^4 term applied to the
      vertical scale -->
 
-Above y=112 the density is blended towards a large negative value, reaching it at
-y=128. Terrain does not reach the top of the world.
+Above y=112 the finished density is blended towards a large negative value,
+reaching it at y=128. Terrain does not reach the top of the world.
+
+### Water, ice and bedrock
 
 Any space below y=64 that is not stone becomes water. At y=63 exactly it becomes
 ice instead, where the column's temperature is below 0.5.
 <!-- src: ChunkProviderGenerate.java:81 -->
 
-Bedrock fills y=0, and replaces the block at y=1 to y=4 at random.
-<!-- src: ChunkProviderGenerate.java:132 -->
+Bedrock is placed by rolling a number from 0 to 4 separately for every block from
+y=0 to y=4, and placing bedrock where the roll is at or above that block's y:
+
+| y | Chance of bedrock |
+|---|---|
+| 0 | always |
+| 1 | 4 in 5 |
+| 2 | 3 in 5 |
+| 3 | 2 in 5 |
+| 4 | 1 in 5 |
+
+<!-- src: ChunkProviderGenerate.java:132, `var17 <= 0 + this.rand.nextInt(5)`,
+     evaluated once per block as the column is walked down from y=127 -->
+
+Every block is rolled on its own, so a column can have bedrock at y=3 and stone
+at y=2. Y=0 is bedrock everywhere in the world.
 
 ## Surface
 
@@ -143,11 +205,17 @@ turns as it advances, and one tunnel in six turns more sharply than the others. 
 tunnel may fork in two at its midpoint, each fork narrower than the parent.
 <!-- src: MapGenCaves.java:29, :49 -->
 
-Carving replaces stone, dirt and grass and nothing else, which is why a cave stops
-dead at a vein of gravel. Below y=10 the carved block becomes flowing
-[[Lava|lava]] rather than air. Dirt left exposed by a removed grass block becomes
-grass.
+Carving replaces stone, dirt and grass and nothing else. Below y=10 the carved
+block becomes flowing [[Lava|lava]] rather than air. Dirt left exposed by a
+removed grass block becomes grass.
 <!-- src: MapGenCaves.java:133 -->
+
+Carving runs before population, so the sand and gravel the surface pass laid down
+are already in place and a tunnel that reaches a beach leaves it standing. The
+gravel and dirt veins that population adds are not: they replace stone only, so a
+vein that meets an existing tunnel is cut off at the tunnel wall.
+<!-- src: ChunkProviderGenerate.java:200-:201, replaceBlocksForBiome then
+     MapGenCaves.generate, both inside provideChunk -->
 
 A segment whose bounding box contains water is skipped entirely, so caves do not
 breach the bottom of an ocean or a lake.
@@ -195,7 +263,7 @@ of them fail most of the time. Attempts are per chunk.
 | [[Dungeon]] | 8 | 0–127 |
 | Trees | by biome | surface |
 | Flowers, grass, mushrooms | by biome | 0–127 |
-| [[Sugar cane]] | 10 | 0–127 |
+| [[Sugar cane]] | 10 runs of 20 | 0–127 |
 | [[Pumpkin]] | 1 chunk in 32 | 0–127 |
 | [[Cactus]] | 10 in Desert, else none | 0–127 |
 | Water spring | 50 | biased low |
@@ -244,18 +312,28 @@ ceiling is left as whatever stone was already there. A
 
 ### Trees
 
-The number of trees a chunk gets is a biome bonus plus a noise value `n`, which is
-usually 1 or 2. A chunk of any biome gets one extra tree one time in ten.
+Every chunk starts with a tree count of zero, and one time in ten that count is
+raised to one. The biome is then applied on top of it.
 
 | Biome | Trees |
 |---|---|
-| Forest, Rainforest, Taiga | `n` + 5 |
-| Seasonal Forest | `n` + 2 |
-| Shrubland, Savanna, Swampland | none |
+| Forest, Rainforest, Taiga | `n` + 5, plus the bonus |
+| Seasonal Forest | `n` + 2, plus the bonus |
+| Shrubland, Savanna, Swampland | the bonus alone |
 | Desert, Plains, Tundra | none |
 
-<!-- src: ChunkProviderGenerate.java:411. Desert, Plains and Tundra subtract 20
-     and never add n, so their count is always negative. -->
+`n` is a noise value read from the same field the game uses for mob spawning, and
+averages 2 before it is truncated to a whole number. It drifts over about sixteen
+chunks, so tree density shifts across a forest rather than jumping from one chunk
+to the next.
+<!-- src: ChunkProviderGenerate.java:411, mobSpawnerNoise read at half scale;
+     :413 the one-in-ten bonus, applied before any biome term -->
+
+Desert, Plains and Tundra subtract 20 and add nothing, so their count stays
+negative and the bonus can never lift it above zero. Shrubland, Savanna and
+Swampland appear in none of the biome terms, so the bonus is the only tree they
+ever get.
+<!-- src: ChunkProviderGenerate.java:417-:443 -->
 
 Which tree is built depends on the biome as well:
 
@@ -282,21 +360,27 @@ count below is a patch rather than a plant.
 
 | Plant | Patches per chunk | Attempts per patch |
 |---|---|---|
-| {{sprite\|Flower}} [[Flower]] | 4 in Seasonal Forest, 3 in Plains, 2 in Forest and Taiga, else none | 64 |
-| {{sprite\|Rose}} [[Rose]] | 1 chunk in 2 | 64 |
-| {{sprite\|Tall Grass}} [[Tall Grass]] | 10 in Rainforest and Plains, 2 in Forest and Seasonal Forest, 1 in Taiga, else none | 128 |
-| {{sprite\|Brown Mushroom}} [[Mushroom]] | 1 chunk in 4 brown, 1 chunk in 8 red | 64 |
-| {{sprite\|Dead Bush}} [[Dead Bush]] | 2 in Desert, else none | 4 |
+| {{sprite\|Flower}} | 4 in Seasonal Forest, 3 in Plains, 2 in Forest and Taiga, else none | 64 |
+| {{sprite\|Rose}} | 1 chunk in 2 | 64 |
+| {{sprite\|Tall Grass}} | 10 in Rainforest and Plains, 2 in Forest and Seasonal Forest, 1 in Taiga, else none | 128 |
+| {{sprite\|Brown Mushroom}} | 1 chunk in 4 brown, 1 chunk in 8 red | 64 |
+| {{sprite\|Dead Bush}} | 2 in Desert, else none | 4 |
 
 <!-- src: ChunkProviderGenerate.java:454-546 -->
 
 Two patches in three in Rainforest place [[Fern|ferns]] instead of tall grass.
 <!-- src: ChunkProviderGenerate.java:505, metadata 2 rather than 1 -->
 
-[[Sugar cane]] is attempted 10 times per chunk with 20 attempts each, and needs
-water beside the block below it. Each stalk placed is 2 to 4 blocks tall.
+[[Sugar cane]] is placed by ten separate runs per chunk. Each run picks one point
+at a random y from 0 to 127, then makes 20 attempts to plant a stalk within 3
+blocks of that point in x and z, all at the run's single y. An attempt needs air
+at that y and water beside the block below it, so almost every one fails. A stalk
+that does take hold is 2 to 4 blocks tall.
+<!-- src: ChunkProviderGenerate.java:548 the ten runs, WorldGenReed.java:7 the
+     twenty attempts inside one run -->
+
 [[Cactus|Cacti]] are 1 to 3 blocks tall.
-<!-- src: WorldGenReed.java:12, WorldGenCactus.java:12 -->
+<!-- src: WorldGenCactus.java:12 -->
 
 ### Springs
 
@@ -326,10 +410,23 @@ but replaces stone with [[Netherrack|netherrack]] and water with [[Lava|lava]],
 and its lava level is y=32.
 <!-- src: ChunkProviderHell.java:38 generateNetherTerrain -->
 
-A fixed vertical profile is added to the density, forcing solid ground within four
-levels of the top and bottom of the world. Bedrock then covers y=0 to y=4 and
-y=123 to y=127, so the Nether is a closed slab.
-<!-- src: ChunkProviderHell.java:207, :121 -->
+A fixed vertical profile is added to the density, pushing the outermost four
+sample levels at each end of the world towards solid and doing it far harder at
+the last two. The result is netherrack floor and ceiling under every column.
+<!-- src: ChunkProviderHell.java:207-:218, a cubic term subtracted from the
+     density within 4 of either end of the 17-level sample column -->
+
+Bedrock is then rolled the same way as in the Overworld, once at each end:
+
+| y | Chance of bedrock |
+|---|---|
+| 0 and 127 | always |
+| 1 and 126 | 4 in 5 |
+| 2 and 125 | 3 in 5 |
+| 3 and 124 | 2 in 5 |
+| 4 and 123 | 1 in 5 |
+
+<!-- src: ChunkProviderHell.java:121 the ceiling test, :123 the floor test -->
 
 The surface pass runs the same way as the Overworld's, with netherrack as both top
 and filler. Between y=60 and y=65 about half of columns take [[Gravel|gravel]] and

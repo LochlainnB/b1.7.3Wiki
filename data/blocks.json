@@ -370,8 +370,8 @@
     "langKey": "tile.pistonStickyBase",
     "class": "class_223",
     "texture": 106,
-    "hardness": null,
-    "blastResistance": 0.0,
+    "hardness": 0.5,
+    "blastResistance": 0.5,
     "lightEmission": 0,
     "lightOpacity": null,
     "field": "W"
@@ -426,8 +426,8 @@
     "langKey": "tile.pistonBase",
     "class": "class_223",
     "texture": 107,
-    "hardness": null,
-    "blastResistance": 0.0,
+    "hardness": 0.5,
+    "blastResistance": 0.5,
     "lightEmission": 0,
     "lightOpacity": null,
     "field": "aa"
@@ -439,8 +439,8 @@
     "langKey": null,
     "class": "class_205",
     "texture": 107,
-    "hardness": null,
-    "blastResistance": 0.0,
+    "hardness": 0.5,
+    "blastResistance": 0.5,
     "lightEmission": 0,
     "lightOpacity": null,
     "field": "ab"
@@ -483,7 +483,7 @@
     "langKey": null,
     "class": "class_469",
     "texture": null,
-    "hardness": null,
+    "hardness": -1.0,
     "blastResistance": 0.0,
     "lightEmission": 0,
     "lightOpacity": null,
@@ -577,7 +577,7 @@
     "hardness": 2.0,
     "blastResistance": 6.0,
     "lightEmission": 0,
-    "lightOpacity": null,
+    "lightOpacity": 255,
     "field": "ak"
   },
   {
@@ -590,7 +590,7 @@
     "hardness": 2.0,
     "blastResistance": 6.0,
     "lightEmission": 0,
-    "lightOpacity": null,
+    "lightOpacity": 255,
     "field": "al",
     "variants": {
       "0": "Stone Slab",
@@ -709,10 +709,10 @@
     "langKey": "tile.stairsWood",
     "class": "class_416",
     "texture": null,
-    "hardness": null,
-    "blastResistance": 0.0,
+    "hardness": 2.0,
+    "blastResistance": 3.0,
     "lightEmission": 0,
-    "lightOpacity": null,
+    "lightOpacity": 255,
     "field": "au"
   },
   {
@@ -803,7 +803,7 @@
     "hardness": 0.6,
     "blastResistance": 0.6,
     "lightEmission": 0,
-    "lightOpacity": null,
+    "lightOpacity": 255,
     "field": "aB"
   },
   {
@@ -891,10 +891,10 @@
     "langKey": "tile.stairsStone",
     "class": "class_416",
     "texture": null,
-    "hardness": null,
-    "blastResistance": 0.0,
+    "hardness": 2.0,
+    "blastResistance": 6.0,
     "lightEmission": 0,
-    "lightOpacity": null,
+    "lightOpacity": 255,
     "field": "aI"
   },
   {

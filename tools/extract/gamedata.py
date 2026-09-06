@@ -21,6 +21,18 @@ values they carry, each cross-checked against known Beta 1.7.3 behaviour:
     a(F)  light emission   lava 1.0, glowstone 1.0
     g(I)  light opacity    water 3, lava 255, leaves 1
     a(String)  translation key -- every value is a key present in en_US.lang
+
+setBlockUnbreakable is found rather than named: it is Block's only no-argument
+builder that delegates to the hardness setter.
+
+Where the builder calls are
+---------------------------
+Block's <clinit> is only half of the chain. A block may also call the same
+builders from inside its own constructor, and six classes do: the three piston
+blocks set their own hardness, a stair block copies whatever block it is cut
+from, and stairs, slabs and farmland set their own light opacity. Reading the
+<clinit> alone left six block ids with no hardness at all, so BlockCtor below
+runs each constructor and records what it calls. See its docstring.
 """
 import argparse
 import hashlib
@@ -34,7 +46,7 @@ import zipfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from classfile import ClassFile
 from disasm import disassemble, trace_clinit, trace_calls, params_of, u2
-from interp import ArrayRef, Interp, Obj, Ref, Unsupported
+from interp import ArrayRef, Interp, Obj, Ref, Unsupported, default_for
 from mappings import load as load_mappings
 from paths import Missing, find_cache, find_jar
 
@@ -165,10 +177,132 @@ def shared_names(blocks, items, entities):
     return {n: w for n, w in sorted(out.items()) if len(w) > 1}
 
 
+class BlockCtor(object):
+    """The builder calls a block makes from inside its own constructor.
+
+    `new BlockStairs(53, planks)` carries no hardness of its own: the number
+    comes from a `setHardness(var2.blockHardness)` inside the constructor,
+    which the <clinit> replay never sees. Nor does it see the three pistons
+    setting 0.5F, or stairs, slabs and farmland setting their light opacity.
+    Those six blocks used to reach the wiki with no hardness and a blast
+    resistance of zero, and every page showed a dash where a number belongs.
+
+    Rather than pattern-match the constructors, run them, the way the recipe
+    extractor runs the recipe registry. Three things make that cheap:
+
+    - Block's own constructor is stubbed out. It is registration bookkeeping
+      that wants a live Material, and nothing here reads what it leaves.
+    - Every other Block builder is stubbed to return the receiver, so
+      setStepSound and setTickOnLoad neither run nor need Block's static
+      tables; the four that carry values are recorded instead of applied,
+      leaving the caller to replay them in order against the <clinit> chain.
+    - A field read of another block -- `var2.blockHardness` -- is answered
+      from the blocks already extracted. Block's <clinit> always registers the
+      model before the thing cut from it, so the answer is always in hand.
+
+    Anything else a constructor does is allowed to run and allowed to fail:
+    the calls recorded before a failure are still in order and still true, and
+    what is lost is at worst what this class was written to recover. Nothing
+    is invented -- a hardness read from a block that has not been extracted
+    yet raises rather than defaulting to zero.
+    """
+
+    def __init__(self, jar, cf, obf):
+        self.jar, self.obf = jar, obf
+        self.f = '(F)L%s;' % obf
+        self.i = '(I)L%s;' % obf
+        self.v = '()L%s;' % obf
+        self.record = {(B_HARDNESS, self.f), (B_RESISTANCE, self.f),
+                       (B_LIGHT, self.f), (B_OPACITY, self.i)}
+        # The hardness and resistance fields are the ones their setters write.
+        self.f_hardness = putfields(cf, cf.method(B_HARDNESS, self.f))[0]
+        self.f_resistance = set(putfields(cf, cf.method(B_RESISTANCE, self.f)))
+        # setBlockUnbreakable: the no-argument builder that calls setHardness.
+        self.unbreakable = {m['name'] for m in cf.methods if m['desc'] == self.v
+                            and B_HARDNESS in invokes(cf, m)}
+        self.ctors = [m['desc'] for m in cf.methods if m['name'] == '<init>']
+        self.passthru = [(m['name'], m['desc']) for m in cf.methods
+                         if m['desc'].endswith(')L%s;' % obf)
+                         and (m['name'], m['desc']) not in self.record
+                         and m['name'] not in self.unbreakable]
+        self.tables = [f['name'] for f in cf.fields if f['desc'].startswith('[')]
+        self.known = {}          # static field name -> (hardness, resistance)
+
+    def learn(self, field, hardness, resistance):
+        """Remember a finished block, so a stair cut from it can read it."""
+        self.known[field] = (hardness if hardness is not None else 0.0, resistance)
+
+    def calls(self, rec):
+        """[(name, desc, args)] in execution order, or [] if there are none."""
+        out = []
+        interp = Interp(self.jar.cls)
+
+        def recorder(nm, desc):
+            def hook(_it, recv, args):
+                out.append((nm, desc, list(args)))
+                return recv
+            return hook
+
+        for nm, desc in self.record:
+            hook = recorder(nm, desc)
+            interp.hooks[(self.obf, nm, desc)] = hook
+            interp.hooks[(rec['ctor'], nm, desc)] = hook
+        # A virtual call is looked up on the receiver's own class, so a
+        # subclass constructor calling this.setHardness needs both keys.
+        for nm, desc in self.passthru:
+            interp.hooks[(self.obf, nm, desc)] = _returns_self
+            interp.hooks[(rec['ctor'], nm, desc)] = _returns_self
+        for desc in self.ctors:
+            interp.hooks[(self.obf, '<init>', desc)] = _nothing
+        # Block's registration tables are static arrays its <clinit> has not
+        # made here. BlockContainer files itself in one; give it somewhere to.
+        for name in self.tables:
+            interp.statics[(self.obf, name)] = [None] * 256
+
+        def field_hook(ref, name, desc):
+            if (isinstance(ref, Ref) and ref.owner == self.obf
+                    and (name == self.f_hardness or name in self.f_resistance)):
+                pair = self.known.get(ref.name)
+                if pair is None:
+                    return Interp.NOTHING            # never guess a hardness
+                return pair[0] if name == self.f_hardness else pair[1]
+            return default_for('()' + desc)
+
+        interp.field_hook = field_hook
+        args = [Ref(self.obf, a['ref'].split('.')[-1], a.get('desc'))
+                if isinstance(a, dict) and 'ref' in a else a
+                for a in (rec['args'] or [])]
+        try:
+            interp.call(rec['ctor'], '<init>', rec['ctor_desc'], Obj(rec['ctor']), args)
+        except Exception:
+            pass                                     # keep the prefix we got
+        return out
+
+
+def _returns_self(_interp, recv, _args):
+    return recv
+
+
+def _nothing(_interp, _recv, _args):
+    return Interp.NOTHING
+
+
+def putfields(cf, m):
+    """Fields a method assigns, in the order it assigns them."""
+    return [cf.ref(u2(o))[1] for _pc, op, o in disassemble(cf.code_of(m)) if op == 0xb5]
+
+
+def invokes(cf, m):
+    """Method names a method calls."""
+    return [cf.ref(u2(o))[1] for _pc, op, o in disassemble(cf.code_of(m))
+            if op in (0xb6, 0xb7, 0xb8, 0xb9)]
+
+
 def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
     obf = mp.find_class('net/minecraft/block/Block')
     cf = jar.cls(obf)
     recs = trace_clinit(cf)
+    ctors = BlockCtor(jar, cf, obf)
     blocks, by_field = [], {}
     for r in recs:
         args = r['args'] or []
@@ -190,9 +324,11 @@ def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
         key = hardness = light = opacity = None
         # Beta 1.7.3 Block: setHardness raises blastResistance to hardness*5,
         # setResistance sets it to f*3, and explosions divide it by 5. Order of
-        # the builder calls therefore matters, so replay them as written.
+        # the builder calls therefore matters, so replay them as written --
+        # the constructor's first, since it finishes before the <clinit> chain
+        # that is written onto its result begins.
         blast = 0.0
-        for nm, desc, cargs in r['calls']:
+        for nm, desc, cargs in ctors.calls(r) + list(r['calls']):
             v = cargs[0] if cargs else None
             if desc.startswith('(Ljava/lang/String;)'):
                 key = v
@@ -206,8 +342,9 @@ def extract_blocks(jar, mp, lang_names, lang_descs, overrides=None):
                     light = float(v)
             elif desc == '(I)L%s;' % obf and nm == B_OPACITY:
                 opacity = num(v)
-            elif nm == 'l' and desc == '()L%s;' % obf:
-                hardness = -1.0                   # setUnbreakable
+            elif nm in ctors.unbreakable and desc == '()L%s;' % obf:
+                hardness = -1.0                   # setBlockUnbreakable
+        ctors.learn(r['field'], hardness, blast)
         lang_key = 'tile.%s' % key if key else None
         entry = {
             'id': bid,

@@ -57,6 +57,124 @@ function chain(rhs) {
   return out;
 }
 
+/** The body of the first `{` at or after `from`, brace-matched. */
+function block(src, from) {
+  const open = src.indexOf('{', from);
+  if (open < 0) return null;
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === '{') depth++;
+    else if (src[i] === '}' && --depth === 0) return src.slice(open + 1, i);
+  }
+  return null;
+}
+
+/** Split an argument list on commas that are not inside brackets. */
+function splitArgs(text) {
+  const out = [];
+  let depth = 0;
+  let buf = '';
+  for (const c of text) {
+    if (c === '(' || c === '[') depth++;
+    else if (c === ')' || c === ']') depth--;
+    if (c === ',' && depth === 0) { out.push(buf.trim()); buf = ''; } else buf += c;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+
+/**
+ * A block class's constructor: its parameters, its super() call, its body.
+ *
+ * Most block classes declare one; BlockContainer declares two, so the overload
+ * is chosen by how many arguments the caller passed.
+ */
+function ctorOf(src, cls, arity) {
+  const re = new RegExp(`(?:public|protected)\\s+${cls}\\s*\\(([^)]*)\\)\\s*\\{`, 'g');
+  const found = [];
+  let sig;
+  while ((sig = re.exec(src))) {
+    const params = splitArgs(sig[1]).map((p) => p.split(/\s+/).pop());
+    const body = block(src, sig.index);
+    if (body !== null) found.push({ params, body });
+  }
+  const hit = found.find((c) => c.params.length === arity) ?? found[0];
+  if (!hit) return null;
+  const sup = /\bsuper\(([^;]*)\);/.exec(hit.body);
+  const ext = new RegExp(`class\\s+${cls}\\s+extends\\s+(\\w+)`).exec(src);
+  return { ...hit, superName: ext?.[1] ?? null, superArgs: sup ? splitArgs(sup[1]) : [] };
+}
+
+/**
+ * Builder calls a block makes from inside its own constructor.
+ *
+ * Block's <clinit> is only half the chain: the pistons set their own hardness,
+ * a stair block copies the block it is cut from, and stairs, slabs and
+ * farmland set their own light opacity. Reading only the chain written onto
+ * the `new` expression left those six with no hardness, which both extractors
+ * used to agree on -- data/ said null, this said 0, and `near` called it a
+ * match. Walking the constructor is what makes the two readings independent.
+ *
+ * Constructor bodies run base-class-first, so the frames are replayed in
+ * reverse. An argument is followed through a super() call only when it is
+ * passed straight down as a bare parameter name, which is all Beta ever does.
+ */
+function ctorCalls(readCls, cls, callArgs, blockAt) {
+  const frames = [];
+  let current = cls;
+  let args = callArgs;
+  const unresolved = [];
+  while (current && current !== 'Block' && frames.length < 8) {
+    const src = readCls(current);
+    const ctor = src && ctorOf(src, current, args.length);
+    if (!ctor) break;
+    frames.push({ ctor, args });
+    args = ctor.superArgs.map((a) => {
+      const i = ctor.params.indexOf(a);
+      return i >= 0 ? args[i] : a;
+    });
+    current = ctor.superName;
+  }
+
+  const out = [];
+  for (const { ctor, args: frameArgs } of frames.reverse()) {
+    const re = /this\.(set[A-Za-z]+)\(([^;]*)\);/g;
+    let m;
+    while ((m = re.exec(ctor.body))) {
+      const [, name, expr] = m;
+      if (!/^set(Hardness|Resistance|LightValue|LightOpacity|BlockUnbreakable)$/.test(name)) continue;
+      const value = evalCtorArg(expr, ctor.params, frameArgs, blockAt);
+      if (value === undefined) unresolved.push(`${cls}.${name}(${expr.trim()})`);
+      else out.push([name, value]);
+    }
+  }
+  return { calls: out, unresolved };
+}
+
+/**
+ * One constructor argument, as a number.
+ *
+ * Only two shapes occur: a literal, and a field of another block scaled by a
+ * constant -- `var2.blockResistance / 3.0F`. Anything else returns undefined
+ * and is reported rather than guessed at.
+ */
+function evalCtorArg(expr, params, args, blockAt) {
+  const text = expr.trim();
+  if (text === '') return null;                       // setBlockUnbreakable()
+  if (/^-?[\d.]+[FfDdLl]?$/.test(text)) return parseFloat(text);
+  const ref = /^(\w+)\.(blockHardness|blockResistance)\s*(?:([*/])\s*(-?[\d.]+)[FfDd]?)?$/.exec(text);
+  if (!ref) return undefined;
+  const i = params.indexOf(ref[1]);
+  if (i < 0) return undefined;
+  const model = blockAt(args[i]);
+  if (!model) return undefined;
+  // The record holds blast resistance, which is the raw field over five.
+  let v = ref[2] === 'blockHardness' ? model.hardness : model.blastResistance * 5;
+  if (ref[3] === '*') v *= parseFloat(ref[4]);
+  else if (ref[3] === '/') v /= parseFloat(ref[4]);
+  return v;
+}
+
 /**
  * Replay Block's builder chain.
  *
@@ -64,23 +182,31 @@ function chain(rhs) {
  *   setResistance(r)  -> blockResistance = r * 3
  *   setHardness(h)    -> blockHardness = h; if (blockResistance < h * 5) blockResistance = h * 5
  * so setHardness only ever raises resistance. Reordering the calls, or treating
- * the second as an assignment, gets bedrock and portal wrong.
+ * the second as an assignment, gets bedrock and portal wrong. The constructor's
+ * calls come first, because it finishes before the chain written onto its
+ * result begins.
  */
-function parseBlocks(src, superId) {
+function parseBlocks(src, superId, readCls, note) {
   const blocks = new Map();   // id -> record
   const fields = new Map();   // field name -> id
+  const blockAt = (field) => blocks.get(fields.get(field));
   for (const [field, rhs] of statements(src)) {
-    const ctor = /new\s+(\w+)\(\s*(\d+)?/.exec(rhs);
+    const ctor = /new\s+(\w+)\(([^;]*)/.exec(rhs);
     if (!ctor) continue;
+    const callArgs = splitArgs(ctor[2].slice(0, matchedParen(ctor[2])));
+    const first = /^\s*(\d+)/.exec(ctor[2]);
     // A few blocks take no id: BlockCloth() hardcodes super(35, ...) instead.
-    const id = ctor[2] !== undefined ? Number(ctor[2]) : superId(ctor[1]);
+    const id = first ? Number(first[1]) : superId(ctor[1]);
     if (id === null) continue;
     let hardness = 0;
     let resistance = 0;
     let light = 0;
+    let opacity = null;
     let key = null;
-    for (const [name, arg] of chain(rhs)) {
-      const v = parseFloat(arg);
+    const own = ctorCalls(readCls, ctor[1], callArgs, blockAt);
+    for (const u of own.unresolved) note(u);
+    const calls = own.calls.concat(chain(rhs).map(([n, a]) => [n, parseFloat(a), a]));
+    for (const [name, v, arg] of calls) {
       if (name === 'setHardness') {
         hardness = v;
         if (resistance < v * 5) resistance = v * 5;
@@ -91,7 +217,9 @@ function parseBlocks(src, superId) {
         resistance = v * 3;
       } else if (name === 'setLightValue') {
         light = Math.trunc(f32(15 * f32(v)));
-      } else if (name === 'setBlockName') {
+      } else if (name === 'setLightOpacity') {
+        opacity = v;
+      } else if (name === 'setBlockName' && arg !== undefined) {
         key = /"([^"]+)"/.exec(arg)?.[1] ?? null;
       }
     }
@@ -99,10 +227,23 @@ function parseBlocks(src, superId) {
     fields.set(field, id);
     // Blocks are declared once each; a later re-registration would be a bug.
     if (!blocks.has(id)) {
-      blocks.set(id, { id, field, key, hardness, blastResistance: resistance / 5, lightEmission: light });
+      blocks.set(id, {
+        id, field, key, hardness, blastResistance: resistance / 5,
+        lightEmission: light, lightOpacity: opacity,
+      });
     }
   }
   return { blocks, fields };
+}
+
+/** Index just past the `)` closing an argument list that starts after `(`. */
+function matchedParen(text) {
+  let depth = 1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')' && --depth === 0) return i;
+  }
+  return text.length;
 }
 
 function parseItems(src) {
@@ -178,7 +319,9 @@ function compareBlocks(source, data, add) {
     const m = sub && new RegExp(`public ${cls}\\(\\)\\s*\\{\\s*super\\(\\s*(\\d+)`).exec(sub);
     return m ? Number(m[1]) : null;
   };
-  const { blocks, fields } = parseBlocks(src, superId);
+  const readCls = (cls) => readClass(source, cls);
+  const { blocks, fields } = parseBlocks(src, superId, readCls, (what) =>
+    add('warn', `${what} is a constructor value this check cannot read`));
   const mine = new Map(data.blocks.map((b) => [b.id, b]));
 
   let checked = 0;
@@ -198,6 +341,9 @@ function compareBlocks(source, data, add) {
     }
     if ((m.lightEmission ?? 0) !== s.lightEmission) {
       add('error', `${label}: light is ${m.lightEmission} in data/blocks.json, ${s.lightEmission} in Block.java`);
+    }
+    if ((m.lightOpacity ?? null) !== (s.lightOpacity ?? null)) {
+      add('error', `${label}: light opacity is ${m.lightOpacity} in data/blocks.json, ${s.lightOpacity} in the source`);
     }
   }
   for (const b of data.blocks) {

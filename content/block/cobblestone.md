@@ -11,7 +11,7 @@ ingredient of stone tools and several utility blocks.
 
 ## Obtaining
 
-Mining any [[Stone]] block with a [[Wooden Pickaxe|pickaxe]] drops one
+[[Mining]] any [[Stone]] block with a [[Wooden Pickaxe|pickaxe]] drops one
 cobblestone. Mining cobblestone itself also drops cobblestone, so it can be
 moved freely once placed. Breaking it by hand or with any other tool destroys
 the block without a drop.

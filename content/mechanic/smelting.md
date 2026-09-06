@@ -76,4 +76,5 @@ inventory, so neither burns.
 
 - [[Crafting]]
 - [[Furnace]]
+- [[Mining]] — how ore gets out of the ground in the first place
 - [[Coal]]

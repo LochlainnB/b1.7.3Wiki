@@ -28,6 +28,4 @@ cares which items are present.
 
 ## See also
 
-- [[Smelting]] — the other way to transform items
-- [[Mining]] — where most ingredients come from
 - [[Crafting Table]]

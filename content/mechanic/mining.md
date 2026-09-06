@@ -6,21 +6,17 @@ categories: [Game mechanics]
 ---
 
 **Mining** is breaking a block in the world by holding the attack button on it.
-Two questions decide what happens, and the game answers them separately: how
-long the block takes to come apart, and whether it leaves anything behind. A
-block can break quickly and drop nothing, or take half a minute and drop
-nothing, depending on what is in the player's hand.
 
 ## Breaking a block
 
 Damage to a block is measured in *strength* — a fraction added once per tick,
 with the block breaking on the tick the running total reaches 1. Strength comes
-from one of two formulas, and which one applies turns entirely on whether the
-player can harvest the block at all:
+from one of two formulas, depending on whether theplayer can harvest the block
+at all:
 
 - **Harvestable** — `speed ÷ (hardness × 30)` per tick, where *speed* is the
-  held item's multiplier against that particular block, and 1 for a bare hand or
-  anything with no opinion about it.
+  held item's multiplier against that particular block, default of 1 for a bare
+  hand or non-tool
 - **Not harvestable** — `1 ÷ (hardness × 100)` per tick, flat. The held item is
   never consulted on this branch, so a wooden pickaxe chews through
   [[Diamond Ore]] at exactly the speed of a bare fist.
@@ -31,7 +27,8 @@ Breaking time in ticks is one divided by that, rounded up: `hardness × 30 ÷
 speed` when the block is harvestable, and a flat `hardness × 100` when it is
 not. There are twenty ticks in a second.
 
-[[Stone]], at a hardness of 1.5, shows the whole range:
+The following table shows breaking times for [[Stone]], which has a hardness
+of 1.5:
 
 | Held item | Speed | Ticks | Seconds |
 |---|---|---|---|
@@ -43,7 +40,7 @@ not. There are twenty ticks in a second.
 | Anything else, or nothing | — | 150 | 7.5 |
 
 The count starts on the tick *after* the block is first targeted: the first
-frame on a new target only records its position. Looking away and back resets
+tick on a new target only records its position. Looking away and back resets
 the total to zero, so a partly-mined block recovers completely the moment the
 crosshair leaves it.
 <!-- src: PlayerControllerSP.java:61 sendBlockRemoving, the else branch that
@@ -57,9 +54,9 @@ accumulates at all — [[Torch]], [[Redstone Dust]], [[Sapling]], [[Flower]],
 [[Tall Grass]], [[TNT]] and the rest of the zero-hardness list.
 <!-- src: PlayerControllerSP.java:43 clickBlock, the blockStrength >= 1.0F test -->
 
-A *negative* hardness short-circuits the other way: strength is returned as zero
-outright, and no amount of holding will ever break the block. Only [[Bedrock]]
-and the [[Portal]] block are set that way.
+A *negative* hardness results in negative strength, preventing the target
+block from ever being broken. Only [[Bedrock]] and the [[Portal]] block have
+negative hardness.
 <!-- src: Block.java:328 blockStrength; Block.java:207 setBlockUnbreakable -->
 
 ### The five-tick floor
@@ -77,8 +74,8 @@ during which left-click does nothing at all.
 
 ### Water and falling
 
-Two conditions divide the player's speed, and both are checked only on the
-harvestable branch:
+Two conditions reduce the player's speed, and both are checked *only* when
+mining a harvestable block
 
 - Mining with the head underwater divides speed by five.
 - Mining while not standing on the ground divides speed by five.
@@ -90,9 +87,9 @@ speed. The test for water samples eye level rather than the feet, so standing
 waist-deep costs nothing.
 <!-- src: Entity.java:588 isInsideOfMaterial, which samples posY + eye height -->
 
-Because both penalties live in the harvestable branch, they do not apply at all
-to a block the player cannot harvest. Punching [[Stone]] bare-handed takes 7.5
-seconds whether the player is dry and standing still or swimming in mid-fall.
+Because both penalties only apply to harvestable blocks, they do not apply at
+all to a block the player cannot harvest. Punching [[Stone]] bare-handed takes
+7.5 seconds whether the player is dry and standing still or swimming in mid-fall.
 
 ## Tools
 
@@ -118,9 +115,6 @@ a half times a diamond tool's rate and surviving a twentieth as long.
 
 ### What each tool is effective against
 
-The lists are short and literal. A block that is not named gets no speed bonus,
-however obviously it looks like it belongs:
-
 - **Pickaxe** — [[Stone]], [[Cobblestone]], [[Moss Stone]], [[Sandstone]],
   [[Stone Slab]], [[Double Stone Slab]], [[Netherrack]], [[Ice]], [[Coal Ore]],
   [[Iron Ore]], [[Gold Ore]], [[Diamond Ore]], [[Lapis Lazuli Ore]],
@@ -144,7 +138,7 @@ damage from it.
 
 Because the lists are written out one block at a time, several things are
 missing from them. [[Obsidian]] is not on the pickaxe's list, so even a
-[[Diamond Pickaxe]] takes it at speed 1 — fifteen seconds a block. Neither is
+[[Diamond Pickaxe]] takes it at speed 1 — fifteen seconds a block. Neither are
 [[Bricks]], [[Furnace]], [[Dispenser]], [[Monster Spawner]], [[Redstone Ore]],
 [[Glowstone]], [[Iron Door]], the stone [[Pressure Plate]] or [[Stone Stairs]],
 all of which still *need* a pickaxe to drop anything. [[Wooden Stairs]] are
@@ -176,8 +170,7 @@ drops.
 ## Drops
 
 Breaking a block and harvesting it are different things. The block is always
-removed; the drop happens only if the player *can harvest* it, and that is
-settled before the tool's speed comes into it at all.
+removed; the drop happens only if the player *can harvest* it.
 <!-- src: PlayerControllerSP.java:35 sendBlockRemoved, which calls harvestBlock
      only when canHarvestBlock passed -->
 
@@ -194,9 +187,9 @@ is only ever asked of five materials — the only ones flagged as needing a tool
 <!-- src: Material.java:114,115,129,130,136 setNoHarvest;
      InventoryPlayer.java:271 canHarvestBlock -->
 
-Everything not on that list drops for a bare hand: [[Dirt]], [[Wood]],
-[[Wool]], [[Sand]], [[Gravel]], [[Clay]], [[Soul Sand]], [[Rail|rails]],
-redstone components and the rest.
+Note that this list is completely seperate from the list of blocks each tool is
+effective against. A block can be harvestable by a tool that is not effective
+against it.
 
 ### Harvest levels
 
@@ -214,11 +207,10 @@ tiers:
 <!-- src: ItemPickaxe.java:10 canHarvestBlock -->
 
 A [[Golden Pickaxe]] sits at harvest level 0 alongside wood, so for all its
-speed it cannot bring back iron, gold, redstone, lapis, diamond or obsidian.
+speed it cannot harvest iron, gold, redstone, lapis, diamond or obsidian.
 
-Mining a block the pickaxe cannot harvest is not merely fruitless but slow, the
-flat formula applying instead: [[Obsidian]] takes 50 seconds to remove with an
-[[Iron Pickaxe]] and leaves nothing.
+Mining a non-harvestable block always uses the slow `strength = 1 ÷ (hardness × 100)`
+formula.
 
 ### What blocks actually give
 
@@ -251,63 +243,8 @@ into flowing [[Water]] on the spot if the block beneath it is solid or liquid.
      BlockIce.java:20 harvestBlock -->
 
 [[Shears]] change what [[Leaves]] give: cut with shears, a leaf block returns
-itself, of the right wood, instead of rolling for a [[Sapling]]. Shears also
-break leaves fast enough to clear the strength threshold on the first frame, so
-they come away instantly.
+itself, of the right wood, instead of rolling for a [[Sapling]].
 <!-- src: BlockLeaves.java:163 harvestBlock; 15 / (0.2 * 30) = 2.5 per tick -->
-
-## Where the ores are
-
-Ore is placed after the terrain is shaped and the caves are cut. Each chunk gets
-a fixed number of attempts per ore; every attempt picks a column in the chunk
-and a starting height, and lays a vein two to four blocks above it.
-<!-- src: ChunkProviderGenerate.java:353-408; WorldGenMinable.java:20 -->
-
-| Ore | Attempts per chunk | Starting height | Vein size |
-|---|---|---|---|
-| [[Coal Ore]] | 20 | 0–127 | 16 |
-| [[Iron Ore]] | 20 | 0–63 | 8 |
-| [[Gold Ore]] | 2 | 0–31 | 8 |
-| [[Redstone Ore]] | 8 | 0–15 | 7 |
-| [[Diamond Ore]] | 1 | 0–15 | 7 |
-| [[Lapis Lazuli Ore]] | 1 | 0–30, peaking at 15 | 6 |
-| [[Dirt]] pockets | 20 | 0–127 | 32 |
-| [[Gravel]] pockets | 10 | 0–127 | 32 |
-
-Lapis is the odd one out. Its height is the sum of two draws from 0–15 rather
-than one draw from 0–31, which makes it a triangular distribution centred on 15
-instead of a flat band.
-<!-- src: ChunkProviderGenerate.java:405 rand.nextInt(16) + rand.nextInt(16) -->
-
-An attempt is not a vein. The generator only ever replaces [[Stone]], so a vein
-rolled inside a cave, a lake, a dirt pocket or another ore quietly writes
-nothing at all, and the vein size is an upper bound on what a successful attempt
-places rather than a count.
-<!-- src: WorldGenMinable.java:44, the getBlockId == Block.stone test -->
-
-## Hazards
-
-- **Lava fills the bottom of every cave.** Cave carving replaces stone with air
-  above Y=10 and with flowing [[Lava]] at Y=9 and below, so the depths where
-  diamond and redstone sit are also where open lava is guaranteed rather than
-  incidental.
-  <!-- src: MapGenCaves.java:134 -->
-- **Lava springs and lakes.** Twenty attempts per chunk place a single lava
-  source in a stone wall, at a height drawn from three nested rolls that
-  concentrate them low. A lava lake gets one attempt in eight chunks, and above
-  Y=64 only one in ten of those goes ahead.
-  <!-- src: ChunkProviderGenerate.java:581 WorldGenLiquids;
-       ChunkProviderGenerate.java:330 WorldGenLakes -->
-- **[[Sand]] and [[Gravel]] fall.** Mining the block under either turns it into
-  a [[Falling Sand]] entity, and a column of gravel over a tunnel comes down as
-  a unit.
-- **[[Bedrock]] is a band, not a floor.** Y=0 is always bedrock; Y=1 to Y=4 are
-  bedrock at random. There is nothing beneath it to fall into, but there is no
-  clean flat layer to work along either.
-  <!-- src: ChunkProviderGenerate.java:132, y <= rand.nextInt(5) -->
-- **Darkness spawns mobs.** Any unlit space large enough is a spawn site, so a
-  tunnel lit only by the [[Torch]] behind the player is being repopulated behind
-  them as they dig.
 
 ## On a server
 
@@ -338,10 +275,3 @@ tool's speed for the tick count with a working tool, or by 100 for the count
 without one.
 
 {{list|blocks}}
-
-## See also
-
-- [[Crafting]] — turning what mining produces into the tools that mine faster
-- [[Smelting]] — [[Iron Ore|iron]] and [[Gold Ore|gold]] stay ore until a
-  [[Furnace]] has them
-- [[Dungeon]] — the one structure worth tunnelling towards

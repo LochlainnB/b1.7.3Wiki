@@ -5,7 +5,7 @@ type: mechanic
 categories: [Game mechanics]
 ---
 
-**Smelting** converts one item into another using a [[Furnace]] and a fuel.
+**Smelting** converts one item into another using a [[Furnace]] and fuel.
 Unlike [[Crafting]], smelting takes time and consumes fuel as it runs.
 
 ## Using a furnace
@@ -14,8 +14,7 @@ A furnace has three slots: the item to smelt on top, the fuel below it, and the
 result on the right. While it has both an input and burning fuel, the furnace
 works through its input one item at a time and lights up.
 
-Every smelt takes the same **200 ticks — 10 seconds** — whatever is being
-smelted.
+One smelt takes **200 ticks — 10 seconds**
 <!-- src: TileEntityFurnace.java:128 updateEntity -->
 
 A furnace only draws a new piece of fuel when there is something it can smelt,
@@ -63,9 +62,8 @@ Sticks are worse still. Two planks yield four sticks, trading 600 ticks for 400,
 and the six sticks a [[Fence]] costs would have burned for exactly as long as
 the two fences they make.
 
-Wooden doors and signs are the exception: the furnace tests the item's id
-against the block list, and both exist only as items once they are in an
-inventory, so neither burns.
+Wooden doors and signs don't burn. The furnace tests the item's id
+against the *block* list, and both have a non-block item id when in an inventory
 <!-- src: TileEntityFurnace.java:190 getItemBurnTime, the var2 < 256 test -->
 
 ## Smelting recipes
@@ -74,7 +72,4 @@ inventory, so neither burns.
 
 ## See also
 
-- [[Crafting]]
 - [[Furnace]]
-- [[Mining]] — how ore gets out of the ground in the first place
-- [[Coal]]

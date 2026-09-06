@@ -62,15 +62,72 @@ negative hardness.
 ### The five-tick floor
 
 Instant blocks do not come down twenty a second. Two separate delays cap the
-rate: finishing a block through the damage counter sets a five-tick pause before
-the next block starts taking damage, and holding the button down re-clicks only
-once every five ticks — a quarter of the tick rate.
+rate, and they work independently of each other.
+
+The first is a countdown on the controller. Finishing a block through the damage
+counter sets it to 5, and every tick it stands above zero is spent decrementing
+it: no target is read and no damage is added to anything. Five ticks go that
+way, and the sixth is the re-target tick, which only stores the new block's
+position. Holding the attack button down therefore leaves **seven ticks**, just
+over a third of a second, between one block breaking and the next taking its
+first damage.
 <!-- src: PlayerControllerSP.java:83 blockHitWait = 5;
-     Minecraft.java:1012 timer.ticksPerSecond / 4.0F -->
+     PlayerControllerSP.java:62 the > 0 branch, which returns before damaging;
+     PlayerControllerSP.java:85 the else branch, which only stores the position -->
+
+The second is auto-repeat. Holding the button re-runs the click path once every
+five ticks — `ticksPerSecond / 4`, against a timer running at 20 — while a fresh
+press runs it at once, with no such test. That click path is the one that breaks
+a zero-hardness block, so instant blocks come down on the auto-repeat rather
+than through the damage counter, and a player clicking faster than five ticks
+apart breaks them faster than a player holding the button.
+<!-- src: Minecraft.java:1012 the ticksRan - mouseTicksRan >= ticksPerSecond / 4.0F
+     test; Minecraft.java:114 new Timer(20.0F);
+     Minecraft.java:1112 the press event, which calls clickMouse ungated -->
 
 Clicking at nothing — swinging at air rather than at a block — costs ten ticks
 during which left-click does nothing at all.
 <!-- src: Minecraft.java:809 leftClickCounter = 10 -->
+
+### Releasing the attack button
+
+Once a tick the game asks whether the attack button is down and the crosshair is
+on a block. Whenever either answer is no it calls `resetBlockRemoving`, and that
+does more than discard the accumulated damage: it zeroes the five-tick countdown
+and the ten-tick air-swing lockout as well. Both are cancelled outright rather
+than left to run down.
+<!-- src: Minecraft.java:779 func_6254_a — the leftClickCounter = 0 at the top
+     and the else branch calling resetBlockRemoving;
+     PlayerControllerSP.java:56 resetBlockRemoving, which zeroes blockHitWait -->
+
+Releasing and re-pressing the button does therefore start the next block sooner.
+The countdown dies on the tick the button reads as up, the press re-targets on
+the tick after, and damage begins on the tick after that — three ticks against
+the seven a held button costs:
+
+| Tick | Button held | Button released and re-pressed |
+|---|---|---|
+| T | the block breaks, countdown set to 5 | the block breaks, countdown set to 5 |
+| T+1 | countdown 5 → 4 | button up: damage and countdown both zeroed |
+| T+2 | countdown 4 → 3 | button down: the new block is targeted |
+| T+3 | countdown 3 → 2 | first damage |
+| T+4 | countdown 2 → 1 | |
+| T+5 | countdown 1 → 0 | |
+| T+6 | the new block is targeted | |
+| T+7 | first damage | |
+
+Two things bound it. The button must read as up at the moment the check runs, so
+a release and a press inside one tick achieve nothing — the check sees a button
+that never left the mouse. And the same reset throws away accumulated damage, so
+letting go part-way through a block loses that progress; it is free only in the
+window straight after a break, where the damage is already zero.
+
+Looking away costs nothing extra, because it is the same reset. A crosshair that
+leaves the block for a tick cancels the countdown exactly as a released button
+does.
+
+That is the single-player controller. Multiplayer runs a different one, and the
+pause behaves differently there — see [[Mining#On a server|On a server]].
 
 ### Water and falling
 
@@ -218,19 +275,19 @@ Mining does not always return the block. The substitutions:
 
 | Block | Drops |
 |---|---|
-| [[Stone]] | [[Cobblestone]] |
-| [[Coal Ore]] | one {{sprite\|Coal}} |
-| [[Diamond Ore]] | one {{sprite\|Diamond}} |
-| [[Lapis Lazuli Ore]] | four to eight lapis lazuli |
-| [[Redstone Ore]] | four or five {{sprite\|Redstone}} |
-| [[Glowstone]] | two to four [[Glowstone Dust]] |
-| [[Clay]] | four [[Clay Ball\|clay balls]] |
-| [[Cobweb]] | one [[String]] |
-| [[Snow]], as a layer | one [[Snowball]] |
-| [[Snow]], as a block | four [[Snowball\|snowballs]] |
-| [[Gravel]] | [[Flint]] one time in ten, gravel otherwise |
-| [[Leaves]] | a [[Sapling]] one time in twenty |
-| [[Iron Ore]], [[Gold Ore]] | the ore block itself, for [[Smelting\|smelting]] |
+| {{sprite\|Stone}} | {{sprite\|Cobblestone}} |
+| {{sprite\|Coal Ore}} | one {{sprite\|Coal}} |
+| {{sprite\|Diamond Ore}} | one {{sprite\|Diamond}} |
+| {{sprite\|Lapis Lazuli Ore}} | four to eight {{sprite\|Lapis Lazuli}} |
+| {{sprite\|Redstone Ore}} | four or five {{sprite\|Redstone}} |
+| {{sprite\|Glowstone}} | two to four {{sprite\|Glowstone Dust}} |
+| {{sprite\|Clay}} | four {{sprite\|Clay Ball\|text=clay balls}} |
+| {{sprite\|Cobweb}} | one {{sprite\|String}} |
+| {{sprite\|Snow}}, as a layer | one {{sprite\|Snowball}} |
+| {{sprite\|Snow\|link=no}}, as a block | four {{sprite\|Snowball\|link=no\|text=snowballs}} |
+| {{sprite\|Gravel}} | {{sprite\|Flint}} one time in ten, gravel otherwise |
+| {{sprite\|Leaves}} | a {{sprite\|Sapling}} one time in twenty |
+| {{sprite\|Iron Ore}}, {{sprite\|Gold Ore}} | the ore block itself, for [[Smelting\|smelting]] |
 
 <!-- src: BlockOre.java:10; BlockRedstoneOre.java:56; BlockGlowStone.java:10;
      BlockClay.java:14; BlockWeb.java:32; BlockSnow.java:50;
@@ -267,6 +324,17 @@ afterwards. Three limits apply that do not exist in single-player.
   horizontal distances. The server answers the attempt by sending the block
   back, so it reappears after a moment.
   <!-- src: NetServerHandler.java:263 -->
+
+The five-tick pause behaves differently as well, because multiplayer runs its
+own controller. Its countdown only runs down while a dig is armed, and arming
+happens in the click path, so the countdown does not begin until the next press
+or auto-repeat; and the reset that letting go performs cancels the dig without
+touching the countdown. Releasing and re-pressing therefore skips the wait for
+the auto-repeat and nothing more — the five ticks are paid either way.
+<!-- src: PlayerControllerMP.java:70 the isHittingBlock guard around the
+     countdown; PlayerControllerMP.java:64 resetBlockRemoving, which clears
+     isHittingBlock but not blockHitDelay; PlayerControllerMP.java:96
+     blockHitDelay = 5; PlayerControllerMP.java:52 clickBlock arming the dig -->
 
 ## Block hardness
 

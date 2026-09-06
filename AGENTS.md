@@ -302,7 +302,11 @@ Everything else in `data/` is overwritten by the extractors.
   attacks), **Data values** (the entity network id) instead.
   `tools/lib/mobs.mjs` holds the list of which entities count, and both
   generators read it.
-- Link the first mention of another subject in a section, not every mention.
+- Always link the first mention of another subject in a section. Don't link further mentions within that section.
+  To discover what subjects can be linked, always check what pages exist before writing.
+- When linking, use display text to match case/grammar. e.g. `Breaking clay drops [[Clay Ball|clay balls]]`
+- Avoid duplicate explanations. If your writing touches on a broader mechanic, reference that mechanic's page and explain only how it relates to your subject. If a mechanic does not have its own page, scaffold one.
+- Only explain *why* the wiki's content is what it is within HTML comments. Never justify yourself in the content itself.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
 

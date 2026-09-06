@@ -59,6 +59,7 @@ export default {
         { text: 'Crafting recipes', href: '/mechanic/crafting/' },
         { text: 'Smelting', href: '/mechanic/smelting/' },
         { text: 'Mining', href: '/mechanic/mining/' },
+        { text: 'Mob spawning', href: '/mechanic/mob-spawning/' },
         { text: 'Block IDs', href: '/wiki/data-values/' },
         { text: 'Sprite sheet', href: '/wiki/sprites/' },
       ],

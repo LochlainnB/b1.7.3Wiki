@@ -19,6 +19,7 @@ a hardness of 2, that is what the 1.7.3 jar does.
 - [[Mining]] — how blocks break, what tools change, and what drops
 - [[Crafting]] — how the crafting grid works, and every recipe
 - [[Smelting]] — the furnace, fuels and smelting recipes
+- [[Mob Spawning]] — where mobs appear, and what stops them
 
 ## Reference
 

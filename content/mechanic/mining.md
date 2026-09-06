@@ -126,8 +126,9 @@ Looking away costs nothing extra, because it is the same reset. A crosshair that
 leaves the block for a tick cancels the countdown exactly as a released button
 does.
 
-That is the single-player controller. Multiplayer runs a different one, and the
-pause behaves differently there — see [[Mining#On a server|On a server]].
+That is the single-player controller. Multiplayer runs a different one, on which
+letting go does not clear the countdown; re-pressing still pays there, but for a
+different reason. See [[Mining#The pause in multiplayer|the pause in multiplayer]].
 
 ### Water and falling
 
@@ -284,7 +285,7 @@ Mining does not always return the block. The substitutions:
 | {{sprite\|Clay}} | four {{sprite\|Clay Ball\|text=clay balls}} |
 | {{sprite\|Cobweb}} | one {{sprite\|String}} |
 | {{sprite\|Snow}}, as a layer | one {{sprite\|Snowball}} |
-| {{sprite\|Snow\|link=no}}, as a block | four {{sprite\|Snowball\|link=no\|text=snowballs}} |
+| {{sprite\|Snow}}, as a block | four {{sprite\|Snowball\|text=snowballs}} |
 | {{sprite\|Gravel}} | {{sprite\|Flint}} one time in ten, gravel otherwise |
 | {{sprite\|Leaves}} | a {{sprite\|Sapling}} one time in twenty |
 | {{sprite\|Iron Ore}}, {{sprite\|Gold Ore}} | the ore block itself, for [[Smelting\|smelting]] |
@@ -325,16 +326,45 @@ afterwards. Three limits apply that do not exist in single-player.
   back, so it reappears after a moment.
   <!-- src: NetServerHandler.java:263 -->
 
-The five-tick pause behaves differently as well, because multiplayer runs its
-own controller. Its countdown only runs down while a dig is armed, and arming
-happens in the click path, so the countdown does not begin until the next press
-or auto-repeat; and the reset that letting go performs cancels the dig without
-touching the countdown. Releasing and re-pressing therefore skips the wait for
-the auto-repeat and nothing more — the five ticks are paid either way.
+### The pause in multiplayer
+
+Multiplayer runs its own controller, and the five-tick countdown works
+differently on it. Letting go of the button does not zero it — the reset cancels
+the dig and leaves the countdown where it is — and the countdown only runs down
+while a dig is armed, which happens in the click path. So the five ticks are
+paid whatever the player does. What re-pressing skips is the wait for the click
+path itself, and that is worth having.
 <!-- src: PlayerControllerMP.java:70 the isHittingBlock guard around the
      countdown; PlayerControllerMP.java:64 resetBlockRemoving, which clears
      isHittingBlock but not blockHitDelay; PlayerControllerMP.java:96
      blockHitDelay = 5; PlayerControllerMP.java:52 clickBlock arming the dig -->
+
+For an ordinary block, a held button leaves six to ten ticks between one block
+breaking and the next taking damage, depending on where the break falls in the
+five-tick auto-repeat cycle. A press on the tick after the release runs the
+click path at once and makes it a flat seven — worth about a tick a block on
+average, and nothing at all when the break happens to land just before an
+auto-repeat would have fired anyway.
+
+For an instant block the difference is much larger, because in multiplayer the
+click path is the only thing that breaks one. `clickBlock` removes a
+zero-hardness block without arming a dig, so the damage counter never runs on it
+at all, and a held button takes exactly four a second. Each fresh press takes
+one at once, so clicking is as fast as the player can click.
+<!-- src: PlayerControllerMP.java:49 the blockStrength >= 1.0F branch, which
+     returns before the isHittingBlock = true in the else below it, leaving
+     sendBlockRemoving's isHittingBlock guard closed -->
+
+The exception is a dig already armed on some other block. The controller answers
+a target that is not the armed one by calling the click path again, once a tick
+and with no auto-repeat test, and breaking an instant block that way still
+leaves the armed position untouched — so every later target mismatches too. A
+player who starts on [[Stone]] and then sweeps across [[Torch\|torches]] or
+[[Tall Grass]] without letting go takes one a tick, twenty a second, until the
+button comes up.
+<!-- src: PlayerControllerMP.java:99 the else branch calling clickBlock;
+     PlayerControllerMP.java:52 currentBlockX/Y/Z are only written on the
+     non-instant path, so they stay on the armed block -->
 
 ## Block hardness
 

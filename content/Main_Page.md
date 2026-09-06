@@ -20,6 +20,7 @@ a hardness of 2, that is what the 1.7.3 jar does.
 - [[Crafting]] — how the crafting grid works, and every recipe
 - [[Smelting]] — the furnace, fuels and smelting recipes
 - [[Mob Spawning]] — where mobs appear, and what stops them
+- [[World Generation]] — how biomes, terrain, caves, ores and features are built
 
 ## Reference
 

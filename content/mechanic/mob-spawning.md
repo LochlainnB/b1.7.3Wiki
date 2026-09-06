@@ -27,16 +27,23 @@ material to stand in:
 <!-- src: EnumCreatureType.java:4 -->
 
 The cap scales with how much world is loaded, at `cap × eligible chunks ÷ 256`,
-and is counted against every mob of that category in the world. One player alone
-supports 79 monsters, 16 animals and 5 squid. A category over its cap is skipped
-for that tick.
-<!-- src: SpawnerAnimals.java:48 -->
+and is counted against every mob of that category in loaded chunks. One player
+alone supports 79 monsters, 16 animals and 5 squid.
+<!-- src: SpawnerAnimals.java:48; World.java:2064 countEntities walks
+     loadedEntityList -->
+
+That count is taken once per category per tick, before the pass over the
+eligible chunks, and nothing rechecks it during the pass. A tick that starts
+under the cap runs the whole pass, so a category can finish the tick well over
+its cap. Spawning then stops until despawning brings the count back down.
+<!-- src: SpawnerAnimals.java:48, the single countEntities call guarding the
+     entire chunk loop -->
 
 For each eligible chunk the game draws one mob from the biome's list for that
 category, then picks a starting point: a random x and z inside the chunk, and a
 y from 0 to 127 chosen with no regard for the terrain. The chunk is abandoned
 unless that point is non-solid and made of the category's material, which is why
-most attempts end in stone.
+most attempts end in [[Stone|stone]].
 <!-- src: SpawnerAnimals.java:12 getRandomSpawningPointInChunk, :92 -->
 
 From that point the game runs three groups of four spawn attempts. Each attempt
@@ -58,7 +65,9 @@ A water creature instead needs a liquid at the spot and a non-solid block above.
 <!-- src: SpawnerAnimals.java:153 canCreatureTypeSpawnAtLocation, :115 -->
 
 Every mob a chunk produces in one tick is the same type, which is what makes
-packs. A chunk stops at 4 mobs, or 8 for wolves and 1 for ghasts.
+packs. A chunk stops at 4 mobs, or 8 for wolves and 1 for ghasts. Each eligible
+chunk gets its own group of attempts in the same tick, so one pass places far
+more than one pack.
 <!-- src: SpawnerAnimals.java:134; EntityLiving.java:842 getMaxSpawnedInChunk -->
 
 A spawned spider carries a skeleton rider one time in a hundred. A spawned sheep
@@ -84,9 +93,10 @@ During a thunderstorm the second test subtracts 10 from sky light whatever the
 time of day, putting an open surface at light 5 and letting hostile mobs spawn
 outdoors in daylight.
 
-On Peaceful no monster spawns at all, and any zombie, skeleton, spider, creeper,
-[[Giant|giant]], ghast or pig zombie already in the world is removed on its next
-tick. Slimes are not removed.
+On Peaceful no monster spawns at all, and any [[Zombie|zombie]],
+[[Skeleton|skeleton]], [[Spider|spider]], [[Creeper|creeper]], [[Giant|giant]],
+[[Ghast|ghast]] or [[Pig Zombie|pig zombie]] already in the world is removed on
+its next tick. [[Slime|Slimes]] are not removed.
 <!-- src: Minecraft.java:1164 setAllowedMobSpawns; EntityMob.java:20 onUpdate;
      EntityGhast.java:30 onUpdate. EntitySlime extends EntityLiving, not
      EntityMob, so it has no such check. -->
@@ -107,18 +117,21 @@ can appear partly inside blocks.
 ## Passive mobs
 
 An animal needs a [[Grass]] block directly beneath it and a light level above 8.
-The light read here is the block's stored value with no time-of-day subtraction,
-so animals spawn at night as readily as by day.
+The level used is the higher of the block's stored sky light and its block light,
+with no subtraction for the time of day. Torchlight therefore counts towards it.
+A spot under open sky reads 15 at midnight, so animals spawn at night as readily
+as by day.
 <!-- src: EntityAnimal.java:20 getCanSpawnHere; World.java:529
-     getFullBlockLightValue passes 0 as the sky subtraction -->
+     getFullBlockLightValue passes 0 as the sky subtraction to
+     Chunk.java:341 getBlockLightValue, which returns max(sky, block) -->
 
-Squid need water and a clear space, with no light condition and no depth limit.
-The chunk's starting point must be water, but the attempts that follow accept any
-liquid.
+[[Squid]] need [[Water|water]] and a clear space, with no light condition and no
+depth limit. The chunk's starting point must be water, but the attempts that
+follow accept any liquid.
 <!-- src: EntityWaterMob.java:20 getCanSpawnHere -->
 
 Animals spawn continuously on the same cycle as monsters. They are not placed
-once when a chunk generates, so an area cleared of cows fills up again.
+once when a chunk generates, so an area cleared of [[Cow|cows]] fills up again.
 
 ## What spawns where
 
@@ -127,26 +140,26 @@ its own list, not a chance:
 
 | Category | Entries |
 |---|---|
-| Monster | Spider 10, Zombie 10, Skeleton 10, Creeper 10, Slime 10 |
-| Creature | Sheep 12, Pig 10, Chicken 10, Cow 8 |
-| Water creature | Squid 10 |
+| Monster | [[Spider]] 10, [[Zombie]] 10, [[Skeleton]] 10, [[Creeper]] 10, [[Slime]] 10 |
+| Creature | [[Sheep]] 12, [[Pig]] 10, [[Chicken]] 10, [[Cow]] 8 |
+| Water creature | [[Squid]] 10 |
 
-[[Forest]] and [[Taiga]] add Wolf at weight 2 to the creature list. [[Hell]], the
-[[Nether]]'s only biome, replaces all three lists with Ghast 10 and Pig Zombie 10
-as monsters. [[Sky]] carries Chicken 10 alone.
+[[Forest]] and [[Taiga]] add [[Wolf]] at weight 2 to the creature list.
+[[Hell]], the [[Nether]]'s only biome, replaces all three lists with [[Ghast]] 10
+and [[Pig Zombie]] 10 as monsters. [[Sky]] carries Chicken 10 alone.
 <!-- src: BiomeGenBase.java:42; BiomeGenForest.java:7; BiomeGenTaiga.java:7;
      BiomeGenHell.java:5; BiomeGenSky.java:5 -->
 
 The draw only decides which mob is attempted. A slime is one monster pick in
 five, and almost always fails its own conditions.
 
-The giant appears on no list and never spawns naturally.
+The [[Giant|giant]] appears on no list and never spawns naturally.
 
 ## Monster spawners
 
-A monster spawner holds the name of one mob and runs only while a player is
-within 16 blocks. Out of range it does nothing at all, down to the smoke and
-flame particles.
+A [[Monster Spawner|monster spawner]] holds the name of one mob and runs only
+while a player is within 16 blocks. Out of range it does nothing at all, down to
+the smoke and flame particles.
 <!-- src: TileEntityMobSpawner.java:67 anyPlayerInRange, :71 updateEntity -->
 
 The spawner counts down a delay. At zero it makes four attempts, each of which:
@@ -164,7 +177,7 @@ the spawner tries again on the next tick.
 <!-- src: TileEntityMobSpawner.java:94, :135 updateDelay -->
 
 Because the mob's own conditions still apply, lighting the room to level 8 stops
-a zombie, skeleton or spider spawner outright.
+a [[Zombie|zombie]], [[Skeleton|skeleton]] or [[Spider|spider]] spawner outright.
 
 Spawners generate only in [[Dungeon|dungeons]], one per dungeon, set to Zombie
 half the time and to Skeleton or Spider a quarter each.
@@ -189,22 +202,23 @@ tick, reaching the 600-tick threshold three times faster.
 <!-- src: EntityMob.java:11 onLivingUpdate; brightness 0.5 is light 12 in
      WorldProvider.generateLightBrightnessTable -->
 
-Animals despawn on the same rules. A tamed wolf is the only mob that never
-despawns.
+Animals despawn on the same rules. A tamed [[Wolf|wolf]] is the only mob that
+never despawns.
 <!-- src: EntityWolf.java:66 canDespawn -->
 
 ## Other ways mobs appear
 
-A thrown [[Egg]] spawns a chicken one time in eight, and four chickens in one of
-every 32 of those.
+A thrown [[Egg]] spawns a [[Chicken|chicken]] one time in eight, and four
+chickens in one of every 32 of those.
 <!-- src: EntityEgg.java:156 -->
 
-A pig struck by lightning becomes a pig zombie.
+A [[Pig|pig]] struck by lightning becomes a [[Pig Zombie|pig zombie]].
 <!-- src: EntityPig.java:62 onStruckByLightning -->
 
 When every player in the world is asleep and the difficulty is above Peaceful,
-the game makes 20 attempts to spawn a spider, zombie or skeleton within 32 blocks
-horizontally and 16 vertically of a sleeper. The mob must be able to path to
-within 1.5 blocks of the player. If it can, it is placed in a free space beside
-the [[Bed]], the player is woken, and the night does not pass.
+the game makes 20 attempts to spawn a [[Spider|spider]], [[Zombie|zombie]] or
+[[Skeleton|skeleton]] within 32 blocks horizontally and 16 vertically of a
+sleeper. The mob must be able to path to within 1.5 blocks of the player. If it
+can, it is placed in a free space beside the [[Bed]], the player is woken, and
+the night does not pass.
 <!-- src: SpawnerAnimals.java:173 performSleepSpawning; World.java:1748 tick -->

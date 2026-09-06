@@ -4,8 +4,8 @@ This repository is a **Minecraft Beta 1.7.3 wiki**. Pages are Markdown files
 that build into a static site styled after minecraft.wiki. Editing happens by
 changing files directly — there is no online editor and no database.
 
-If you are here to write or fix an article, you mostly need two things: the
-editorial rule below, and the template list.
+If you are here to write or fix an article, you need three things: the
+editorial rule below, **Writing style**, and the template list.
 
 This file is the only style guide. The wiki used to carry a second copy of these
 conventions as a page, and the two drifted; do not start another one. Conventions
@@ -289,12 +289,173 @@ four of itself.
 
 Everything else in `data/` is overwritten by the extractors.
 
+## Writing style
+
+This wiki is written mostly by agents, and agents overwrite. The failure has
+one shape: too many words, narration where a statement would do, and the
+mechanism explained when only the rule was asked for. Assume your first draft
+has it.
+
+**A page is a reference, not an essay.** The reader arrived from a search box,
+wants one fact, and leaves once they have it. Everything below follows from
+that.
+
+Concise is not the same as thin. Cut words, not facts. A page that leaves out
+what a block actually does is worse than one that takes too long to say it, and
+the fix for a bloated page is shorter sentences, not fewer of them.
+
+### The model to copy
+
+The house style is minecraft.wiki's. Three of its pages are saved in
+`minecraft.wiki-examples/`; open one when you are unsure how a section should
+read. What to notice is how little happens in each sentence:
+
+> Wooden stairs can be broken with anything, but axes are the fastest.
+>
+> Each trade can be used a maximum number of times, after which the villager
+> runs out of stock, and the trade becomes disabled.
+>
+> Growing up takes 20 minutes.
+
+Flat, declarative, one fact each, nobody visibly writing. That is the target.
+
+### Sentences
+
+- **One fact per sentence.** Subject, verb, object. A sentence carrying two
+  clauses joined by "and both", "which is why", "so that", or an em dash is
+  usually two sentences.
+- **Fact first, mechanism second.** "Wooden doors and signs don't burn", then
+  the reason — not the reason built up to a conclusion.
+- **Drop the mechanism when it adds nothing.** The reader wants the rule. The
+  code behind it goes in the `<!-- src: -->` comment, where the next editor
+  looks for it anyway.
+- **No framing.** A sentence whose only job is to introduce the next paragraph
+  carries no fact. "Two questions decide what happens." "The lists are short
+  and literal." "Three things must be true." Cut them and start with the fact.
+- **No summing up.** Do not close a section by restating it, and do not close a
+  sentence with a clause that repeats its own first half.
+- **One example at most**, and only where the rule is hard to apply from its
+  statement. Never work arithmetic the reader can do from numbers already given.
+
+### The lead
+
+One sentence. Bold the page title, define the thing, stop.
+
+```markdown
+**Cobblestone** is the block dropped when [[Stone]] is mined with a pickaxe.
+```
+
+A second sentence is allowed only when it carries a fact the page does not
+repeat later. A lead paragraph that previews the article is always wrong.
+
+### Voice
+
+- Third person, present tense. "Cobblestone drops from stone", not "you will
+  get cobblestone", and never "we".
+- No jokes, no enthusiasm, no personification. Blocks do not want, refuse,
+  decide, or have opinions about anything.
+- No hedging. "Generally", "typically", "in most cases" and "tends to" mean the
+  writer did not check. Check, state the rule, then name the exceptions.
+- No judging adjectives. "Extremely useful", "surprisingly", "notably",
+  "unusually" describe the writer, not the game. A factual comparison is fine:
+  gold *is* the fastest tool material, and saying so is reporting.
+- Banned openers: "Note that", "It is worth noting", "Interestingly", "In
+  fact", "Of course", "Simply", "Actually".
+- Give the number, not an impression of it. "12", not "quite fast".
+- Describe the game, not the source. "Branch", "returns", "flag", "guard",
+  "short-circuits" and method names belong in the `<!-- src: -->` comment.
+- Never justify the wiki's own choices in the content. That goes in an HTML
+  comment.
+
+### Let the page carry it
+
+- More than about three parallel facts is a table.
+- A set of things is a list, not a sentence with commas in it.
+- Never restate a table or list in prose on either side of it, and never state
+  its inverse either — "everything not on that list drops for a bare hand" adds
+  nothing to the list.
+- Never type a number a template can produce. See **Never hand-type game
+  numbers** above.
+
+### Scope
+
+- Stay on the subject the page is named after. Ore generation belongs on the
+  ore pages, not on [[Mining]].
+- Avoid duplicate explanations. Where the writing touches a broader mechanic,
+  link that mechanic's page and say only how it bears on this subject. If the
+  mechanic has no page, scaffold one.
+- Strategy and tutorials belong in `content/guide/`, not on reference pages.
+- **See also** takes bare links — no glosses — and only pages the body has not
+  already linked. It is usually empty, and an empty one is deleted.
+
+### Length
+
+A signal to re-read, not a limit:
+
+| Page | Prose |
+|---|---|
+| Block, item, biome | 150–300 words; past 500, look for what belongs elsewhere |
+| Entity, structure, dimension | up to about 500 words |
+| Mechanic | as long as the mechanic, with each `###` under about 200 words |
+
+A section running past four paragraphs is either two sections or partly another
+page's material.
+
+### The edit pass
+
+Reread before saving and delete:
+
+1. Every sentence of the lead after the first that does not carry its own fact.
+2. Every sentence that announces, or restates, another sentence.
+3. Every trailing clause that repeats what its sentence already said.
+4. Every adjective that judges rather than measures.
+5. Every paragraph explaining a mechanic that has its own page.
+6. Every passage of prose restating a table.
+
+If deleting a sentence loses no fact, it should not have been written.
+
+### Before and after
+
+Real edits made to these pages, kept here because they are the whole guide in
+miniature:
+
+- "Two questions decide what happens, and the game answers them separately: how
+  long the block takes to come apart, and whether it leaves anything behind."
+  → deleted. The lead is one sentence.
+- "…and which one applies turns entirely on whether the player can harvest the
+  block at all" → "…depending on whether the player can harvest the block at
+  all".
+- "1 for a bare hand or anything with no opinion about it" → "default of 1 for
+  a bare hand or non-tool".
+- "[[Stone]], at a hardness of 1.5, shows the whole range:" → "The following
+  table shows breaking times for [[Stone]], which has a hardness of 1.5:"
+- "A *negative* hardness short-circuits the other way: strength is returned as
+  zero outright, and no amount of holding will ever break the block." → "A
+  *negative* hardness results in negative strength, preventing the target block
+  from ever being broken."
+- "both are checked only on the harvestable branch" → "both are checked only
+  when mining a harvestable block".
+- "The lists are short and literal. A block that is not named gets no speed
+  bonus, however obviously it looks like it belongs:" → deleted.
+- "Mining a block the pickaxe cannot harvest is not merely fruitless but slow,
+  the flat formula applying instead: [[Obsidian]] takes 50 seconds to remove
+  with an [[Iron Pickaxe]] and leaves nothing." → "Mining a non-harvestable
+  block always uses the slow formula."
+- "Every smelt takes the same **200 ticks — 10 seconds** — whatever is being
+  smelted." → "One smelt takes **200 ticks — 10 seconds**".
+- "Wooden doors and signs are the exception: the furnace tests the item's id
+  against the block list, and both exist only as items once they are in an
+  inventory, so neither burns." → "Wooden doors and signs don't burn." followed
+  by the test that decides it.
+- "- [[Smelting]] — the other way to transform items" → deleted; the body
+  already linked it.
+- Two whole sections of [[Mining]], on where the ores are and on the hazards of
+  digging, were deleted. The first belongs to the ore pages, the second to a
+  guide.
+
 ## Conventions
 
-- Plain, present tense, third person. "Cobblestone drops from stone", not "you
-  will get cobblestone".
-- Lead sentence bolds the page name and defines it.
-- Then `##` headings, in this order, skipping what does not apply: **Obtaining**
+- `##` headings follow, in this order, skipping what does not apply: **Obtaining**
   (mining, crafting, drops, natural generation), **Usage** (what it does and
   what it makes), **Behaviour** (for mobs and mechanics), **Data values** (ids
   and translation keys).
@@ -315,9 +476,6 @@ Everything else in `data/` is overwritten by the extractors.
 - Always link the first mention of another subject in a section. Don't link further mentions within that section.
   To discover what subjects can be linked, always check what pages exist before writing.
 - When linking, use display text to match case/grammar. e.g. `Breaking clay drops [[Clay Ball|clay balls]]`
-- Avoid duplicate explanations. If your writing touches on a broader mechanic, reference that mechanic's page and explain only how it relates to your subject. If a mechanic does not have its own page, scaffold one.
-- Only explain *why* the wiki's content is what it is within HTML comments. Never justify yourself in the content itself.
-- Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
 
 ## Citing the source

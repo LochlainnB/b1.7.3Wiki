@@ -114,10 +114,15 @@ which is where redstone's delays come from.
 ## Scheduled ticks
 
 A block asks the world to call it back a fixed number of ticks later. The
-request records the position and the block id, and joins a set ordered by due
-time and then by the order the requests were made.
-<!-- src: World.java:1152 scheduleBlockUpdate; NextTickListEntry.java:38
-     comparer -->
+request records the position and the block id.
+<!-- src: World.java:1152 scheduleBlockUpdate -->
+
+One set holds every pending tick in the world. There is no queue per block type
+and none per chunk. Entries are ordered by due time first and by a serial number
+second, so ticks that come due together run in the order they were asked for.
+<!-- src: World.java:17 the single TreeSet on World;
+     NextTickListEntry.java:38 comparer, breaking a tie on tickEntryID from a
+     static counter -->
 
 At most 1000 scheduled ticks run in one tick. Anything still due waits for the
 next one.
@@ -130,50 +135,24 @@ A block broken while its tick was pending gets nothing.
 
 One position holds one pending tick per block id, so asking twice before the
 first comes due achieves nothing.
-<!-- src: World.java:1170 the scheduledTickSet.contains guard -->
+<!-- src: World.java:1170 the scheduledTickSet.contains guard;
+     NextTickListEntry.equals compares position and block id only -->
 
 | Block | Delay |
 |---|---|
-| [[Water\|Water]] | 5 ticks |
-| [[Lava\|Lava]] | 30 ticks |
-| [[Redstone Torch\|Redstone torch]] | 2 ticks |
-| [[Redstone Repeater\|Redstone repeater]] | 2, 4, 6 or 8 ticks, by setting |
-| [[Sand\|Sand]] and [[Gravel\|gravel]] | 3 ticks |
-| [[Dispenser\|Dispenser]] | 4 ticks |
-| [[Button\|Button]], [[Pressure Plate\|pressure plate]], [[Detector Rail\|detector rail]] | 20 ticks |
-| [[Fire\|Fire]] | 40 ticks |
+| {{sprite\|Redstone Torch}} | 2 ticks |
+| {{sprite\|Redstone Repeater}} | 2, 4, 6 or 8 ticks, by setting |
+| {{sprite\|Sand}} {{sprite\|Gravel}} | 3 ticks |
+| {{sprite\|Dispenser}} | 4 ticks |
+| {{sprite\|Water}} | 5 ticks |
+| {{sprite\|Button}} {{sprite\|Pressure Plate}} {{sprite\|Detector Rail}} | 20 ticks |
+| {{sprite\|Lava}} | 30 ticks |
+| {{sprite\|Fire}} | 40 ticks |
 
-<!-- src: BlockFluid.java:187; BlockRedstoneTorch.java:41;
-     BlockRedstoneRepeater.java:6, the {1,2,3,4} array doubled at :95;
-     BlockSand.java:45; BlockDispenser.java:13; BlockButton.java:15;
-     BlockPressurePlate.java:17; BlockDetectorRail.java:12; BlockFire.java:51 -->
-
-## Active chunks
-
-Part of the tick runs only near a player. Every chunk within 9 of a player is
-active, a 19×19 square — 361 chunks for a single player, and fewer per player
-where two squares overlap.
-<!-- src: World.java:1879 byte var5 = 9; the set is a HashSet, so overlapping
-     squares collapse -->
-
-Each active chunk gets four jobs per tick:
-
-- one roll at 1 in 100000 for a lightning strike, taken only while it is raining
-  and thundering,
-- one roll at 1 in 16 for snow and ice, taken in a biome that allows snow and
-  where block light is under 10: still [[Water|water]] freezes to [[Ice|ice]],
-  and [[Snow|snow]] settles on solid ground while it is raining,
-- a cave sound, if the ambient countdown has reached zero,
-- 80 random ticks.
-
-<!-- src: World.java:1902 the cave sound, :1920 lightning, :1933 snow and ice,
-     :1952 the random ticks -->
-
-The cave sound picks one block in the chunk and needs it to be air, unlit by sky
-or block light, and more than 2 blocks from a player standing within 8. A sound
-that plays sets the countdown to between 6000 and 18000 ticks. One countdown is
-shared by every chunk.
-<!-- src: World.java:1902; soundCounter is a single field on the world -->
+<!-- src: BlockRedstoneTorch.java:41; BlockRedstoneRepeater.java:6, the
+     {1,2,3,4} array doubled at :95; BlockSand.java:45; BlockDispenser.java:13;
+     BlockFluid.java:187; BlockButton.java:15; BlockPressurePlate.java:17;
+     BlockDetectorRail.java:12; BlockFire.java:51 -->
 
 ## Random ticks
 
@@ -194,38 +173,57 @@ Only blocks flagged for it do anything when drawn:
 
 | Block | On a random tick |
 |---|---|
-| [[Grass\|Grass]] | spreads to nearby [[Dirt\|dirt]], or turns back to dirt in the dark |
-| [[Flower\|Flower]], [[Rose\|rose]], [[Tall Grass\|tall grass]], [[Dead Bush\|dead bush]] | drop if the spot has become illegal |
-| [[Crops\|Crops]] | the same check, then one growth stage in light 9 or better |
-| [[Sapling\|Sapling]] | the same check, then one stage, then a tree |
-| [[Mushroom\|Mushroom]] | spreads to a nearby space, 1 time in 100 |
-| [[Cactus\|Cactus]] and [[Sugar cane\|sugar cane]] | grow, up to three tall |
-| [[Farmland\|Farmland]] | dries out a stage, or reverts to dirt |
-| [[Leaves\|Leaves]] | decay when no [[Wood\|log]] is within 4 blocks |
-| [[Fire\|Fire]] | spreads to what it can reach, and burns out |
-| [[Water\|Flowing water]] and [[Lava\|flowing lava]] | recompute where they flow |
-| [[Ice\|Ice]] | melts above block light 8 |
-| [[Snow\|Snow]] | melts above block light 11 |
-| [[Redstone Ore\|Redstone ore]] | stops glowing |
-| [[Redstone Torch\|Redstone torch]] | rechecks whether it should be lit |
-| [[Torch\|Torch]] | reattaches itself, or drops, if it has no facing set |
-| [[Button\|Button]], [[Pressure Plate\|pressure plate]], [[Detector Rail\|detector rail]] | release |
-| [[Locked chest\|Locked chest]] | vanishes |
-| [[Cake\|Cake]], [[Pumpkin\|pumpkin]], [[Jack 'o' Lantern\|jack o'lantern]] | nothing |
+| {{sprite\|Grass}} | spreads to nearby {{sprite\|Dirt}}, or turns back to dirt in the dark |
+| {{sprite\|Flower}} {{sprite\|Rose}} {{sprite\|Tall Grass}} {{sprite\|Dead Bush}} | drop if the spot has become illegal |
+| {{sprite\|Crops}} | the same check, then one growth stage in light 9 or better |
+| {{sprite\|Sapling}} | the same check, then one stage, then a tree |
+| {{sprite\|Brown Mushroom\|text=Mushroom}} | spreads to a nearby space, 1 time in 100 |
+| {{sprite\|Cactus}} {{sprite\|Sugar cane}} | advance one of 16 stages, and grow a block on the sixteenth, up to three tall |
+| {{sprite\|Farmland}} | wets to full beside water, dries one stage otherwise, and turns to dirt when dry — 1 time in 5 |
+| {{sprite\|Leaves}} | decay when a nearby break has flagged them and no {{sprite\|Wood\|text=log}} is within 4 blocks |
+| {{sprite\|Fire}} | spreads to what it can reach, and burns out |
+| {{sprite\|Water}} {{sprite\|Lava}} | flowing forms recompute where they flow |
+| {{sprite\|Ice}} | melts above block light 8 |
+| {{sprite\|Snow}} | melts above block light 11 |
+| {{sprite\|Redstone Ore}} | stops glowing |
+| {{sprite\|Redstone Torch}} | rechecks whether it should be lit |
+| {{sprite\|Torch}} | reattaches itself, or drops, if it has no facing set |
+| {{sprite\|Button}} {{sprite\|Pressure Plate}} {{sprite\|Detector Rail}} | release |
+| {{sprite\|Locked chest}} | vanishes |
+| {{sprite\|Cake}} {{sprite\|Pumpkin}} {{sprite\|Jack 'o' Lantern}} | nothing |
 
 <!-- src: the setTickOnLoad(true) call in each Block* constructor, plus
      Block.java:687 for the locked chest; BlockCake and BlockPumpkin are flagged
-     but never override Block.updateTick, which is empty at Block.java:297 -->
-
-A button, a pressure plate and a detector rail share one `updateTick` between
-their scheduled tick and their random tick, so a random draw can release one
-early.
-<!-- src: BlockButton.java:225, BlockPressurePlate.java:53,
-     BlockDetectorRail.java:29 -->
+     but never override Block.updateTick, which is empty at Block.java:297;
+     BlockLeaves.java:37 onBlockRemoval sets the decay bit on leaves within 1 -->
 
 Still water takes no random ticks. Still lava does, which is how a lava pool
 sets fire to what is above it.
 <!-- src: BlockStationary.java:7 clears the flag, then sets it again for lava -->
+
+### Skipping a delay
+
+A block can be flagged for random ticks and schedule ticks as well, and one
+`updateTick` serves both. A random draw then does the work early, before the
+delay it was waiting on has run out:
+
+| Block | An early draw |
+|---|---|
+| {{sprite\|Redstone Torch}} | toggles inside its 2 ticks |
+| {{sprite\|Button}} {{sprite\|Pressure Plate}} {{sprite\|Detector Rail}} | release inside their 20 |
+| {{sprite\|Fire}} | spreads and burns down inside its 40 |
+| {{sprite\|Water}} {{sprite\|Lava}} | recompute their flow inside their 5 and 30 |
+
+<!-- src: the intersection of the setTickOnLoad(true) constructors and the
+     scheduleBlockUpdate callers: BlockRedstoneTorch, BlockButton,
+     BlockPressurePlate, BlockDetectorRail, BlockFire, BlockFlowing -->
+
+The odds are the random-tick odds — about 1 in 410 for each tick the block
+spends waiting, and nothing at all beyond 9 chunks from a player.
+
+The {{sprite|Redstone Repeater}} and the {{sprite|Dispenser}} are not flagged,
+and neither are falling {{sprite|Sand}} and {{sprite|Gravel}}. Their delays are
+exact.
 
 ## Display ticks
 

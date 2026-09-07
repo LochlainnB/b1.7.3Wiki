@@ -76,7 +76,7 @@ Most of what a tick means for an entity is a counter moving by one:
 
 | Counter | Effect |
 |---|---|
-| Burning | 1 damage every 20 ticks, counting down to zero |
+| Burning | 1 [[Damage\|damage]] every 20 ticks, counting down to zero |
 | Air | 300 at the surface, falling by 1 each tick underwater; 2 damage every 20 ticks once it is gone |
 | Death | the body lies for 20 ticks before it drops anything |
 | Item age | a dropped item disappears after 6000 ticks — 5 minutes |

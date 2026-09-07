@@ -51,7 +51,7 @@ Fall distance is reset by entering [[Water|water]] and by holding a
 
 A player riding a [[Minecart|minecart]], [[Boat|boat]] or [[Pig|pig]] takes the
 vehicle's fall damage, because a vehicle passes its fall on to its rider.
-<!-- src: Entity.java:570 fall forwards to riddenByEntity -->
+<!-- src: Entity.java:571 fall forwards to riddenByEntity -->
 
 ## Weapons
 
@@ -63,7 +63,7 @@ vehicle's fall damage, because a vehicle passes its fall on to its rider.
 | Shovel | 1 | 1 | 2 | 3 | 4 |
 
 Gold deals the damage of wood. Every other item, and a bare hand, deals 1.
-<!-- src: ItemSword.java:10 weaponDamage = 4 + material * 2; ItemTool.java:17
+<!-- src: ItemSword.java:10 weaponDamage = 4 + material * 2; ItemTool.java:16
      damageVsEntity = base + material, base 3 axe / 2 pickaxe / 1 spade;
      EnumToolMaterial.java GOLD carries damageVsEntity 0, the same as WOOD;
      Item.java:205 getDamageVsEntity returns 1 -->
@@ -72,7 +72,7 @@ Attacking while moving downwards adds 1 damage.
 <!-- src: EntityPlayer.java:492 ++var2 when motionY < 0 -->
 
 A sword loses 1 durability per hit and a tool loses 2. Anything else loses none.
-<!-- src: ItemSword.java:18, ItemTool.java:31 hitEntity; Item.hitEntity
+<!-- src: ItemSword.java:17, ItemTool.java:29 hitEntity; Item.hitEntity
      returns false without damaging the stack -->
 
 ## Mob attacks
@@ -86,7 +86,7 @@ A sword loses 1 durability per hit and a tool loses 2. Anything else loses none.
 | [[Wolf]] | 2, or 4 when tamed |
 <!-- src: EntityMob.java:4 attackStrength 2, EntityZombie.java:8 and
      EntityPigZombie.java:14 set 5, EntityGiantZombie.java:8 sets 50;
-     EntitySlime.java:116; EntityWolf.java:317 -->
+     EntitySlime.java:116; EntityWolf.java:316 -->
 
 A melee mob strikes once every 20 ticks and only within 2 blocks. A slime has
 no such cooldown: it damages on contact, limited only by the invulnerability
@@ -97,7 +97,8 @@ window, and the smallest slime deals nothing at all.
 A [[Skeleton|skeleton]] shoots an [[Arrow|arrow]] every 30 ticks instead of
 striking. Arrows deal a flat 4 whether shot by a skeleton, a [[Bow|bow]] or a
 [[Dispenser|dispenser]].
-<!-- src: EntitySkeleton.java:34 attackTime = 30; EntityArrow.java:163 -->
+<!-- src: EntitySkeleton.java:34 attackEntity, :46 attackTime = 30;
+     EntityArrow.java:163 -->
 
 A [[Creeper|creeper]] and a [[Ghast|ghast]] deal no direct damage; both explode.
 A ghast's fireball hits for 0 and leaves the damage to its blast.
@@ -200,7 +201,7 @@ Slimes, wolves and ghasts fall outside the scaling, and so do TNT, bed and
 fireball explosions. An arrow from a dispenser falls outside it too, having no
 shooter to test.
 <!-- src: EntitySlime, EntityWolf and EntityGhast do not extend EntityMob;
-     Explosion passes its exploder, null for EntityTNTPrimed.java:67,
+     Explosion passes its exploder, null for EntityTNTPrimed.java:68,
      BlockBed.java:45 and EntityFireball.java:127; EntityArrow.java:163 passes
      its owner, left null by the constructor BlockDispenser.java:107 uses -->
 
@@ -217,8 +218,8 @@ for a diamond sword. Damage with no attacker behind it knocks nothing back.
 
 An entity that reaches 0 health drops its items at once and disappears 20 ticks
 later.
-<!-- src: EntityLiving.java:404 onDeath calls dropFewItems; :155 removes the
-     entity once deathTime passes 20 -->
+<!-- src: EntityLiving.java:357 calls onDeath the moment health reaches zero,
+     :418 dropFewItems; :157 removes the entity once deathTime passes 20 -->
 
 ## Other entities
 

@@ -78,12 +78,13 @@ Most of what a tick means for an entity is a counter moving by one:
 |---|---|
 | Burning | 1 [[Damage\|damage]] every 20 ticks, counting down to zero |
 | Air | 300 at the surface, falling by 1 each tick underwater; 2 damage every 20 ticks once it is gone |
-| Death | the body lies for 20 ticks before it drops anything |
+| Death | the body drops its items at once and lies for 20 ticks before it is removed |
 | Item age | a dropped item disappears after 6000 ticks — 5 minutes |
 | Fuse | [[Primed TNT\|primed TNT]] explodes 80 ticks after it is lit |
 
 <!-- src: Entity.java:247 fire, :259 the kill below y = -64; Entity.java:100
-     maxAir = 300; EntityLiving.java:123 drowning, :157 deathTime;
+     maxAir = 300; EntityLiving.java:123 drowning, :357 onDeath at zero health
+     and :418 dropFewItems, :157 deathTime;
      EntityItem.java:73; EntityTNTPrimed.java:21 -->
 
 ## Block entities

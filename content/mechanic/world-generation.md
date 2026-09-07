@@ -231,14 +231,14 @@ player finds.
 
 | Ore | Veins per chunk | Size | Y |
 |---|---|---|---|
-| {{sprite\|Dirt}} [[Dirt]] | 20 | 32 | 0–127 |
-| {{sprite\|Gravel}} [[Gravel]] | 10 | 32 | 0–127 |
-| {{sprite\|Coal Ore}} [[Coal Ore]] | 20 | 16 | 0–127 |
-| {{sprite\|Iron Ore}} [[Iron Ore]] | 20 | 8 | 0–63 |
-| {{sprite\|Gold Ore}} [[Gold Ore]] | 2 | 8 | 0–31 |
-| {{sprite\|Redstone Ore}} [[Redstone Ore]] | 8 | 7 | 0–15 |
-| {{sprite\|Diamond Ore}} [[Diamond Ore]] | 1 | 7 | 0–15 |
-| {{sprite\|Lapis Lazuli Ore}} [[Lapis Lazuli Ore]] | 1 | 6 | 0–30, peaking at 15 |
+| {{sprite\|Dirt}} | 20 | 32 | 0–127 |
+| {{sprite\|Gravel}} | 10 | 32 | 0–127 |
+| {{sprite\|Coal Ore}} | 20 | 16 | 0–127 |
+| {{sprite\|Iron Ore}} | 20 | 8 | 0–63 |
+| {{sprite\|Gold Ore}} | 2 | 8 | 0–31 |
+| {{sprite\|Redstone Ore}} | 8 | 7 | 0–15 |
+| {{sprite\|Diamond Ore}} | 1 | 7 | 0–15 |
+| {{sprite\|Lapis Lazuli Ore}} | 1 | 6 | 0–30, peaking at 15 |
 
 <!-- src: ChunkProviderGenerate.java:354-408. Lapis alone draws its y as
      nextInt(16) + nextInt(16), which is why it is triangular. -->

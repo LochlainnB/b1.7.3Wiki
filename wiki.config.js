@@ -61,6 +61,7 @@ export default {
         { text: 'Mining', href: '/mechanic/mining/' },
         { text: 'Mob spawning', href: '/mechanic/mob-spawning/' },
         { text: 'World generation', href: '/mechanic/world-generation/' },
+        { text: 'Game tick', href: '/mechanic/game-tick/' },
         { text: 'Block IDs', href: '/wiki/data-values/' },
         { text: 'Sprite sheet', href: '/wiki/sprites/' },
       ],

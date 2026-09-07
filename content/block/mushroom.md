@@ -68,7 +68,7 @@ sky counts as fully lit at midnight exactly as at noon.
 ### Spreading
 
 A mushroom spreads by copying itself into a space nearby. Each time it receives
-a [[Random Tick|random tick]] there is a 1 in 100 chance that it tries, and a try considers
+a [[Game Tick#Random ticks|random tick]] there is a 1 in 100 chance that it tries, and a try considers
 exactly one candidate: a single block drawn from the 3×3×3 cube centred on the
 mushroom itself. The two horizontal offsets are even — one block either way, or
 none — but the vertical one is not, and staying on the same level is twice as

@@ -42,9 +42,6 @@ Eating restores the food's own healing value at any difficulty.
 Repeating sources land far less often than they are attempted, because the
 invulnerability window discards most of the attempts.
 
-Lava sets the entity alight for 600 ticks on top of its 4 damage. Lightning
-sets it alight for 300.
-
 Fall distance is reset by entering [[Water|water]] and by holding a
 [[Ladder|ladder]], so neither leads to fall damage.
 <!-- src: Entity.java:231 water; EntityLiving.java:517 the isOnLadder branch -->
@@ -52,6 +49,30 @@ Fall distance is reset by entering [[Water|water]] and by holding a
 A player riding a [[Minecart|minecart]], [[Boat|boat]] or [[Pig|pig]] takes the
 vehicle's fall damage, because a vehicle passes its fall on to its rider.
 <!-- src: Entity.java:571 fall forwards to riddenByEntity -->
+
+## Catching fire
+
+Standing in fire sets the entity alight for 300 ticks, and lightning does the
+same. Lava sets it alight for 600.
+<!-- src: Entity.java:525 the tick after contact begins takes fire from the
+     -fireResistance it was pinned at up to 0, and 0 is then set to 300;
+     :274 lava; :1089 lightning -->
+
+The count holds while the entity stands in the flame, and starts falling only
+once it leaves.
+<!-- src: the ++fire at Entity.java:525 cancels the --fire at :251 each tick -->
+
+An entity standing in water or in rain does not catch, and getting wet while
+alight puts it out. It takes the contact damage either way.
+<!-- src: Entity.java:521 isWet gates the catch alone, :534 extinguishes;
+     dealFireDamage at :523 sits outside that test -->
+
+Fire, lava and lightning do no damage to a [[Ghast|ghast]] or a
+[[Pig Zombie\|pig zombie]]. Both still catch alight, and burn off four times as
+fast.
+<!-- src: EntityGhast.java:17 and EntityPigZombie.java:15 set isImmuneToFire;
+     Entity.java:563 dealFireDamage and :272 setOnFireFromLava test it, :242
+     drains the counter by 4 a tick; the ++fire at :525 does not test it -->
 
 ## Weapons
 
@@ -139,6 +160,13 @@ window, and then only the difference is applied.
      the fresh-damage branch runs again once it has fallen to 10 -->
 
 Hits of 2 and then 5 inside one window therefore cost 5 health, not 7.
+
+A hit taken this way does not restart the window, which keeps running from the
+hit that opened it. It also passes without knockback, hurt sound or hurt flash,
+and kills silently if it kills.
+<!-- src: EntityLiving.java:317 the branch leaves heartsLife alone and clears
+     the flag gating the animation at :335, the knockback at :346 and both
+     sounds at :353 and :358 -->
 
 ## Armour
 

@@ -1,27 +1,45 @@
 ---
 title: Sky
-description: The Sky biome in Minecraft Beta 1.7.3.
+description: The only biome of the Sky dimension.
 type: biome
 categories: [Biomes]
 infobox: {Map colour: '#8080FF'}
-stub: true
 ---
 
-{{stub|biome}}
+{{hatnote|This page is about the biome. For the dimension it belongs to, see [[Sky Dimension]].}}
 
-**Sky** is one of the thirteen biomes in Minecraft Beta 1.7.3.
+**Sky** is the only biome of the [[Sky Dimension|Sky dimension]], and never
+generates in the [[Overworld]].
+<!-- src: WorldProviderSky.java:5 hands the dimension a WorldChunkManagerHell
+     fixed to this biome; BiomeGenBase.java:100 getBiome never returns it -->
 
 ## Terrain
 
-<!-- Height, surface blocks, notable formations. -->
+The surface is [[Grass|grass]] over [[Dirt|dirt]]. Temperature is fixed at 0.5
+and rainfall at 0 across the whole dimension, so nothing that reads either
+varies from one place to another.
+<!-- src: BiomeGenBase.java:34 the default top and filler blocks;
+     WorldProviderSky.java:5 passes 0.5 and 0.0 to WorldChunkManagerHell -->
+
+The sky is a fixed pale blue rather than a colour worked out from temperature.
+Rain is disabled, which stops lightning.
+<!-- src: BiomeGenSky.java:11 getSkyColorByTemp returns a constant;
+     BiomeGenBase.java:21 setDisableRain, read by :150
+     canSpawnLightningBolt -->
 
 ## Vegetation
 
-<!-- Which trees, grass and flowers generate here. -->
+Trees are the default pair: a big tree one time in ten, and an ordinary tree
+otherwise. Which plants generate, and how many, is decided by the dimension's
+generator rather than by the biome.
+<!-- src: BiomeGenBase.java:70 getRandomWorldGenForTrees, which BiomeGenSky does
+     not override -->
 
 ## Mobs
 
-<!-- Which mobs spawn, and anything unusual about spawn rates. -->
+[[Chicken|Chickens]] are the only mob on the biome's spawn lists, at weight 10.
+The monster and water creature lists are empty.
+<!-- src: BiomeGenSky.java:5 -->
 
 ## Data values
 

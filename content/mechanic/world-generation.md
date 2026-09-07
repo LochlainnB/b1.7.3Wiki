@@ -62,8 +62,8 @@ rainfall multiplied by temperature, the first matching row wins:
      generateBiomeLookup and read by getBiomeFromLookup -->
 
 [[Ice Desert]] is never returned by that table and does not generate. [[Hell]]
-is the [[Nether]]'s only biome. [[Sky]] belongs to a third generator that the
-game never creates a world for.
+is the [[Nether]]'s only biome. [[Sky]] belongs to the [[Sky Dimension|Sky
+dimension]], which the game never creates a world for.
 <!-- src: WorldProvider.java:100 getProviderForDimension returns null for every
      dimension but -1 and 0 -->
 

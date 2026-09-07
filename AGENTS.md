@@ -244,6 +244,12 @@ A link to a page that does not exist renders **red** and warns at build time.
 That is the point — red links are the to-do list. **Do not delete a red link to
 silence a warning.** Either write the page or leave the link.
 
+**Inside a table, escape the pipe: `[[Water\|water]]`.** A table row is cut into
+cells on every unescaped `|` before `[[ ]]` and `{{ }}` are read at all, so the
+ordinary spelling is torn in half — the cell keeps `[[Water`, the rest is
+dropped as a surplus column, and the link is gone. The same applies to a
+template argument in a table: `{{sprite\|Iron Ore}}`. The build fails on both.
+
 ## Regenerating data and assets
 
 Only needed if the extractors change. Requires the Beta 1.7.3 client jar and

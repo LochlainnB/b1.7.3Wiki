@@ -36,6 +36,45 @@ function checkFrontmatter(page, problems) {
   }
 }
 
+/**
+ * Pipes inside [[links]] and {{templates}} that sit in a table row.
+ *
+ * A table row is split into cells on every unescaped "|", and that split
+ * happens in the block parser, long before the inline rules that understand
+ * [[ ]] and {{ }} ever run. So "[[Water|water]]" written the ordinary way in a
+ * table is torn in half: the cell holds a bare "[[Water", the "water]]" half
+ * becomes a surplus cell the row's column count silently drops, and the reader
+ * gets literal "[[Water" where a link belonged.
+ *
+ * Nothing downstream can see this. linkWrap is never called, so the page is not
+ * even credited with a link, and the broken-link warning that would normally
+ * catch a bad target never fires. It is a structural break that renders wrong
+ * and reports clean, which is exactly the kind of thing this build exists to
+ * refuse. Escape the pipe as "\|" and both halves survive the split.
+ */
+function checkTablePipes(page, problems) {
+  const unescapedPipe = /(?:^|[^\\])\|/;
+  let fenced = false;
+  const lines = page.body.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*(?:```|~~~)/.test(line)) { fenced = !fenced; continue; }
+    if (fenced || !/^\s*\|/.test(line)) continue;
+    for (const m of line.matchAll(/\[\[(.*?)\]\]|\{\{(.*?)\}\}/g)) {
+      const inner = m[1] ?? m[2];
+      if (!unescapedPipe.test(inner)) continue;
+      const wiki = m[1] !== undefined;
+      problems.push({
+        page: page.relFile,
+        level: 'error',
+        message: `line ${(page.bodyLine || 1) + i}: ${wiki ? '[[' : '{{'}${inner}${wiki ? ']]' : '}}'} `
+          + 'has an unescaped "|" inside a table row, so the row splits through '
+          + 'the middle of it - write it as "\\|"',
+      });
+    }
+  }
+}
+
 // The three data-driven recipe sections a subject page can carry, and how to
 // ask the data whether each one has anything to say.
 const RECIPE_SECTIONS = [
@@ -112,7 +151,9 @@ function checkRecipeCoverage(pages, data, shown, problems) {
 export function report({ pages, problems, links, backlinks, data, shown, quiet }) {
   const all = problems.slice();
   for (const page of pages) {
-    if (!page.generated) checkFrontmatter(page, all);
+    if (page.generated) continue;
+    checkFrontmatter(page, all);
+    checkTablePipes(page, all);
   }
   checkRecipeCoverage(pages, data, shown || new Map(), all);
 

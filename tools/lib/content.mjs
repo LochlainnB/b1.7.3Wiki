@@ -7,10 +7,16 @@ import { slug, titleize } from './slug.mjs';
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 
-/** Split "---\n...\n---\nbody" into { data, body }. */
+/**
+ * Split "---\n...\n---\nbody" into { data, body }.
+ *
+ * `bodyLine` is the file line the body starts on, so a problem found by
+ * scanning the body can be reported at the line an editor will actually find
+ * it on rather than one offset by however long the frontmatter ran.
+ */
 export function parseFrontmatter(raw, file) {
   const m = raw.match(FRONTMATTER);
-  if (!m) return { data: {}, body: raw, hasFrontmatter: false };
+  if (!m) return { data: {}, body: raw, hasFrontmatter: false, bodyLine: 1 };
   let data;
   try {
     data = yaml.load(m[1]) || {};
@@ -20,7 +26,12 @@ export function parseFrontmatter(raw, file) {
   if (typeof data !== 'object' || Array.isArray(data)) {
     throw new Error(`${file}: frontmatter must be a mapping`);
   }
-  return { data, body: raw.slice(m[0].length), hasFrontmatter: true };
+  return {
+    data,
+    body: raw.slice(m[0].length),
+    hasFrontmatter: true,
+    bodyLine: (m[0].match(/\n/g) || []).length + 1,
+  };
 }
 
 function walk(dir, out = []) {
@@ -49,7 +60,7 @@ export function loadPages(root, config) {
     const base = rel[rel.length - 1].replace(/\.md$/, '');
     const dirs = rel.slice(0, -1);
     const raw = readFileSync(file, 'utf8');
-    const { data, body, hasFrontmatter } = parseFrontmatter(raw, relPath(root, file));
+    const { data, body, hasFrontmatter, bodyLine } = parseFrontmatter(raw, relPath(root, file));
 
     const isHome = dirs.length === 0 && /^(main[_ ]page|index|home)$/i.test(base);
     const isIndex = base === 'index';
@@ -66,6 +77,7 @@ export function loadPages(root, config) {
       isIndex,
       title: data.title || titleize(base),
       body,
+      bodyLine,
       fm: data,
       hasFrontmatter,
       outPath: join(root, config.outDir, ...segments, 'index.html'),

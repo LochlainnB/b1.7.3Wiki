@@ -22,7 +22,7 @@ material to stand in:
 |---|---|---|---|
 | Monster | [[Zombie]], [[Skeleton]], [[Spider]], [[Creeper]], [[Slime]], [[Ghast]], [[Pig Zombie]] | 70 | air |
 | Creature | [[Sheep]], [[Pig]], [[Cow]], [[Chicken]], [[Wolf]] | 15 | air |
-| Water creature | [[Squid]] | 5 | [[Water|water]] |
+| Water creature | [[Squid]] | 5 | [[Water\|water]] |
 
 <!-- src: EnumCreatureType.java:4 -->
 

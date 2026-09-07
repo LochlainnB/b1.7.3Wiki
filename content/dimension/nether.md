@@ -8,39 +8,19 @@ categories: [Dimensions]
 **Nether** is a second dimension, reached from the [[Overworld]] through a
 [[Portal|portal]] built of [[Obsidian|obsidian]].
 
-## Reaching it
+## Nether Portals
 
-A portal is a frame of obsidian around a space 2 blocks wide and 3 tall, with
-[[Fire|fire]] set on the obsidian floor inside it. The frame's four corners are
-never checked, so ten blocks of obsidian are enough.
-<!-- src: BlockPortal.java:37 tryToCreatePortal, whose loop skips the corner
-     positions; BlockFire.java:192 onBlockAdded starts the check whenever the
-     block below the new fire is obsidian -->
+{{main|Nether Portal}}
 
-Standing in the portal for 80 ticks — 4 seconds — moves the player. Stepping out
-drains that progress four times faster than it builds. After a trip the player
-must stay clear of a portal for 10 ticks before another will take them.
-<!-- src: EntityPlayerSP.java:53, adding 0.0125 a tick and subtracting 0.05;
-     EntityPlayer.java:811 setInPortal holds timeUntilPortal at 10 for as long
-     as the player stands in one -->
+A portal is a frame of obsidian around an upright space 2 blocks wide and 3 tall,
+lit with [[Fire|fire]]. Standing in it for 4 seconds moves the player.
 
 Only players travel. A mob, a dropped item or a [[Minecart|minecart]] standing in
-a portal is not moved, and a player riding a [[Boat|boat]] or minecart is
-dismounted first.
-<!-- src: Entity.java:1038 setInPortal is empty and only EntityPlayer overrides
-     it; BlockPortal.java:150 ignores an entity that is riding or ridden -->
+a portal is not moved.
 
-The player's x and z are divided by 8 on the way in and multiplied by 8 on the
-way out, and the y is unchanged. One block walked in the Nether covers eight in
-the Overworld.
-<!-- src: Minecraft.java:1225 usePortal -->
-
-At the far end the game looks for a portal block within 128 blocks in x and z at
-any height, and puts the player at the closest one. Finding none, it searches 16
-blocks for a spot on solid ground with a clear space 3 wide, 4 long and 4 tall,
-and builds a portal there. Failing that as well, it carves one out at a height
-clamped to between y=70 and y=118.
-<!-- src: Teleporter.java:15 func_4106_b the search, :78 func_4108_c the build -->
+A player's x and z are divided by 8 on the way in and multiplied by 8 on the way
+out, and the y is unchanged. One block walked in the Nether covers eight in the
+Overworld.
 
 ## Terrain
 

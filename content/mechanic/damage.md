@@ -131,25 +131,11 @@ still knock their target back.
 
 ## Explosions
 
-Explosion damage falls off with distance and with cover. An entity at the
-centre with a clear line to it takes **8 × size + 1**, and the figure reaches 0
-at a distance of one size in blocks.
-<!-- src: Explosion.java:100, damage
-     (int)((f*f + f) / 2 * 8 * size + 1) with f = (1 - distance/size) * exposure -->
+{{main|Explosion}}
 
-Cover is measured by firing rays from a grid over the entity's bounding box to
-the explosion's centre and taking the fraction that arrive.
-<!-- src: World.java:1530 getBlockDensity -->
-
-| Explosion | Size | Damage at the centre |
-|---|---|---|
-| Ghast fireball | 1 | 9 |
-| Creeper | 3 | 25 |
-| [[TNT]] | 4 | 33 |
-| [[Bed]] in the [[Nether\|Nether]] | 5 | 41 |
-| Charged creeper | 6 | 49 |
-<!-- src: EntityFireball.java:127, EntityCreeper.java:101 and :103,
-     EntityTNTPrimed.java:67, BlockBed.java:45 -->
+An explosion damages every entity within twice its size in blocks, by up to
+16 × size + 1 at the centre, and less with distance and cover.
+<!-- src: Explosion.java:77 doubles the size before the entity pass, :100 -->
 
 ## The invulnerability window
 

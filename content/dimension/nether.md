@@ -80,7 +80,7 @@ A [[Water Bucket|water bucket]] cannot be emptied in the Nether. The water fizze
 away, and the bucket empties all the same.
 <!-- src: ItemBucket.java:80 -->
 
-Lava spreads as far as [[Water|water]] does — seven blocks from a source rather
+Lava [[Fluid|spreads]] as far as [[Water|water]] does — seven blocks from a source rather
 than three.
 <!-- src: BlockFlowing.java:24, which adds 1 to the flow decay per block in the
      Nether where it adds 2 elsewhere -->

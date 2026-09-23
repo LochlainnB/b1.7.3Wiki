@@ -23,7 +23,8 @@ any pickaxe. Mined with anything else, they drop nothing.
 
 ### Lava and water
 
-Cobblestone forms where [[Water|water]] touches flowing [[Lava|lava]].
+Cobblestone [[Fluid#Lava and water|forms]] where [[Water|water]] touches flowing
+[[Lava|lava]].
 <!-- src: BlockFluid.java:247 checkForHarden, which turns lava with metadata 1 to
      4 into cobblestone when water is beside or above it -->
 

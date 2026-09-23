@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Monster Spawner** is a block in Minecraft Beta 1.7.3. It has a hardness of 5 and a blast resistance of 5.
+**Monster Spawner** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

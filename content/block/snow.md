@@ -9,7 +9,7 @@ stub: true
 
 {{stub|block}}
 
-**Snow** is a block in Minecraft Beta 1.7.3. It has a hardness of 0.1 and a blast resistance of 0.1.
+**Snow** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

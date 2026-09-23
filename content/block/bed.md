@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Bed** is a block in Minecraft Beta 1.7.3. It has a hardness of 0.2 and a blast resistance of 0.2.
+**Bed** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Sign** is a block in Minecraft Beta 1.7.3. It has a hardness of 1 and a blast resistance of 1.
+**Sign** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

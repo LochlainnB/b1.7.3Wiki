@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Block of Diamond** is a block in Minecraft Beta 1.7.3. It has a hardness of 5 and a blast resistance of 6.
+**Block of Diamond** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

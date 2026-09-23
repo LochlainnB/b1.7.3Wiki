@@ -9,7 +9,7 @@ stub: true
 
 {{stub|block}}
 
-**Redstone Ore** is a block in Minecraft Beta 1.7.3. It has a hardness of 3 and a blast resistance of 3.
+**Redstone Ore** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

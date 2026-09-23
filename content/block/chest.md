@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Chest** is a block in Minecraft Beta 1.7.3. It has a hardness of 2.5 and a blast resistance of 2.5.
+**Chest** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

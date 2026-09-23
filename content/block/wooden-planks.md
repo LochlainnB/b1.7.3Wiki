@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Wooden Planks** is a block in Minecraft Beta 1.7.3. It has a hardness of 2 and a blast resistance of 3.
+**Wooden Planks** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

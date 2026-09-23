@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Obsidian** is a block in Minecraft Beta 1.7.3. It has a hardness of 10 and a blast resistance of 1200.
+**Obsidian** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

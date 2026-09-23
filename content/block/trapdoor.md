@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Trapdoor** is a block in Minecraft Beta 1.7.3. It has a hardness of 3 and a blast resistance of 3.
+**Trapdoor** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

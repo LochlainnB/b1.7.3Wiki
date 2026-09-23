@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Cobweb** is a block in Minecraft Beta 1.7.3. It has a hardness of 4 and a blast resistance of 4.
+**Cobweb** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

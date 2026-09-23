@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Stone Slab** is a block in Minecraft Beta 1.7.3. It has a hardness of 2 and a blast resistance of 6.
+**Stone Slab** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

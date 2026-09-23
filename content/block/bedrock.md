@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Bedrock** is a block in Minecraft Beta 1.7.3. It cannot be broken in survival mode.
+**Bedrock** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

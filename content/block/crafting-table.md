@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Crafting Table** is a block in Minecraft Beta 1.7.3. It has a hardness of 2.5 and a blast resistance of 2.5.
+**Crafting Table** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

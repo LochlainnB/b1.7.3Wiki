@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Bookshelf** is a block in Minecraft Beta 1.7.3. It has a hardness of 1.5 and a blast resistance of 1.5.
+**Bookshelf** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

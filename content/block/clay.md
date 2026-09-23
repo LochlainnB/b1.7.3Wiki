@@ -1,29 +1,23 @@
 ---
 title: Clay
-description: A soft grey block found in patches under shallow water, mined for clay balls.
+description: A grey block found in sand near water, broken for clay balls.
 type: block
 categories: [Blocks, Naturally generated]
 ---
 
-**Clay** is a soft grey block that generates in patches beneath shallow water.
-Breaking one yields [[Clay Ball|clay balls]], which fire into [[Brick|bricks]].
-The game gives the block and the item the same name; this page is the block.
+{{hatnote|This page is about the block. For the item it drops, see [[Clay Ball]].}}
+
+**Clay** is a grey block that generates in [[Sand|sand]] near [[Water|water]].
 
 ## Obtaining
 
 ### Natural generation
 
-Clay generates in blobs that replace [[Sand|sand]]. Ten attempts are made per chunk,
-each starting from a random point anywhere in the column, and an attempt is
-abandoned at once unless the block it starts on is [[Water|water]]. What survives is
-therefore a patch of clay in the sand of a lake or sea floor, in the shallows
-where sand reaches the surface.
+Ten clay blobs are attempted per chunk, each at a random point in the chunk. An
+attempt is abandoned unless that point is [[Water|water]]. A blob replaces only
+[[Sand|sand]], and takes the shape of an [[World Generation#Ores|ore vein]] at
+size 32.
 <!-- src: WorldGenClay.java:14-58 generate, ChunkProviderGenerate.java:347-352 -->
-
-The blob itself is a line of overlapping spheres running horizontally through
-32 steps, the same shape the game uses for ore, which is why a patch is a
-lens rather than a ball.
-<!-- src: WorldGenClay.java:18-55 -->
 
 ### Crafting
 
@@ -31,16 +25,18 @@ lens rather than a ball.
 
 ## Usage
 
-### Mining
+### Breaking
 
-A clay block drops four [[Clay Ball|clay balls]] and never itself. A shovel is
-the effective tool, and nothing is required: the block is soft enough that bare
-hands break it and drop the same four.
-<!-- src: BlockClay.java:10-16, ItemSpade.java:19 blocksEffectiveAgainst -->
+Breaking clay drops four [[Clay Ball|clay balls]], whatever breaks it. The block
+never drops itself. A shovel breaks it fastest.
+<!-- src: BlockClay.java:10-16 idDropped, quantityDropped;
+     ItemSpade.java:19 blocksEffectiveAgainst -->
 
 ## Data values
 
 - Block ID: {{id|Clay}}
 - Translation key: `tile.clay`
 
-The item it drops has its own id: see [[Clay Ball]].
+The game names both this block and the item it drops *Clay*.
+<!-- The wiki names the item Clay Ball (data/name-overrides.json) so the two can
+     have separate pages and recipes. -->

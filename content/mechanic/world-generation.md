@@ -356,7 +356,12 @@ birch, 6 to 9 for spruce, 7 to 11 for pine and 5 to 16 for the big tree.
 ### Plants
 
 A plant generator is given one point and makes many attempts around it, so each
-count below is a patch rather than a plant.
+count below is a patch rather than a plant. Attempts land up to 7 blocks from
+the point in x and z, and up to 3 in y.
+<!-- src: WorldGenFlowers.java:14, WorldGenTallGrass.java:20,
+     WorldGenDeadBush.java:18, each nextInt(8) - nextInt(8) across and
+     nextInt(4) - nextInt(4) up -->
+
 
 | Plant | Patches per chunk | Attempts per patch |
 |---|---|---|

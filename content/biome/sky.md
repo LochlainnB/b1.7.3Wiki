@@ -16,22 +16,20 @@ generates in the [[Overworld]].
 ## Terrain
 
 The surface is [[Grass|grass]] over [[Dirt|dirt]]. Temperature is fixed at 0.5
-and rainfall at 0 across the whole dimension, so nothing that reads either
-varies from one place to another.
+and rainfall at 0 across the whole dimension.
 <!-- src: BiomeGenBase.java:34 the default top and filler blocks;
      WorldProviderSky.java:5 passes 0.5 and 0.0 to WorldChunkManagerHell -->
 
-The sky is a fixed pale blue rather than a colour worked out from temperature.
-Rain is disabled, which stops lightning.
+The sky is a fixed pale blue. Rain is disabled, so there is no lightning.
 <!-- src: BiomeGenSky.java:11 getSkyColorByTemp returns a constant;
      BiomeGenBase.java:21 setDisableRain, read by :150
      canSpawnLightningBolt -->
 
 ## Vegetation
 
-Trees are the default pair: a big tree one time in ten, and an ordinary tree
-otherwise. Which plants generate, and how many, is decided by the dimension's
-generator rather than by the biome.
+A tree is a big tree one time in ten, and an ordinary tree otherwise. Which
+plants generate, and how many, is set by the
+[[Sky Dimension#Terrain|dimension's generator]], not the biome.
 <!-- src: BiomeGenBase.java:70 getRandomWorldGenForTrees, which BiomeGenSky does
      not override -->
 

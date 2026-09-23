@@ -295,20 +295,9 @@ half is replaced, and half of those around the upper half.
 
 {{main|Dungeon}}
 
-A dungeon is attempted 8 times per chunk at a y from 0 to 127. The room is 5 or 7
-blocks across in each horizontal direction, and 4 blocks tall inside.
-
-Placement needs between 1 and 5 openings, counted as wall positions at floor level
-with two air blocks beyond them. A sealed room is rejected, and so is one with six
-or more openings. The floor below and the ceiling above must both be solid.
-<!-- src: WorldGenDungeons.java:27, :34 -->
-
-The walls are built of [[Cobblestone|cobblestone]]. The floor is
-[[Moss Stone|moss stone]] three times in four and cobblestone otherwise. The
-ceiling is left as whatever stone was already there. A
-[[Monster Spawner|monster spawner]] goes at the centre, and up to two
-[[Chest|chests]] against the walls.
-<!-- src: WorldGenDungeons.java:43, :98 -->
+A dungeon is attempted 8 times per chunk, at a y from 0 to 127, and is built
+only where the rock around it passes the dungeon's tests.
+<!-- src: ChunkProviderGenerate.java:340 -->
 
 ### Trees
 

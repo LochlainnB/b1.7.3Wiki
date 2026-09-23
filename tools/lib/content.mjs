@@ -114,8 +114,13 @@ export function subjectsOf(page) {
 /**
  * Build the lookup used to resolve [[wiki links]]: every page is addressable by
  * its title, its slug, and any aliases it declares.
+ *
+ * Given `data`, a page also answers to the subtype names of the id it covers:
+ * [[Charcoal]] reaches Coal and [[Magenta Wool]] reaches Wool without either
+ * page listing them. A subtype with a page of its own, like Fern, keeps it,
+ * because titles and aliases claim their names first.
  */
-export function buildIndex(pages) {
+export function buildIndex(pages, data) {
   const byKey = new Map();
   const add = (key, page, kind) => {
     const k = slug(key);
@@ -129,6 +134,11 @@ export function buildIndex(pages) {
   // Aliases are added after titles so a real page always wins a name clash.
   for (const p of pages) {
     for (const a of p.fm.aliases || p.fm.redirects || []) add(a, p, 'alias');
+  }
+  for (const rec of data ? [...data.blocks, ...data.items] : []) {
+    const owner = byKey.get(slug(rec.name));
+    if (!owner) continue;
+    for (const name of Object.values(rec.variants || {})) add(name, owner.page, 'variant');
   }
   return byKey;
 }

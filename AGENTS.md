@@ -266,6 +266,13 @@ block — code is parsed before templates are.
 `[[Page Name]]` resolves against titles, slugs and aliases. `[[Page|label]]`
 and `[[Page#Section]]` work as expected.
 
+Subtypes, the damage values of one id that the game names apart, resolve too,
+with no alias: `[[Charcoal]]` reaches Coal, `[[Magenta Wool]]` reaches Wool,
+`[[Wooden Slab]]` reaches Stone Slab. The names come from `data/`. A subtype
+with a source or a use its siblings lack has a page of its own under its name,
+which a link finds first: Fern, Bone Meal, Ink Sac, Cocoa Beans, Lapis Lazuli.
+One that differs only in colour or material stays on its id's page.
+
 A link to a page that does not exist renders **red** and warns at build time.
 That is the point — red links are the to-do list. **Do not delete a red link to
 silence a warning.** Either write the page or leave the link.

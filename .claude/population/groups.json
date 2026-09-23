@@ -64,7 +64,7 @@
       "pages": [
         "block/coal-ore", "block/iron-ore", "block/gold-ore", "block/diamond-ore", "block/lapis-lazuli-ore", "block/redstone-ore",
         "block/block-of-iron", "block/block-of-gold", "block/block-of-diamond", "block/lapis-lazuli-block",
-        "item/coal", "item/iron-ingot", "item/gold-ingot", "item/diamond"
+        "item/coal", "item/iron-ingot", "item/gold-ingot", "item/diamond", "item/lapis-lazuli"
       ],
       "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/smelting"],
       "notes": [
@@ -72,7 +72,7 @@
         "Mining owns harvest levels and the drops table. An ore page states which pickaxe it needs and what it drops.",
         "Smelting#Fuel owns burn times. Coal states its own burn time and links. Charcoal is Coal at damage 1 and is covered on the Coal page.",
         "Redstone Ore's glowing state is this group's, and its subject map for the two ids stays. What redstone does as a component is not.",
-        "Lapis lazuli the item lives on the dye page, which another group owns. Link it by the name that page answers to."
+        "Lapis Lazuli, the item, is dye at damage 4 and has its own page here. Dye owns dyeing wool and sheep; Lapis Lazuli states its colour and links."
       ]
     },
     {
@@ -175,6 +175,7 @@
       "notes": [
         "World Generation#Trees and #Plants own how many generate and in which biomes. Each page states its own row and links.",
         "Game Tick owns the random-tick rate. Sapling owns tree growth and Leaves owns decay, stated here once and linked from elsewhere.",
+        "Bone Meal owns fertilising. Sapling states that bone meal grows it into a tree at once, and links.",
         "Sugar Cane, the block, owns growth and placement. Sugar Canes, the item, covers only what the item is for, and links the block.",
         "Tall Grass and Fern share block 31. The dead shrub at metadata 0 has no page of its own. Say which id and metadata is which once, on Tall Grass.",
         "Fire owns flammability. A plant states that it burns, and links."
@@ -194,6 +195,7 @@
       "notes": [
         "Write mechanic/food first. It is this group's hub, owning how eating works and the table of what each food heals. Food pages then state their own row and link it.",
         "Crops owns growth, Farmland owns wetting, drying and trampling, and Seeds covers only obtaining and planting.",
+        "Bone Meal owns fertilising. Crops states that bone meal grows it, and links.",
         "Fishing belongs on Fishing Rod. Raw Fish states that it is caught, and links.",
         "Cake is one page for the block and the item."
       ]
@@ -208,7 +210,7 @@
       ],
       "hubs": ["mechanic/mining", "mechanic/smelting", "mechanic/crafting", "block/fire"],
       "notes": [
-        "Stone Slab covers every slab under block 44; data/ names three, and the source settles whether there are more. Double Stone Slab covers the placed double form.",
+        "Stone Slab covers every slab under block 44: stone, sandstone, wooden, and cobblestone at damage 3, which en_US.lang also calls Stone Slab (BlockStep.java:6 lists the four), so data/ names only three. [[Sandstone Slab]] and [[Wooden Slab]] reach the page without aliases. Double Stone Slab covers the placed double form.",
         "Mining owns the gaps in the effective-against lists, stairs and bricks included. State this page's case and link.",
         "Smelting#Fuel owns what wood is worth as fuel. State this page's value and link."
       ]
@@ -219,11 +221,14 @@
       "phase": "main",
       "pages": [
         "item/string", "item/feather", "item/gunpowder", "item/leather", "item/slimeball", "item/bone",
-        "item/egg", "item/dye-powder", "block/wool", "block/cobweb", "item/bow", "item/arrow"
+        "item/egg", "item/dye", "item/bone-meal", "item/ink-sac", "item/cocoa-beans",
+        "block/wool", "block/cobweb", "item/bow", "item/arrow"
       ],
       "hubs": ["mechanic/damage", "mechanic/mob-spawning", "mechanic/mining"],
       "notes": [
-        "How the dye page is named and whether it is split is being decided separately. Dispatch this group after that decision. Any pages the split creates join this group, and check.mjs will report them until they do.",
+        "Item 351 is sixteen dyes told apart by damage value. Bone Meal, Ink Sac, Cocoa Beans and Lapis Lazuli (in the ores group) have their own pages, because each has a source or a use no other dye has. Dye covers the other twelve, and owns what every dye does to wool and sheep; the four state their colour and link it.",
+        "Dye's own sprite is the ink sac's, damage 0. Give it `sprite:` naming one of its twelve colours.",
+        "Bone Meal owns what using it does to saplings, crops and grass (ItemDye.onItemUse). Sapling and Crops state that it grows them, and link.",
         "The mob that drops an item owns the drop rates. The item page names its sources and links them.",
         "Sheep owns shearing and dyeing a sheep. Wool owns the sixteen colours and their recipes. Wolf owns taming with a bone.",
         "Damage owns arrow damage, and Mob Spawning owns the chicken an egg can hatch. Bow owns drawing and firing, and Arrow covers the item and the flying entity."

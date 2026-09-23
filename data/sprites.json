@@ -293,7 +293,7 @@
     "double-stone-slab": {
       "file": "assets/sprites/icon/double-stone-slab.png"
     },
-    "dyepowder": {
+    "dye": {
       "sheet": "items",
       "index": 78,
       "file": "assets/sprites/items/78.png"

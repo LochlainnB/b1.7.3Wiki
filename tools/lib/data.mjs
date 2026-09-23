@@ -94,23 +94,33 @@ export function loadData(root) {
     return r ? slug(r.name) : null;
   };
 
+  // Every name a reference answers to: its id's, and its subtype's where that
+  // differs. Bone meal is dye at damage 15, so a recipe making it belongs both
+  // to "Dye", which covers every damage value, and to "Bone Meal" alone.
+  const refSlugs = (ref) => {
+    const r = resolveRef(ref);
+    return r ? [slug(r.name), slug(r.label)] : [];
+  };
+
   // Index recipes by what they produce and what they consume, so a page can
   // ask for both without scanning.
   const producedBy = new Map();
   const usedIn = new Map();
-  const push = (map, key, val) => {
-    if (!key) return;
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(val);
+  const push = (map, keys, val) => {
+    for (const key of new Set(keys)) {
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(val);
+    }
   };
   for (const r of recipes) {
-    push(producedBy, refSlug(r.output), r);
+    push(producedBy, refSlugs(r.output), r);
     const ings = r.type === 'shaped' ? Object.values(r.key || {}) : r.ingredients || [];
-    for (const s of new Set(ings.map(refSlug))) push(usedIn, s, r);
+    push(usedIn, ings.flatMap(refSlugs), r);
   }
   for (const s of smelting) {
-    push(producedBy, refSlug(s.output), { ...s, type: 'smelting' });
-    push(usedIn, refSlug(s.input), { ...s, type: 'smelting' });
+    push(producedBy, refSlugs(s.output), { ...s, type: 'smelting' });
+    push(usedIn, refSlugs(s.input), { ...s, type: 'smelting' });
   }
 
   return {
@@ -128,8 +138,14 @@ export function loadData(root) {
     itemById: (id) => itemById.get(id),
     /** Look up a block/item/entity by display name, slug, or "block 75". */
     lookup,
-    /** The display name of whatever a subject points at, for callers wanting one. */
-    nameOf: (name) => (lookup(name) || {}).name || String(name),
+    /**
+     * The display name of whatever a subject points at, for callers wanting
+     * one. A subtype keeps its own: "Fern" is Fern, not Tall Grass.
+     */
+    nameOf: (name) => {
+      const rec = lookup(name) || {};
+      return rec.label || rec.name || String(name);
+    },
     sprite: (name) => (spriteFile.sprites || {})[slug(name)] || null,
     resolveRef,
     refSlug,

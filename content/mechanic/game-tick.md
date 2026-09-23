@@ -241,11 +241,7 @@ minutes. Sky light is recalculated from it each tick, and every renderer is
 refreshed on the ticks where the figure changes.
 <!-- src: World.java:1763 calculateSkylightSubtracted, :1772 the increment -->
 
-[[Weather]] runs on countdowns of its own. Rain and thunder each hold a number
-of ticks, and the state flips when the number reaches zero. Rain lasts 12000 to
-24000 ticks and stays away for 12000 to 180000; thunder lasts 3600 to 15600
-ticks over the same gap. Rain fades in and out at 0.01 a tick, taking 100 ticks
-either way.
+[[Weather]] runs on countdowns of its own, which advance once a tick.
 <!-- src: World.java:1792 updateWeather -->
 
 Every 40th tick starts a save. A server writes at most 24 modified chunks before

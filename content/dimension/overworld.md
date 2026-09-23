@@ -43,12 +43,10 @@ midnight. Sleeping in a bed sets the clock to the start of the next day.
 <!-- src: World.java:999 calculateSkylightSubtracted; World.java:1755 rounds
      worldTime up to the next multiple of 24000 -->
 
-[[Weather]] runs only in the Overworld. In a biome with snow, rain settles as
-[[Snow|snow]] on exposed blocks and freezes still [[Water|water]] to [[Ice|ice]];
-[[Desert]] and Ice Desert get no rain at all. Lightning strikes during a
-thunderstorm, and only in a biome that has rain and no snow.
-<!-- src: World.java:1792 updateWeather, skipped where the provider has no sky;
-     World.java:1938; BiomeGenBase.java:150 canSpawnLightningBolt -->
+The Overworld has [[Weather|weather]]. Most biomes get rain and lightning,
+[[Taiga]] and [[Tundra]] get snow, and [[Desert]] gets neither.
+<!-- src: BiomeGenBase.java:15-:21 setEnableSnow and setDisableRain, :150
+     canSpawnLightningBolt -->
 
 ## Mobs
 

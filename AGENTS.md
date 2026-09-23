@@ -60,6 +60,11 @@ npm run new -- block "Mossy Cobblestone"    scaffold a page
 it to GitHub Pages (`.github/workflows/deploy.yml`); a build with errors does not
 deploy. Committing is local; pushing is going live.
 
+A pull request into `main` runs the same build as a check
+(`.github/workflows/check.yml`) and publishes nothing. It cannot run the
+comparison against the decompiled source, which is never on GitHub, so run
+`npm run check` locally as well.
+
 `npm run check` does two things. It validates every page — frontmatter, links,
 templates, sprites — and it replays `Block`, `Item`, `EntityList`,
 `FurnaceRecipes` and the whole crafting registry out of the decompiled source

@@ -101,6 +101,9 @@ A request that works:
 - No hardcoded numbers/values a template can produce i.e. item IDs, crafting 
   recipes, etc.
 
+GitHub builds every pull request too, and marks it failed if the build has an
+error.
+
 ## Licence
 
 Wiki prose is available under

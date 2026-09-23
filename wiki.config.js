@@ -88,7 +88,12 @@ export default {
     'and copyrights of Mojang AB and its licensors. All rights reserved. ' +
     'This site is not affiliated with Mojang or Microsoft.',
 
-  // Editing. `editorUrl` turns the "View source" tab into a clickable link that
-  // opens the backing Markdown file; set to null to show a plain path instead.
-  editorUrl: (absPath) => `vscode://file/${absPath.replace(/\\/g, '/')}`,
+  // Editing. `editorUrl` turns the "View source" tab into a clickable link to the
+  // backing Markdown file; set to null to show a plain path instead. Built by
+  // GitHub Actions, it links the file on GitHub; built anywhere else, it opens
+  // the file in VS Code.
+  editorUrl: process.env.GITHUB_ACTIONS
+    ? (absPath, relFile) => `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}` +
+      `/blob/${process.env.GITHUB_REF_NAME}/${relFile}`
+    : (absPath) => `vscode://file/${absPath.replace(/\\/g, '/')}`,
 };

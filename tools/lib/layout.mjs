@@ -85,9 +85,11 @@ function tabsHtml(page, ctx) {
     `<li class="selected"><a href="${ctx.hrefFor(page.url)}">${escapeHtml(ns)}</a></li>` +
     `</ul></div></nav>`;
 
-  const source = ctx.config.editorUrl
-    ? `<li id="ca-viewsource"><a href="${escapeHtml(ctx.config.editorUrl(page.file))}" ` +
-      `title="Open ${escapeHtml(page.relFile)} in your editor">View source</a></li>`
+  // A generated page has no file behind it, so nothing to view.
+  const source = page.generated ? ''
+    : ctx.config.editorUrl
+    ? `<li id="ca-viewsource"><a href="${escapeHtml(ctx.config.editorUrl(page.file, page.relFile))}" ` +
+      `title="${escapeHtml(page.relFile)}">View source</a></li>`
     : `<li id="ca-viewsource"><span title="${escapeHtml(page.relFile)}">View source</span></li>`;
 
   const right =

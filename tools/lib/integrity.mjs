@@ -87,6 +87,82 @@ function checkTablePipes(page, problems) {
   }
 }
 
+/**
+ * Seeded text left on a page that says it is written.
+ *
+ * tools/seed.mjs and `npm run new` give a stub a description and a lead that
+ * name the page and the version and nothing else, a {{stub}} banner, and a
+ * comment where each section's prose belongs. That is right on a stub. Once
+ * `stub: true` comes off, the page counts as written and all of it publishes as
+ * content: "Chicken in Minecraft Beta 1.7.3." as the search-result text, a
+ * banner calling a finished page a stub, a heading with nothing under it. An
+ * agent that rewrites every section but the lead leaves exactly this behind,
+ * and nothing else would notice.
+ *
+ * The version test is wider than the generators' exact wording on purpose.
+ * Every page on this wiki is Beta 1.7.3, so a lead or description that says so
+ * is saying nothing, whoever wrote it. Pages about the wiki itself are exempt:
+ * there the version is the subject.
+ */
+function checkPlaceholders(page, problems, config) {
+  if (page.fm.stub || page.isHome || page.namespace === 'wiki') return;
+  const at = page.relFile;
+  const version = `Minecraft ${config?.version ?? 'Beta 1.7.3'}`;
+  const flag = (line, message) => problems.push({
+    page: at, level: 'error', message: `${line ? `line ${line}: ` : ''}${message}`,
+  });
+
+  const desc = String(page.fm.description ?? '');
+  if (desc.includes(version)) {
+    flag(0, `the description "${desc}" is the stub's placeholder - say in one sentence what the subject is`);
+  }
+
+  // `lines` blanks code blocks, so a "#" or a "{{stub}}" shown as an example is
+  // not read as the real thing; blanked rather than dropped, so line numbers
+  // still match. A code block is still content, so emptiness reads `raw`.
+  const raw = page.body.split(/\r?\n/);
+  let fenced = false;
+  const lines = raw.map((line) => {
+    const fence = /^\s*(?:```|~~~)/.test(line);
+    if (fence) fenced = !fenced;
+    return fence || fenced ? '' : line;
+  });
+  const lineNo = (i) => (page.bodyLine || 1) + i;
+  const prose = (text) => /\S/.test(text.replace(/<!--[\s\S]*?-->/g, ''));
+
+  if (/\{\{\s*stub\s*[|}]/i.test(lines.join('\n'))) {
+    flag(0, 'the page is not marked `stub: true` but still shows {{stub}} - remove the banner');
+  }
+
+  const headings = [];
+  lines.forEach((line, i) => {
+    const m = /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line);
+    if (m) headings.push({ i, level: m[1].length, text: m[2] });
+  });
+
+  // The lead: the first paragraph before any heading that is neither a
+  // template on a line of its own (a hatnote, the stub banner) nor a comment.
+  const firstHeading = headings.length ? headings[0].i : lines.length;
+  const paragraphs = lines.slice(0, firstHeading).join('\n')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const lead = paragraphs.find((p) => !/^\{\{[\s\S]*\}\}$/.test(p));
+  if (lead && (lead.includes(version) || /^\*\*[^*]+\*\*$/.test(lead))) {
+    flag(0, `the lead "${lead.split('\n')[0]}" is the stub's placeholder - define the subject in one sentence`);
+  }
+
+  // A section is empty when nothing but blank lines and comments sits between
+  // its heading and the next one. A section whose next heading is deeper has a
+  // subsection, which counts as content; that subsection is judged on its own.
+  headings.forEach((h, n) => {
+    const next = headings[n + 1];
+    if (next && next.level > h.level) return;
+    if (!prose(raw.slice(h.i + 1, next ? next.i : raw.length).join('\n'))) {
+      flag(lineNo(h.i), `section "${h.text}" is empty - write it or delete the heading`);
+    }
+  });
+}
+
 // The three data-driven recipe sections a subject page can carry, and how to
 // ask the data whether each one has anything to say.
 const RECIPE_SECTIONS = [
@@ -166,6 +242,7 @@ export function report({ pages, problems, links, backlinks, data, shown, quiet, 
     if (page.generated) continue;
     checkFrontmatter(page, all, config);
     checkTablePipes(page, all);
+    checkPlaceholders(page, all, config);
   }
   checkRecipeCoverage(pages, data, shown || new Map(), all);
 

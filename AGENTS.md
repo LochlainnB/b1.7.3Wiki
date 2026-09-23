@@ -180,7 +180,10 @@ are accepted but nothing reads them. Anything else warns, so typos surface at
 build time — the full list is `KNOWN_KEYS` in `tools/lib/integrity.mjs`.
 
 Remove `stub: true` when the page is genuinely written. That is what
-`/wiki/stubs/` tracks.
+`/wiki/stubs/` tracks. From then on the build fails the page if anything the
+generator seeded is left: the placeholder `description` or lead (any that names
+the version), the `{{stub}}` banner, or a heading with nothing under it but a
+comment.
 
 `categories` in `wiki.config.js` is the whole list, with the rule for which
 pages carry each category. A page takes the one category that names its kind —

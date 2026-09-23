@@ -279,7 +279,7 @@ Mining does not always return the block. The substitutions:
 | {{sprite\|Coal Ore}} | one {{sprite\|Coal}} |
 | {{sprite\|Diamond Ore}} | one {{sprite\|Diamond}} |
 | {{sprite\|Lapis Lazuli Ore}} | four to eight {{sprite\|Lapis Lazuli}} |
-| {{sprite\|Redstone Ore}} | four or five {{sprite\|Redstone}} |
+| {{sprite\|Redstone Ore}} | four or five {{sprite\|Redstone Dust\|text=Redstone}} |
 | {{sprite\|Glowstone}} | two to four {{sprite\|Glowstone Dust}} |
 | {{sprite\|Clay}} | four {{sprite\|Clay Ball\|text=clay balls}} |
 | {{sprite\|Cobweb}} | one {{sprite\|String}} |

@@ -141,9 +141,14 @@ def cube_look(game, record, icon, tint, world_tint):
             tuple(world_tint if side == TOP else WHITE for side in range(6)))
 
 
-def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint):
-    """Render one file per named stack, and return its manifest entries."""
+def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint, by_id=None):
+    """Render one file per named stack, and return its manifest entries.
+
+    `by_id`, when given, also collects each record's own picture by id, which
+    outlives the name if something else takes that name later.
+    """
     entries, missing = {}, []
+    by_id = {} if by_id is None else by_id
     for record in records:
         tinted = WORLD_TINTED.get(record['key'], ())
         for damage, name in stacks(record):
@@ -165,12 +170,16 @@ def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint):
                 entries[key] = {'sheet': icon['sheet'], 'index': index,
                                 'file': 'assets/sprites/%s/%d.png' % (icon['sheet'], index)}
                 kinds[key] = 'flat'
+                if damage == 0:
+                    by_id[record['id']] = entries[key]
                 continue
             else:
                 image = isometric.flat(sheets[icon['sheet']], icon['tile'], tint)
             write_file(os.path.join(out_dir, '%s.png' % key), png.encode(image))
             entries[key] = {'file': 'assets/sprites/icon/%s.png' % key}
             kinds[key] = icon['kind']
+            if damage == 0:
+                by_id[record['id']] = entries[key]
     return entries, missing
 
 
@@ -256,13 +265,28 @@ def main():
     world_tint = grass_color(png.decode(z.read('misc/grasscolor.png')))
     icon_dir = os.path.join(sprites_dir, 'icon')
 
-    kinds = {}
-    sprites, missing = build_icons(game, sheets, blocks, icon_dir, set(), kinds, world_tint)
+    kinds, block_own = {}, {}
+    sprites, missing = build_icons(game, sheets, blocks, icon_dir, set(), kinds, world_tint,
+                                   block_own)
     # An item of the same name wins over a block the inventory only ever draws
     # as a flat tile: a door, a sign, a bed and a repeater are all placed from
     # an item, and that item's icon is the picture a player would know.
     item_sprites, item_missing = build_icons(
         game, sheets, itemdefs, icon_dir, set(sprites), kinds, world_tint)
+    # The block keeps its own picture under its id, "block 83", for a page that
+    # wants to show the thing as it stands in the world: sugar cane planted
+    # rather than carried. An untinted tile is a slice of the sheet, which
+    # nothing overwrites; a tinted one was rendered to the file the item's icon
+    # has just replaced, so it is gone and is only reported.
+    lost = []
+    for block in blocks:
+        own = block_own.get(block['id'])
+        if own is None or slug(block['name']) not in item_sprites:
+            continue
+        if 'index' in own:
+            sprites[slug('block %d' % block['id'])] = own
+        else:
+            lost.append('block %d' % block['id'])
     sprites.update(item_sprites)
     missing += item_missing
 
@@ -286,6 +310,8 @@ def main():
         print('  removed %d icon(s) nothing names any more' % len(dropped))
     if missing:
         print('  no icon: %s' % ', '.join(sorted(set(missing))))
+    if lost:
+        print('  no picture of its own kept for: %s' % ', '.join(lost))
 
 
 if __name__ == '__main__':

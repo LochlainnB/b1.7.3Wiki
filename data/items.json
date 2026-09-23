@@ -1053,7 +1053,7 @@
   {
     "id": 331,
     "key": "redstone",
-    "name": "Redstone",
+    "name": "Redstone Dust",
     "langKey": "item.redstone",
     "class": "class_183",
     "icon": {
@@ -1144,7 +1144,7 @@
   {
     "id": 338,
     "key": "reeds",
-    "name": "Sugar Canes",
+    "name": "Sugar cane",
     "langKey": "item.reeds",
     "class": "class_262",
     "icon": {

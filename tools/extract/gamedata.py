@@ -157,6 +157,10 @@ def load_name_overrides(out_dir):
     `item.clay` for two ids apiece, and a name is the wiki's identity for a
     thing, so without an override the brown and the red mushroom become one
     page with one sprite. See shared_names() below.
+
+    Joining is the same move the other way. Item 331 is `item.redstone` and
+    block 55 `tile.redstoneDust`, one thing under two names, so the override
+    gives the item its block's name and the pair becomes one page.
     """
     path = os.path.join(out_dir, 'name-overrides.json')
     if not os.path.exists(path):

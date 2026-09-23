@@ -1,6 +1,7 @@
 {
   "_note": "Display names for the handful of blocks and items that have no .name entry in lang/en_US.lang, so gamedata.py has nothing to read. Keyed by numeric id. These are the names the game and its community use for them.",
   "_splitNote": "The same file also splits names the game shares. A display name is the wiki's identity for a thing -- its page, its sprite, its slot in a recipe -- so two ids that answer to one name become one page, which is right for the two halves of a door and wrong for two different things. gamedata.py lists every shared name when it runs; the ones split here are the ones that were two things.",
+  "_joinNote": "It also joins one thing the game names twice. Item 331 is the redstone a player carries and block 55 the dust it becomes when placed, and item 338 and block 83 are the same pair for sugar cane, but the game calls them Redstone and Redstone Dust, Sugar Canes and Sugar cane. Giving each item its block's name makes the pair one page, and the item's icon the picture of both.",
   "_variantNote": "Names for metadata values en_US.lang has no key for. Block 31 is one id holding three plants -- a dead shrub, tall grass and a fern -- and the game never names any of them.",
   "byBlockId": {
     "31": "Tall Grass",
@@ -13,7 +14,9 @@
     "94": "Redstone Repeater"
   },
   "byItemId": {
+    "331": "Redstone Dust",
     "337": "Clay Ball",
+    "338": "Sugar cane",
     "351": "Dye"
   },
   "variantsByBlockId": {

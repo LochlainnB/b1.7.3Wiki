@@ -1,0 +1,289 @@
+{
+  "_about": "Who writes which page during the stub population. Every stub belongs to exactly one group, and an agent edits only its own group's pages. `pages` are paths under content/ without .md; one that does not exist yet is the group's to create. `hubs` are pages the group relies on and must not repeat; check.mjs refuses to start a group whose hubs are missing. See README.md.",
+  "groups": [
+    {
+      "id": "hubs",
+      "title": "Hub pages",
+      "phase": "before",
+      "pages": [
+        "mechanic/light", "mechanic/weather", "mechanic/fluid", "mechanic/explosion", "mechanic/redstone-power",
+        "block/redstone-dust", "block/fire", "structure/dungeon", "block/monster-spawner"
+      ],
+      "hubs": [],
+      "notes": [
+        "Written one at a time and reviewed before anything is dispatched, not by a background agent.",
+        "The slugs for the new mechanic pages are placeholders. If a hub is written under another name, change it here and in every group's `hubs`.",
+        "The redstone hub cannot be titled Redstone: item/redstone.md has that title, and two pages with one title fail the build.",
+        "Dungeon takes over the detail in World Generation's Dungeons section, and Monster Spawner takes over Mob Spawning's Monster spawners section. Each hub keeps one line and {{main}}.",
+        "Dungeon owns the chest loot table. Item pages state that an item is dungeon loot, and link."
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "Tools and weapons",
+      "phase": "pilot",
+      "pages": [
+        "item/wooden-pickaxe", "item/stone-pickaxe", "item/iron-pickaxe", "item/golden-pickaxe", "item/diamond-pickaxe",
+        "item/wooden-axe", "item/stone-axe", "item/iron-axe", "item/golden-axe", "item/diamond-axe",
+        "item/wooden-shovel", "item/stone-shovel", "item/iron-shovel", "item/golden-shovel", "item/diamond-shovel",
+        "item/wooden-hoe", "item/stone-hoe", "item/iron-hoe", "item/golden-hoe", "item/diamond-hoe",
+        "item/wooden-sword", "item/stone-sword", "item/iron-sword", "item/golden-sword", "item/diamond-sword",
+        "item/shears"
+      ],
+      "hubs": ["mechanic/mining", "mechanic/damage"],
+      "notes": [
+        "Mining owns breaking speed, harvest levels, tool wear and the effective-against lists. Damage owns weapon damage. The infobox carries durability and attack damage.",
+        "A tool page gives the facts from its own row and links the section. Most of these pages are short, and that is correct.",
+        "Write the five pickaxes first, then shape the other four families to match them.",
+        "What a hoe turns into farmland is the hoe's. How farmland behaves afterwards belongs to Farmland, in another group.",
+        "What shears do to a sheep belongs to Sheep, and what they do to leaves belongs to Leaves. The Shears page says what they act on, and links."
+      ]
+    },
+    {
+      "id": "armour",
+      "title": "Armour",
+      "phase": "main",
+      "pages": [
+        "item/leather-cap", "item/leather-tunic", "item/leather-pants", "item/leather-boots",
+        "item/chain-helmet", "item/chain-chestplate", "item/chain-leggings", "item/chain-boots",
+        "item/iron-helmet", "item/iron-chestplate", "item/iron-leggings", "item/iron-boots",
+        "item/golden-helmet", "item/golden-chestplate", "item/golden-leggings", "item/golden-boots",
+        "item/diamond-helmet", "item/diamond-chestplate", "item/diamond-leggings", "item/diamond-boots"
+      ],
+      "hubs": ["mechanic/damage"],
+      "notes": [
+        "Damage#Armour owns armour points, the reduction, wear, and the durability table. A piece page states its slot's points and links.",
+        "The twenty pages differ only in material and slot. Write one material's four pieces, then give the rest the same sentences with the values changed.",
+        "Chain armour's material in RecipesArmor.java:8 is Block.fire. How, or whether, a player obtains chain armour is a source question; check it rather than assuming."
+      ]
+    },
+    {
+      "id": "ores",
+      "title": "Ores and minerals",
+      "phase": "main",
+      "pages": [
+        "block/coal-ore", "block/iron-ore", "block/gold-ore", "block/diamond-ore", "block/lapis-lazuli-ore", "block/redstone-ore",
+        "block/block-of-iron", "block/block-of-gold", "block/block-of-diamond", "block/lapis-lazuli-block",
+        "item/coal", "item/iron-ingot", "item/gold-ingot", "item/diamond"
+      ],
+      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/smelting"],
+      "notes": [
+        "World Generation#Ores owns vein shape and the ore table. An ore page states its own row, meaning veins per chunk, size and height, and links.",
+        "Mining owns harvest levels and the drops table. An ore page states which pickaxe it needs and what it drops.",
+        "Smelting#Fuel owns burn times. Coal states its own burn time and links. Charcoal is Coal at damage 1 and is covered on the Coal page.",
+        "Redstone Ore's glowing state is this group's, and its subject map for the two ids stays. What redstone does as a component is not.",
+        "Lapis lazuli the item lives on the dye page, which another group owns. Link it by the name that page answers to."
+      ]
+    },
+    {
+      "id": "terrain",
+      "title": "Terrain and Nether blocks",
+      "phase": "main",
+      "pages": [
+        "block/stone", "block/dirt", "block/grass", "block/sand", "block/gravel", "block/sandstone",
+        "block/bedrock", "block/obsidian", "block/moss-stone", "entity/falling-sand",
+        "item/flint", "item/flint-and-steel",
+        "block/netherrack", "block/soul-sand", "block/glowstone", "item/glowstone-dust"
+      ],
+      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/game-tick", "mechanic/fluid", "block/fire", "block/nether-portal"],
+      "notes": [
+        "World Generation owns where these generate: the surface pass, bedrock, beaches and the Nether. Each page states its own row and links.",
+        "Game Tick#Random ticks owns the tick rate. Grass states its own spread and die-back rules and links.",
+        "Falling Sand, the entity, owns falling. Sand and Gravel state that they fall, and link.",
+        "Fluid owns obsidian and cobblestone forming where lava meets water. Obsidian states that it forms, and links.",
+        "Lighting a portal belongs to Nether Portal, and fire spread belongs to Fire. Flint and Steel states what it lights, and links."
+      ]
+    },
+    {
+      "id": "fluids-and-cold",
+      "title": "Water, lava and cold",
+      "phase": "main",
+      "pages": [
+        "block/water", "block/lava", "item/bucket", "item/water-bucket", "item/lava-bucket",
+        "block/sponge", "block/ice", "block/snow", "item/snowball"
+      ],
+      "hubs": ["mechanic/fluid", "mechanic/weather", "mechanic/game-tick", "mechanic/damage", "dimension/nether"],
+      "notes": [
+        "Fluid owns flow, source and flowing blocks, and the lava-meets-water table. Water and Lava state their own values and link.",
+        "Weather owns snowfall and freezing. Ice and Snow state their own melting and link.",
+        "Nether#Behaviour already covers water buckets in the Nether and lava's longer flow there. State them and link; do not re-derive them.",
+        "Snow (layer and block) and Lava (still and flowing) each carry a subject map for their two ids. Keep them."
+      ]
+    },
+    {
+      "id": "redstone",
+      "title": "Redstone components",
+      "phase": "main",
+      "pages": [
+        "item/redstone", "block/redstone-torch", "block/redstone-repeater", "block/lever", "block/button",
+        "block/pressure-plate", "block/piston", "block/sticky-piston", "block/dispenser",
+        "block/tnt", "entity/primed-tnt", "block/wooden-door", "block/iron-door", "block/trapdoor"
+      ],
+      "hubs": ["mechanic/redstone-power", "block/redstone-dust", "mechanic/explosion", "mechanic/game-tick"],
+      "notes": [
+        "The redstone hub and Redstone Dust own power: what powers a block, strong and weak power, and how dust carries it. A component states what it gives or needs, and its delay, and links.",
+        "Redstone, the item, places Redstone Dust. Everything the placed dust does is on the block page.",
+        "Explosion owns what a blast does to blocks and entities. TNT owns how it is lit. Primed TNT owns its fuse and its row in the blast table.",
+        "Game Tick#Skipping a delay already covers random ticks cutting delays short. State it and link.",
+        "Redstone Torch and Redstone Repeater carry subject maps for their two states. Keep them. The doors are each one page for a block and an item, and anything the placed door does goes there."
+      ]
+    },
+    {
+      "id": "transport",
+      "title": "Rails and vehicles",
+      "phase": "main",
+      "pages": [
+        "block/rail", "block/powered-rail", "block/detector-rail",
+        "item/minecart", "item/minecart-with-chest", "item/minecart-with-furnace", "item/boat", "item/saddle"
+      ],
+      "hubs": ["mechanic/damage", "mechanic/redstone-power"],
+      "notes": [
+        "Damage#Other entities owns how vehicles break. State it and link.",
+        "Minecart physics belongs on Minecart. The chest and furnace minecarts state only what differs, and link.",
+        "Rail owns how track connects, curves and slopes. Powered Rail and Detector Rail state what differs, and link the redstone hub.",
+        "Riding a pig belongs to Pig. The Saddle page states what it is used on, and links."
+      ]
+    },
+    {
+      "id": "utility-blocks",
+      "title": "Furniture and utility blocks",
+      "phase": "main",
+      "pages": [
+        "block/crafting-table", "block/furnace", "block/chest", "block/locked-chest", "block/bed",
+        "block/sign", "block/ladder", "block/torch", "item/painting",
+        "block/jukebox", "item/music-disc", "block/note-block"
+      ],
+      "hubs": ["mechanic/crafting", "mechanic/smelting", "mechanic/mob-spawning", "mechanic/light", "dimension/nether", "mechanic/damage"],
+      "notes": [
+        "Smelting owns how a furnace works. Furnace states its lit state and links. Crafting owns the grid, and Crafting Table links it.",
+        "Bed owns sleeping and the spawn point. Mob Spawning owns the mobs that wake a sleeper, and Nether owns the bed exploding there. Bed states both and links.",
+        "Light owns how light spreads. Torch states its own light level, which the infobox already shows.",
+        "Sign and Bed are each one page for a block and an item. Anything the placed block does goes on that page.",
+        "Furnace carries a subject map for its unlit and lit ids. Keep it."
+      ]
+    },
+    {
+      "id": "plants",
+      "title": "Trees and wild plants",
+      "phase": "main",
+      "pages": [
+        "block/wood", "block/leaves", "block/sapling", "block/flower", "block/rose", "block/tall-grass",
+        "block/fern", "block/dead-bush", "block/cactus", "block/sugar-cane", "item/sugar-canes",
+        "block/pumpkin", "block/jack-o-lantern"
+      ],
+      "hubs": ["mechanic/world-generation", "mechanic/game-tick", "mechanic/light", "block/fire"],
+      "notes": [
+        "World Generation#Trees and #Plants own how many generate and in which biomes. Each page states its own row and links.",
+        "Game Tick owns the random-tick rate. Sapling owns tree growth and Leaves owns decay, stated here once and linked from elsewhere.",
+        "Sugar Cane, the block, owns growth and placement. Sugar Canes, the item, covers only what the item is for, and links the block.",
+        "Tall Grass and Fern share block 31. The dead shrub at metadata 0 has no page of its own. Say which id and metadata is which once, on Tall Grass.",
+        "Fire owns flammability. A plant states that it burns, and links."
+      ]
+    },
+    {
+      "id": "farming-and-food",
+      "title": "Farming and food",
+      "phase": "main",
+      "pages": [
+        "mechanic/food",
+        "block/crops", "block/farmland", "item/seeds", "item/wheat", "item/bread", "item/apple", "item/golden-apple",
+        "item/raw-porkchop", "item/cooked-porkchop", "item/raw-fish", "item/cooked-fish", "item/fishing-rod",
+        "item/cookie", "block/cake", "item/sugar", "item/mushroom-stew", "item/bowl", "item/milk"
+      ],
+      "hubs": ["mechanic/damage", "mechanic/game-tick", "mechanic/smelting", "mechanic/light", "mechanic/weather"],
+      "notes": [
+        "Write mechanic/food first. It is this group's hub, owning how eating works and the table of what each food heals. Food pages then state their own row and link it.",
+        "Crops owns growth, Farmland owns wetting, drying and trampling, and Seeds covers only obtaining and planting.",
+        "Fishing belongs on Fishing Rod. Raw Fish states that it is caught, and links.",
+        "Cake is one page for the block and the item."
+      ]
+    },
+    {
+      "id": "building-blocks",
+      "title": "Building blocks",
+      "phase": "main",
+      "pages": [
+        "block/wooden-planks", "item/stick", "block/wooden-stairs", "block/stone-stairs", "block/stone-slab",
+        "block/double-stone-slab", "block/fence", "block/bricks", "item/brick", "block/glass"
+      ],
+      "hubs": ["mechanic/mining", "mechanic/smelting", "mechanic/crafting", "block/fire"],
+      "notes": [
+        "Stone Slab covers every slab under block 44; data/ names three, and the source settles whether there are more. Double Stone Slab covers the placed double form.",
+        "Mining owns the gaps in the effective-against lists, stairs and bricks included. State this page's case and link.",
+        "Smelting#Fuel owns what wood is worth as fuel. State this page's value and link."
+      ]
+    },
+    {
+      "id": "mob-drops",
+      "title": "Mob drops, dye and wool",
+      "phase": "main",
+      "pages": [
+        "item/string", "item/feather", "item/gunpowder", "item/leather", "item/slimeball", "item/bone",
+        "item/egg", "item/dye-powder", "block/wool", "block/cobweb", "item/bow", "item/arrow"
+      ],
+      "hubs": ["mechanic/damage", "mechanic/mob-spawning", "mechanic/mining"],
+      "notes": [
+        "How the dye page is named and whether it is split is being decided separately. Dispatch this group after that decision. Any pages the split creates join this group, and check.mjs will report them until they do.",
+        "The mob that drops an item owns the drop rates. The item page names its sources and links them.",
+        "Sheep owns shearing and dyeing a sheep. Wool owns the sixteen colours and their recipes. Wolf owns taming with a bone.",
+        "Damage owns arrow damage, and Mob Spawning owns the chicken an egg can hatch. Bow owns drawing and firing, and Arrow covers the item and the flying entity."
+      ]
+    },
+    {
+      "id": "paper-and-instruments",
+      "title": "Paper and instruments",
+      "phase": "main",
+      "pages": ["item/paper", "item/book", "block/bookshelf", "item/map", "item/compass", "item/clock"],
+      "hubs": ["mechanic/mining", "mechanic/smelting", "dimension/nether"],
+      "notes": [
+        "Map owns how a map is drawn and what it shows.",
+        "Nether#Light and weather already says compasses and clocks spin there. State it and link.",
+        "Mining already says a bookshelf drops nothing. State it and link."
+      ]
+    },
+    {
+      "id": "hostile-mobs",
+      "title": "Hostile mobs",
+      "phase": "pilot",
+      "pages": [
+        "entity/zombie", "entity/skeleton", "entity/spider", "entity/creeper", "entity/slime",
+        "entity/ghast", "entity/pig-zombie", "entity/giant"
+      ],
+      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/explosion", "mechanic/light", "block/monster-spawner"],
+      "notes": [
+        "Mob Spawning owns the spawn cycle, the light tests, caps, packs and despawning. Spawning on a mob page states this mob's row and links. It does not re-explain the tests.",
+        "Damage owns attack damage and difficulty scaling, and the infobox carries health. Behaviour owns what is particular to the mob: its AI, what provokes it and how it attacks.",
+        "Explosion owns what a creeper or ghast blast does. The mob page owns when and why it explodes.",
+        "Write Zombie first as the template for section shape and phrasing, then the rest to match."
+      ]
+    },
+    {
+      "id": "passive-mobs",
+      "title": "Passive mobs",
+      "phase": "main",
+      "pages": ["entity/pig", "entity/sheep", "entity/cow", "entity/chicken", "entity/squid", "entity/wolf"],
+      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/weather"],
+      "notes": [
+        "Copy the section shape the hostile-mobs pages settled on, and read Zombie before starting.",
+        "Mob Spawning owns spawning, the egg hatch and the lightning-struck pig. State them and link.",
+        "Sheep owns shearing and dyeing. Wolf owns taming, sitting and tamed behaviour. Pig owns riding with a saddle."
+      ]
+    },
+    {
+      "id": "biomes",
+      "title": "Biomes",
+      "phase": "main",
+      "pages": [
+        "biome/desert", "biome/forest", "biome/hell", "biome/ice-desert", "biome/plains", "biome/rainforest",
+        "biome/savanna", "biome/seasonal-forest", "biome/shrubland", "biome/swampland", "biome/taiga", "biome/tundra"
+      ],
+      "hubs": ["mechanic/world-generation", "mechanic/mob-spawning", "mechanic/weather"],
+      "notes": [
+        "Copy the shape of biome/sky.md.",
+        "World Generation owns the biome table, terrain, trees and plants, and Mob Spawning owns the spawn lists. A biome page gives its own row from each and links; it does not re-explain them.",
+        "Hell takes a hatnote pointing to Nether, as Sky's points to Sky Dimension.",
+        "World Generation already says Ice Desert never generates. The page says so in its lead."
+      ]
+    }
+  ]
+}

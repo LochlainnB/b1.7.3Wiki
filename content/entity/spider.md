@@ -50,10 +50,11 @@ player that hurts it, in any light.
 <!-- src: EntitySpider.java:19 findPlayerToAttack has no line-of-sight test;
      EntityMob.java:33 attackEntityFrom sets the attacker as the target -->
 
-In light 12 or more it seeks no player. A spider already chasing a target it
-can see loses it 1 tick in 100.
+In light 12 or more it seeks no player. In that light, a spider already chasing
+a target it can see loses it 1 tick in 100.
 <!-- src: EntitySpider.java:41 attackEntity, which EntityCreature.java:28 calls
-     only while the target is in sight -->
+     only while the target is in sight; :42 drops the target only when
+     brightness is above 0.5, which is light 12 or more -->
 
 It walks at 3.5 blocks per second, 80% of a player's walking speed.
 <!-- src: EntitySpider.java:8 moveSpeed 0.8; see Zombie for how moveSpeed

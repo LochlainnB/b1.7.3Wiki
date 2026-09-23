@@ -69,6 +69,9 @@ An explicit grid, for a recipe the data does not cover:
 {{list|blocks}}                 sortable table of every block
 {{list|items}}                  every item
 {{list|entities}}               every entity
+{{list|light}}                  the blocks that give off light
+{{list|opacity}}                the blocks with a hand-set opacity
+{{list|food}}                   the items that heal
 {{pagelist|namespace=biome}}    linked, sprite-led list of pages
 ```
 

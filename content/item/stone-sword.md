@@ -1,14 +1,12 @@
 ---
 title: Stone Sword
-description: Stone Sword in Minecraft Beta 1.7.3.
+description: The sword made from cobblestone, lasting 132 hits.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Weapons]
 ---
 
-{{stub|item}}
-
-**Stone Sword** is an item in Minecraft Beta 1.7.3.
+**Stone Sword** is the [[Damage#Weapons|sword]] made from
+[[Cobblestone|cobblestone]].
 
 ## Obtaining
 
@@ -18,9 +16,17 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A stone sword has a [[Mining#Tools|mining speed]] of 1.5 on every block, and 15
+on [[Cobweb|cobweb]]. It [[Mining#Drops|harvests]] cobweb.
+<!-- src: ItemSword.java:13 getStrVsBlock; ItemSword.java:35 canHarvestBlock -->
+
+It wears out after 132 [[Damage#Weapons|hits]], or 66
+[[Mining#Tool wear|blocks mined]].
+<!-- src: ItemSword.java:17 hitEntity damageItem(1); ItemSword.java:22
+     onBlockDestroyed damageItem(2); EnumToolMaterial.java:5 maxUses 131;
+     ItemStack.java:127 damageItem breaks the sword once damage exceeds 131 -->
 
 ## Data values
 
-- Item ID: `272`
+- Item ID: {{id|Stone Sword}}
 - Translation key: `item.swordStone`

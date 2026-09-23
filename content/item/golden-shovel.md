@@ -1,14 +1,12 @@
 ---
 title: Golden Shovel
-description: Golden Shovel in Minecraft Beta 1.7.3.
+description: The shovel made from gold ingots, the fastest and shortest-lived, with a mining speed of 12, lasting 33 blocks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Golden Shovel** is an item in Minecraft Beta 1.7.3.
+**Golden Shovel** is the [[Mining#Tools|shovel]] made from
+[[Gold Ingot|gold ingots]].
 
 ## Obtaining
 
@@ -18,9 +16,19 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A golden shovel has a [[Mining#Tools|mining speed]] of 12 on the blocks a
+shovel is effective against, the fastest of any shovel.
+<!-- src: EnumToolMaterial.java:8 GOLD(0, 32, 12.0F, 0); ItemSpade.java:19 -->
+
+It [[Mining#Drops|harvests]] [[Snow|snow]], as a layer and as a block.
+<!-- src: ItemSpade.java:10 canHarvestBlock -->
+
+It [[Mining#Tool wear|wears out]] after 33 blocks, the fewest of any shovel.
+<!-- src: EnumToolMaterial.java:8 maxUses 32; ItemTool.java:34
+     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
+     damage exceeds 32 -->
 
 ## Data values
 
-- Item ID: `284`
+- Item ID: {{id|Golden Shovel}}
 - Translation key: `item.shovelGold`

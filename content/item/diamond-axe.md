@@ -1,14 +1,11 @@
 ---
 title: Diamond Axe
-description: Diamond Axe in Minecraft Beta 1.7.3.
+description: The axe made from diamonds, with a mining speed of 8, lasting 1562 blocks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Diamond Axe** is an item in Minecraft Beta 1.7.3.
+**Diamond Axe** is the [[Mining#Tools|axe]] made from [[Diamond|diamonds]].
 
 ## Obtaining
 
@@ -18,9 +15,16 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A diamond axe has a [[Mining#Tools|mining speed]] of 8 on the blocks an axe is
+effective against.
+<!-- src: EnumToolMaterial.java:7 EMERALD(3, 1561, 8.0F, 3); ItemAxe.java:11 -->
+
+It [[Mining#Tool wear|wears out]] after 1562 blocks.
+<!-- src: EnumToolMaterial.java:7 maxUses 1561; ItemTool.java:34
+     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
+     damage exceeds 1561 -->
 
 ## Data values
 
-- Item ID: `279`
+- Item ID: {{id|Diamond Axe}}
 - Translation key: `item.hatchetDiamond`

@@ -41,10 +41,11 @@ of a [[Snow|snow]] layer. Dust drops as an item when the block beneath it goes.
 
 ### Power level
 
-Dust holds a power level from 0 to 15, and is off at 0. Dust that is
-[[Redstone Power#Blocks that respond|powered]] by anything but other dust is at
-15. Other dust takes the highest level of the dust it connects to, less 1, so
-power runs 15 blocks along a line of dust.
+Dust holds a power level from 0 to 15, and is off at 0. Dust is at 15 when a
+[[Redstone Power#Power sources|power source]] beside it powers it, or a
+[[Redstone Power#Powered blocks|strongly powered]] block is beside it. Other
+dust takes the highest level of the dust it connects to, less 1, so power runs
+15 blocks along a line of dust.
 <!-- src: BlockRedstoneWire.java:57 calculateCurrentChanges; :60-:67 reads
      isBlockIndirectlyGettingPowered with dust's own output switched off; :68-:105
      the highest connected level, less 1 -->

@@ -7,13 +7,13 @@
       "phase": "before",
       "pages": [
         "mechanic/light", "mechanic/weather", "mechanic/fluid", "mechanic/explosion", "mechanic/redstone-power",
-        "block/redstone-dust", "block/fire", "structure/dungeon", "block/monster-spawner"
+        "block/redstone-dust", "block/fire", "structure/dungeon", "block/monster-spawner", "mechanic/food"
       ],
       "hubs": [],
       "notes": [
-        "Written one at a time and reviewed before anything is dispatched, not by a background agent.",
-        "The slugs for the new mechanic pages are placeholders. If a hub is written under another name, change it here and in every group's `hubs`.",
-        "Do not title the redstone hub Redstone. Redstone Dust carries that name as an alias, because Redstone is what the game calls the item, and a page titled Redstone would silently take every [[Redstone]] link from it.",
+        "Written one at a time and reviewed before anything is dispatched, not by a background agent. All ten are written; each is its own commit, for review.",
+        "Food moved here from farming-and-food so that it could be reviewed with the other hubs before any food page is written.",
+        "The redstone hub is titled Redstone Power, not Redstone. Redstone Dust carries Redstone as an alias, because Redstone is what the game calls the item, and a page titled Redstone would silently take every [[Redstone]] link from it.",
         "Redstone Dust is one page for block 55 and item 331, the way Sign is one page for its block and item, so it also covers the item: what drops it and what it crafts into. Its infobox shows the item's icon only.",
         "Dungeon takes over the detail in World Generation's Dungeons section, and Monster Spawner takes over Mob Spawning's Monster spawners section. Each hub keeps one line and {{main}}.",
         "Dungeon owns the chest loot table. Item pages state that an item is dungeon loot, and link."
@@ -67,13 +67,15 @@
         "block/block-of-iron", "block/block-of-gold", "block/block-of-diamond", "block/lapis-lazuli-block",
         "item/coal", "item/iron-ingot", "item/gold-ingot", "item/diamond", "item/lapis-lazuli"
       ],
-      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/smelting"],
+      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/smelting", "block/redstone-dust", "mechanic/light", "structure/dungeon"],
       "notes": [
         "World Generation#Ores owns vein shape and the ore table. An ore page states its own row, meaning veins per chunk, size and height, and links.",
         "Mining owns harvest levels and the drops table. An ore page states which pickaxe it needs and what it drops.",
         "Smelting#Fuel owns burn times. Coal states its own burn time and links. Charcoal is Coal at damage 1 and is covered on the Coal page.",
         "Redstone Ore's glowing state is this group's, and its subject map for the two ids stays. What redstone does as a component is not.",
-        "Lapis Lazuli, the item, is dye at damage 4 and has its own page here. Dye owns dyeing wool and sheep; Lapis Lazuli states its colour and links."
+        "Lapis Lazuli, the item, is dye at damage 4 and has its own page here. Dye owns dyeing wool and sheep; Lapis Lazuli states its colour and links.",
+        "Redstone Dust is the page for the redstone that redstone ore drops. Redstone Ore states its drop and links.",
+        "Dungeon owns the chest loot table, iron ingots included. State that an item is dungeon loot, and link."
       ]
     },
     {
@@ -86,13 +88,16 @@
         "item/flint", "item/flint-and-steel",
         "block/netherrack", "block/soul-sand", "block/glowstone", "item/glowstone-dust"
       ],
-      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/game-tick", "mechanic/fluid", "block/fire", "block/nether-portal"],
+      "hubs": ["mechanic/world-generation", "mechanic/mining", "mechanic/game-tick", "mechanic/fluid", "block/fire", "block/nether-portal", "mechanic/light", "mechanic/explosion", "mechanic/weather", "structure/dungeon"],
       "notes": [
         "World Generation owns where these generate: the surface pass, bedrock, beaches and the Nether. Each page states its own row and links.",
         "Game Tick#Random ticks owns the tick rate. Grass states its own spread and die-back rules and links.",
         "Falling Sand, the entity, owns falling. Sand and Gravel state that they fall, and link.",
         "Fluid owns obsidian and cobblestone forming where lava meets water. Obsidian states that it forms, and links.",
-        "Lighting a portal belongs to Nether Portal, and fire spread belongs to Fire. Flint and Steel states what it lights, and links."
+        "Lighting a portal belongs to Nether Portal, and fire spread belongs to Fire. Flint and Steel states what it lights, and links.",
+        "Light owns the thresholds Grass spreads and dies at. Grass states its values and links.",
+        "Explosion already says no blast breaks obsidian or bedrock. State it and link.",
+        "Dungeon already says moss stone generates only on a dungeon floor. Moss Stone states it and links."
       ]
     },
     {
@@ -103,12 +108,15 @@
         "block/water", "block/lava", "item/bucket", "item/water-bucket", "item/lava-bucket",
         "block/sponge", "block/ice", "block/snow", "item/snowball"
       ],
-      "hubs": ["mechanic/fluid", "mechanic/weather", "mechanic/game-tick", "mechanic/damage", "dimension/nether"],
+      "hubs": ["mechanic/fluid", "mechanic/weather", "mechanic/game-tick", "mechanic/damage", "dimension/nether", "mechanic/light", "block/fire", "structure/dungeon"],
       "notes": [
         "Fluid owns flow, source and flowing blocks, and the lava-meets-water table. Water and Lava state their own values and link.",
         "Weather owns snowfall and freezing. Ice and Snow state their own melting and link.",
         "Nether#Behaviour already covers water buckets in the Nether and lava's longer flow there. State them and link; do not re-derive them.",
-        "Snow (layer and block) and Lava (still and flowing) each carry a subject map for their two ids. Keep them."
+        "Snow (layer and block) and Lava (still and flowing) each carry a subject map for their two ids. Keep them.",
+        "Light's table already gives the block light that melts ice and snow. Ice and Snow state their values and link.",
+        "Fire already lists still lava among what starts a fire. Lava states it and links.",
+        "Fluid already lists what water and lava wash away and what stops them. Water and Lava link it rather than listing again."
       ]
     },
     {
@@ -120,13 +128,15 @@
         "block/pressure-plate", "block/piston", "block/sticky-piston", "block/dispenser",
         "block/tnt", "entity/primed-tnt", "block/wooden-door", "block/iron-door", "block/trapdoor"
       ],
-      "hubs": ["mechanic/redstone-power", "block/redstone-dust", "mechanic/explosion", "mechanic/game-tick"],
+      "hubs": ["mechanic/redstone-power", "block/redstone-dust", "mechanic/explosion", "mechanic/game-tick", "block/fire", "structure/dungeon"],
       "notes": [
         "The redstone hub and Redstone Dust own power: what powers a block, strong and weak power, and how dust carries it. A component states what it gives or needs, and its delay, and links.",
         "There is no separate Redstone page. Redstone Dust covers the item and the placed dust, and [[Redstone]] reaches it; link it for either.",
         "Explosion owns what a blast does to blocks and entities. TNT owns how it is lit. Primed TNT owns its fuse and its row in the blast table.",
         "Game Tick#Skipping a delay already covers random ticks cutting delays short. State it and link.",
-        "Redstone Torch and Redstone Repeater carry subject maps for their two states. Keep them. The doors are each one page for a block and an item, and anything the placed door does goes there."
+        "Redstone Torch and Redstone Repeater carry subject maps for their two states. Keep them. The doors are each one page for a block and an item, and anything the placed door does goes there.",
+        "Redstone Power#Blocks that respond already gives each component's trigger, which changes it notices, and that a repeater switching beside a door, trapdoor, TNT, note block or dispenser goes unnoticed. State the component's row and link.",
+        "Fire owns TNT catching light from fire. TNT states it and links."
       ]
     },
     {
@@ -137,12 +147,14 @@
         "block/rail", "block/powered-rail", "block/detector-rail",
         "item/minecart", "item/minecart-with-chest", "item/minecart-with-furnace", "item/boat", "item/saddle"
       ],
-      "hubs": ["mechanic/damage", "mechanic/redstone-power"],
+      "hubs": ["mechanic/damage", "mechanic/redstone-power", "structure/dungeon"],
       "notes": [
         "Damage#Other entities owns how vehicles break. State it and link.",
         "Minecart physics belongs on Minecart. The chest and furnace minecarts state only what differs, and link.",
         "Rail owns how track connects, curves and slopes. Powered Rail and Detector Rail state what differs, and link the redstone hub.",
-        "Riding a pig belongs to Pig. The Saddle page states what it is used on, and links."
+        "Riding a pig belongs to Pig. The Saddle page states what it is used on, and links.",
+        "Redstone Power already gives the powered rail's and the plain rail's rows. Detector Rail's source row is there too.",
+        "Dungeon owns the chest loot table, which has the saddle. State that it is dungeon loot, and link."
       ]
     },
     {
@@ -154,13 +166,16 @@
         "block/sign", "block/ladder", "block/torch", "item/painting",
         "block/jukebox", "item/music-disc", "block/note-block"
       ],
-      "hubs": ["mechanic/crafting", "mechanic/smelting", "mechanic/mob-spawning", "mechanic/light", "dimension/nether", "mechanic/damage"],
+      "hubs": ["mechanic/crafting", "mechanic/smelting", "mechanic/mob-spawning", "mechanic/light", "dimension/nether", "mechanic/damage", "mechanic/redstone-power", "mechanic/explosion", "mechanic/weather", "structure/dungeon", "block/fire"],
       "notes": [
         "Smelting owns how a furnace works. Furnace states its lit state and links. Crafting owns the grid, and Crafting Table links it.",
         "Bed owns sleeping and the spawn point. Mob Spawning owns the mobs that wake a sleeper, and Nether owns the bed exploding there. Bed states both and links.",
         "Light owns how light spreads. Torch states its own light level, which the infobox already shows.",
         "Sign and Bed are each one page for a block and an item. Anything the placed block does goes on that page.",
-        "Furnace carries a subject map for its unlit and lit ids. Keep it."
+        "Furnace carries a subject map for its unlit and lit ids. Keep it.",
+        "Weather already says sleeping ends rain and thunder, and that a thunderstorm lets a player sleep by day. Bed states both and links. Explosion owns the bed's blast.",
+        "Redstone Power already says a note block plays only when it is itself a powered block. Note Block states it and links.",
+        "Dungeon owns the chest loot table, which has the music discs, and says where dungeon chests stand. Chest and Music Disc link it."
       ]
     },
     {
@@ -172,14 +187,15 @@
         "block/fern", "block/dead-bush", "block/cactus", "block/sugar-cane",
         "block/pumpkin", "block/jack-o-lantern"
       ],
-      "hubs": ["mechanic/world-generation", "mechanic/game-tick", "mechanic/light", "block/fire"],
+      "hubs": ["mechanic/world-generation", "mechanic/game-tick", "mechanic/light", "block/fire", "mechanic/fluid"],
       "notes": [
         "World Generation#Trees and #Plants own how many generate and in which biomes. Each page states its own row and links.",
         "Game Tick owns the random-tick rate. Sapling owns tree growth and Leaves owns decay, stated here once and linked from elsewhere.",
         "Bone Meal owns fertilising. Sapling states that bone meal grows it into a tree at once, and links.",
         "Sugar cane is one page for block 83 and item 338, the way Sign is, so it covers growth and placement and what the item crafts into. Its `sprite` map puts the item's icon and the planted block side by side in the infobox. Keep it, and keep the Sugar Canes alias.",
         "Tall Grass and Fern share block 31. The dead shrub at metadata 0 has no page of its own. Say which id and metadata is which once, on Tall Grass.",
-        "Fire owns flammability. A plant states that it burns, and links."
+        "Fire owns flammability. A plant states that it burns, and links.",
+        "Fluid already lists the plants water washes away, and says sugar cane stops flow. State it and link."
       ]
     },
     {
@@ -187,14 +203,14 @@
       "title": "Farming and food",
       "phase": "main",
       "pages": [
-        "mechanic/food",
         "block/crops", "block/farmland", "item/seeds", "item/wheat", "item/bread", "item/apple", "item/golden-apple",
         "item/raw-porkchop", "item/cooked-porkchop", "item/raw-fish", "item/cooked-fish", "item/fishing-rod",
         "item/cookie", "block/cake", "item/sugar", "item/mushroom-stew", "item/bowl", "item/milk"
       ],
-      "hubs": ["mechanic/damage", "mechanic/game-tick", "mechanic/smelting", "mechanic/light", "mechanic/weather"],
+      "hubs": ["mechanic/food", "mechanic/damage", "mechanic/game-tick", "mechanic/smelting", "mechanic/light", "mechanic/weather", "mechanic/fluid", "structure/dungeon"],
       "notes": [
-        "Write mechanic/food first. It is this group's hub, owning how eating works and the table of what each food heals. Food pages then state their own row and link it.",
+        "Food owns how eating works, the table of what each food heals, cake slices and what a tamed wolf eats. A food page states its own value, which the infobox already shows, and links. Cake owns the block; Food keeps the slice figures.",
+        "Light owns the growth thresholds for crops, and Weather owns rain wetting farmland. State the row and link.",
         "Crops owns growth, Farmland owns wetting, drying and trampling, and Seeds covers only obtaining and planting.",
         "Bone Meal owns fertilising. Crops states that bone meal grows it, and links.",
         "Fishing belongs on Fishing Rod. Raw Fish states that it is caught, and links.",
@@ -209,11 +225,12 @@
         "block/wooden-planks", "item/stick", "block/wooden-stairs", "block/stone-stairs", "block/stone-slab",
         "block/double-stone-slab", "block/fence", "block/bricks", "item/brick", "block/glass"
       ],
-      "hubs": ["mechanic/mining", "mechanic/smelting", "mechanic/crafting", "block/fire"],
+      "hubs": ["mechanic/mining", "mechanic/smelting", "mechanic/crafting", "block/fire", "mechanic/light", "mechanic/explosion"],
       "notes": [
         "Stone Slab covers every slab under block 44: stone, sandstone, wooden, and cobblestone at damage 3, which en_US.lang also calls Stone Slab (BlockStep.java:6 lists the four), so data/ names only three. [[Sandstone Slab]] and [[Wooden Slab]] reach the page without aliases. Double Stone Slab covers the placed double form.",
         "Mining owns the gaps in the effective-against lists, stairs and bricks included. State this page's case and link.",
-        "Smelting#Fuel owns what wood is worth as fuel. State this page's value and link."
+        "Smelting#Fuel owns what wood is worth as fuel. State this page's value and link.",
+        "Light already says slabs, stairs and farmland stop light although they do not fill their space. State it and link."
       ]
     },
     {
@@ -225,14 +242,16 @@
         "item/egg", "item/dye", "item/bone-meal", "item/ink-sac", "item/cocoa-beans",
         "block/wool", "block/cobweb", "item/bow", "item/arrow"
       ],
-      "hubs": ["mechanic/damage", "mechanic/mob-spawning", "mechanic/mining"],
+      "hubs": ["mechanic/damage", "mechanic/mob-spawning", "mechanic/mining", "structure/dungeon", "block/fire"],
       "notes": [
         "Item 351 is sixteen dyes told apart by damage value. Bone Meal, Ink Sac, Cocoa Beans and Lapis Lazuli (in the ores group) have their own pages, because each has a source or a use no other dye has. Dye covers the other twelve, and owns what every dye does to wool and sheep; the four state their colour and link it.",
         "Dye's own sprite is the ink sac's, damage 0. Give it `sprite:` naming one of its twelve colours.",
         "Bone Meal owns what using it does to saplings, crops and grass (ItemDye.onItemUse). Sapling and Crops state that it grows them, and link.",
         "The mob that drops an item owns the drop rates. The item page names its sources and links them.",
         "Sheep owns shearing and dyeing a sheep. Wool owns the sixteen colours and their recipes. Wolf owns taming with a bone.",
-        "Damage owns arrow damage, and Mob Spawning owns the chicken an egg can hatch. Bow owns drawing and firing, and Arrow covers the item and the flying entity."
+        "Damage owns arrow damage, and Mob Spawning owns the chicken an egg can hatch. Bow owns drawing and firing, and Arrow covers the item and the flying entity.",
+        "Dungeon owns the chest loot table, which has string, gunpowder and cocoa beans. State that an item is dungeon loot, and link.",
+        "Fire owns wool's flammability. Wool states that it burns, and links."
       ]
     },
     {
@@ -240,11 +259,12 @@
       "title": "Paper and instruments",
       "phase": "main",
       "pages": ["item/paper", "item/book", "block/bookshelf", "item/map", "item/compass", "item/clock"],
-      "hubs": ["mechanic/mining", "mechanic/smelting", "dimension/nether"],
+      "hubs": ["mechanic/mining", "mechanic/smelting", "dimension/nether", "block/fire"],
       "notes": [
         "Map owns how a map is drawn and what it shows.",
         "Nether#Light and weather already says compasses and clocks spin there. State it and link.",
-        "Mining already says a bookshelf drops nothing. State it and link."
+        "Mining already says a bookshelf drops nothing. State it and link.",
+        "Fire owns the bookshelf's flammability. Bookshelf states that it burns, and links."
       ]
     },
     {
@@ -255,12 +275,15 @@
         "entity/zombie", "entity/skeleton", "entity/spider", "entity/creeper", "entity/slime",
         "entity/ghast", "entity/pig-zombie", "entity/giant"
       ],
-      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/explosion", "mechanic/light", "block/monster-spawner"],
+      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/explosion", "mechanic/light", "block/monster-spawner", "mechanic/weather"],
       "notes": [
         "Mob Spawning owns the spawn cycle, the light tests, caps, packs and despawning. Spawning on a mob page states this mob's row and links. It does not re-explain the tests.",
         "Damage owns attack damage and difficulty scaling, and the infobox carries health. Behaviour owns what is particular to the mob: its AI, what provokes it and how it attacks.",
         "Explosion owns what a creeper or ghast blast does. The mob page owns when and why it explodes.",
-        "Write Zombie first as the template for section shape and phrasing, then the rest to match."
+        "Write Zombie first as the template for section shape and phrasing, then the rest to match.",
+        "Light's table already gives the thresholds for zombies and skeletons burning and spiders seeking a player, and Weather says zombies and skeletons do not burn in a thunderstorm. State the mob's row and link.",
+        "Weather owns lightning, which charges a creeper and turns a pig into a pig zombie. State it and link.",
+        "Explosion's size table gives creeper and ghast blasts, and their damage at the centre. Do not restate the formula."
       ]
     },
     {
@@ -268,11 +291,12 @@
       "title": "Passive mobs",
       "phase": "main",
       "pages": ["entity/pig", "entity/sheep", "entity/cow", "entity/chicken", "entity/squid", "entity/wolf"],
-      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/weather"],
+      "hubs": ["mechanic/mob-spawning", "mechanic/damage", "mechanic/weather", "mechanic/food", "mechanic/light"],
       "notes": [
         "Copy the section shape the hostile-mobs pages settled on, and read Zombie before starting.",
         "Mob Spawning owns spawning, the egg hatch and the lightning-struck pig. State them and link.",
-        "Sheep owns shearing and dyeing. Wolf owns taming, sitting and tamed behaviour. Pig owns riding with a saddle."
+        "Sheep owns shearing and dyeing. Wolf owns taming, sitting and tamed behaviour. Pig owns riding with a saddle.",
+        "Food already says a tamed wolf eats a raw or cooked porkchop and heals 3 from either. Wolf states it and links."
       ]
     },
     {
@@ -288,7 +312,8 @@
         "Copy the shape of biome/sky.md.",
         "World Generation owns the biome table, terrain, trees and plants, and Mob Spawning owns the spawn lists. A biome page gives its own row from each and links; it does not re-explain them.",
         "Hell takes a hatnote pointing to Nether, as Sky's points to Sky Dimension.",
-        "World Generation already says Ice Desert never generates. The page says so in its lead."
+        "World Generation already says Ice Desert never generates. The page says so in its lead.",
+        "Weather#Biomes owns which biomes get rain, snow or neither. A biome page states its own row and links."
       ]
     }
   ]

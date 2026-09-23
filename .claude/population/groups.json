@@ -13,7 +13,8 @@
       "notes": [
         "Written one at a time and reviewed before anything is dispatched, not by a background agent.",
         "The slugs for the new mechanic pages are placeholders. If a hub is written under another name, change it here and in every group's `hubs`.",
-        "The redstone hub cannot be titled Redstone: item/redstone.md has that title, and two pages with one title fail the build.",
+        "Do not title the redstone hub Redstone. Redstone Dust carries that name as an alias, because Redstone is what the game calls the item, and a page titled Redstone would silently take every [[Redstone]] link from it.",
+        "Redstone Dust is one page for block 55 and item 331, the way Sign is one page for its block and item, so it also covers the item: what drops it and what it crafts into. Its infobox shows the item's icon only.",
         "Dungeon takes over the detail in World Generation's Dungeons section, and Monster Spawner takes over Mob Spawning's Monster spawners section. Each hub keeps one line and {{main}}.",
         "Dungeon owns the chest loot table. Item pages state that an item is dungeon loot, and link."
       ]
@@ -115,14 +116,14 @@
       "title": "Redstone components",
       "phase": "main",
       "pages": [
-        "item/redstone", "block/redstone-torch", "block/redstone-repeater", "block/lever", "block/button",
+        "block/redstone-torch", "block/redstone-repeater", "block/lever", "block/button",
         "block/pressure-plate", "block/piston", "block/sticky-piston", "block/dispenser",
         "block/tnt", "entity/primed-tnt", "block/wooden-door", "block/iron-door", "block/trapdoor"
       ],
       "hubs": ["mechanic/redstone-power", "block/redstone-dust", "mechanic/explosion", "mechanic/game-tick"],
       "notes": [
         "The redstone hub and Redstone Dust own power: what powers a block, strong and weak power, and how dust carries it. A component states what it gives or needs, and its delay, and links.",
-        "Redstone, the item, places Redstone Dust. Everything the placed dust does is on the block page.",
+        "There is no separate Redstone page. Redstone Dust covers the item and the placed dust, and [[Redstone]] reaches it; link it for either.",
         "Explosion owns what a blast does to blocks and entities. TNT owns how it is lit. Primed TNT owns its fuse and its row in the blast table.",
         "Game Tick#Skipping a delay already covers random ticks cutting delays short. State it and link.",
         "Redstone Torch and Redstone Repeater carry subject maps for their two states. Keep them. The doors are each one page for a block and an item, and anything the placed door does goes there."
@@ -168,7 +169,7 @@
       "phase": "main",
       "pages": [
         "block/wood", "block/leaves", "block/sapling", "block/flower", "block/rose", "block/tall-grass",
-        "block/fern", "block/dead-bush", "block/cactus", "block/sugar-cane", "item/sugar-canes",
+        "block/fern", "block/dead-bush", "block/cactus", "block/sugar-cane",
         "block/pumpkin", "block/jack-o-lantern"
       ],
       "hubs": ["mechanic/world-generation", "mechanic/game-tick", "mechanic/light", "block/fire"],
@@ -176,7 +177,7 @@
         "World Generation#Trees and #Plants own how many generate and in which biomes. Each page states its own row and links.",
         "Game Tick owns the random-tick rate. Sapling owns tree growth and Leaves owns decay, stated here once and linked from elsewhere.",
         "Bone Meal owns fertilising. Sapling states that bone meal grows it into a tree at once, and links.",
-        "Sugar Cane, the block, owns growth and placement. Sugar Canes, the item, covers only what the item is for, and links the block.",
+        "Sugar cane is one page for block 83 and item 338, the way Sign is, so it covers growth and placement and what the item crafts into. Its `sprite` map puts the item's icon and the planted block side by side in the infobox. Keep it, and keep the Sugar Canes alias.",
         "Tall Grass and Fern share block 31. The dead shrub at metadata 0 has no page of its own. Say which id and metadata is which once, on Tall Grass.",
         "Fire owns flammability. A plant states that it burns, and links."
       ]

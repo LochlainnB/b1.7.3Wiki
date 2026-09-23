@@ -2,6 +2,8 @@
 title: Sugar cane
 description: Sugar cane in Minecraft Beta 1.7.3.
 type: block
+aliases: [Sugar Canes]
+sprite: {Item: Sugar cane, Placed: block 83}
 categories: [Blocks]
 stub: true
 ---
@@ -16,9 +18,14 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+### Crafting ingredient
+
+{{used in|Sugar cane}}
 
 ## Data values
 
-- Block ID: `83`
-- Translation key: `tile.reeds`
+- Block ID: {{id|Sugar cane}}
+- Item ID: {{id|item 338}}
+- Translation key: `tile.reeds`, `item.reeds`
+
+The game calls the block *Sugar cane* and the item *Sugar Canes*.

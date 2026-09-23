@@ -3,7 +3,7 @@
 // Markup deliberately mirrors minecraft.wiki's own class names (.mcui,
 // .invslot, .infobox-rows, .sprite-file) so the stylesheet is a faithful
 // reimplementation rather than an approximation.
-import { subjectsOf } from './content.mjs';
+import { iconOf } from './content.mjs';
 import { slug } from './slug.mjs';
 
 export const escapeHtml = (s) =>
@@ -325,7 +325,7 @@ define(['pagelist', 'gallery'], ({ args, named, ctx }) => {
   });
   if (!pages.length) return '<p class="mcui-empty">No pages yet.</p>';
   const items = pages.map((p) => {
-    const name = p.fm.sprite || ctx.data.nameOf(subjectsOf(p)[0].name);
+    const name = iconOf(p, ctx.data);
     const sp = ctx.data.sprite(name) ? ctx.sprite(name) : '';
     return `<li>${ctx.hrefWrap(p.url, `${sp}<span class="pagelist-name">${escapeHtml(p.title)}</span>`)}</li>`;
   });

@@ -3,7 +3,7 @@
 // and the id without an editor retyping (or mistyping) them.
 // Anything in the page's `infobox:` frontmatter overrides or extends the
 // generated rows.
-import { subjectsOf } from './content.mjs';
+import { subjectsOf, spritesOf } from './content.mjs';
 import { escapeHtml } from './templates.mjs';
 
 const fmt = (n) => (n == null ? null : String(Math.round(n * 1000) / 1000));
@@ -115,7 +115,7 @@ export function renderInfobox(page, ctx) {
     if (!seen.has(k)) rows.push([k, [String(v)]]);
   }
 
-  const image = imageArea(fm, page, columns, ctx);
+  const image = imageArea(page, columns, ctx);
 
   const cells = (values) => {
     const span = values.length < columns.length || values.every((v) => v === values[0]);
@@ -144,17 +144,42 @@ export function renderInfobox(page, ctx) {
 }
 
 /**
- * The picture above the rows: one sprite, or one per column with its label.
+ * The picture above the rows: one sprite, or several, each with its label.
  *
- * Two sprites have to share the width one had, so they shrink; `sprite:` in
- * frontmatter still overrides the single case, where there is one thing to
- * point at and a page may want a subtype's icon rather than its id's.
+ * A `sprite:` map names the pictures outright; otherwise a page with several
+ * subjects gets one per column. Two sprites have to share the width one had,
+ * so they shrink. A single `sprite:` still overrides the one picture, where a
+ * page may want a subtype's icon rather than its id's.
  */
-function imageArea(fm, page, columns, ctx) {
-  // Sprites are drawn per name, and two columns may share one: a lit furnace
-  // and an unlit one are both Furnace, and labelling one picture twice would
-  // promise a difference the wiki cannot show. Distinct pictures get labels;
-  // one picture stands alone at full size, as on any other page.
+function imageArea(page, columns, ctx) {
+  const asked = spritesOf(page);
+  // A name like "block 83" is no description of a picture, so a named one is
+  // described by the page and its label instead.
+  const shown = asked.length > 1
+    ? asked.map((s) => ({ ...s, alt: `${page.title} (${s.label})` }))
+    : columnPictures(columns, ctx);
+  if (shown.length < 2) {
+    const only = (asked[0] || {}).name || (shown[0] || {}).name || page.title;
+    return ctx.data.sprite(only)
+      ? `<div class="infobox-imagearea">${ctx.sprite(only, { size: 128, link: false })}</div>`
+      : '';
+  }
+  const size = Math.max(48, Math.floor(224 / shown.length));
+  const cells = shown.map((s) =>
+    `<span class="infobox-image">${ctx.sprite(s.name, { size, link: false, title: s.alt })}` +
+    `<span class="infobox-image-label">${escapeHtml(s.label)}</span></span>`);
+  return `<div class="infobox-imagearea infobox-imagearea-multi">${cells.join('')}</div>`;
+}
+
+/**
+ * One picture per column, as [{ name, label }, ...].
+ *
+ * Sprites are drawn per name, and two columns may share one: a lit furnace and
+ * an unlit one are both Furnace, and labelling one picture twice would promise
+ * a difference the wiki cannot show. Distinct pictures get labels; one picture
+ * stands alone at full size, as on any other page.
+ */
+function columnPictures(columns, ctx) {
   const shown = [];
   for (const column of columns) {
     // A subtype draws its own icon where it has one: Fern is not Tall Grass.
@@ -164,15 +189,5 @@ function imageArea(fm, page, columns, ctx) {
       shown.push({ name, label: column.label });
     }
   }
-  if (shown.length < 2) {
-    const only = fm.sprite || (shown[0] || {}).name || page.title;
-    return ctx.data.sprite(only)
-      ? `<div class="infobox-imagearea">${ctx.sprite(only, { size: 128, link: false })}</div>`
-      : '';
-  }
-  const size = Math.max(48, Math.floor(224 / shown.length));
-  const cells = shown.map((s) =>
-    `<span class="infobox-image">${ctx.sprite(s.name, { size, link: false })}` +
-    `<span class="infobox-image-label">${escapeHtml(s.label)}</span></span>`);
-  return `<div class="infobox-imagearea infobox-imagearea-multi">${cells.join('')}</div>`;
+  return shown;
 }

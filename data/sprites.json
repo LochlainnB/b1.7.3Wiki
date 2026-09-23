@@ -23,6 +23,11 @@
     "black-wool": {
       "file": "assets/sprites/icon/black-wool.png"
     },
+    "block-26": {
+      "sheet": "terrain",
+      "index": 149,
+      "file": "assets/sprites/terrain/149.png"
+    },
     "block-34": {
       "sheet": "terrain",
       "index": 108,
@@ -32,6 +37,46 @@
       "sheet": "terrain",
       "index": 0,
       "file": "assets/sprites/terrain/0.png"
+    },
+    "block-55": {
+      "sheet": "terrain",
+      "index": 164,
+      "file": "assets/sprites/terrain/164.png"
+    },
+    "block-63": {
+      "sheet": "terrain",
+      "index": 4,
+      "file": "assets/sprites/terrain/4.png"
+    },
+    "block-64": {
+      "sheet": "terrain",
+      "index": 97,
+      "file": "assets/sprites/terrain/97.png"
+    },
+    "block-68": {
+      "sheet": "terrain",
+      "index": 4,
+      "file": "assets/sprites/terrain/4.png"
+    },
+    "block-71": {
+      "sheet": "terrain",
+      "index": 98,
+      "file": "assets/sprites/terrain/98.png"
+    },
+    "block-83": {
+      "sheet": "terrain",
+      "index": 73,
+      "file": "assets/sprites/terrain/73.png"
+    },
+    "block-93": {
+      "sheet": "terrain",
+      "index": 5,
+      "file": "assets/sprites/terrain/5.png"
+    },
+    "block-94": {
+      "sheet": "terrain",
+      "index": 5,
+      "file": "assets/sprites/terrain/5.png"
     },
     "block-of-diamond": {
       "file": "assets/sprites/icon/block-of-diamond.png"
@@ -726,15 +771,10 @@
     "red-wool": {
       "file": "assets/sprites/icon/red-wool.png"
     },
-    "redstone": {
+    "redstone-dust": {
       "sheet": "items",
       "index": 56,
       "file": "assets/sprites/items/56.png"
-    },
-    "redstone-dust": {
-      "sheet": "terrain",
-      "index": 164,
-      "file": "assets/sprites/terrain/164.png"
     },
     "redstone-ore": {
       "file": "assets/sprites/icon/redstone-ore.png"
@@ -865,11 +905,6 @@
       "file": "assets/sprites/items/13.png"
     },
     "sugar-cane": {
-      "sheet": "terrain",
-      "index": 73,
-      "file": "assets/sprites/terrain/73.png"
-    },
-    "sugar-canes": {
       "sheet": "items",
       "index": 27,
       "file": "assets/sprites/items/27.png"

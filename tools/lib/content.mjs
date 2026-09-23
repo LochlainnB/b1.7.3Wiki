@@ -112,6 +112,33 @@ export function subjectsOf(page) {
 }
 
 /**
+ * The pictures a page asks for by `sprite`, as [{ label, name }, ...], or []
+ * where it leaves the picture to its subject.
+ *
+ *     sprite: Redstone Dust                            one picture
+ *     sprite: {Item: Sugar cane, Placed: block 83}    labelled pictures
+ *
+ * Several are for a thing that looks different carried and standing in the
+ * world, where a reader wants to recognise both. Only the infobox shows them
+ * all; everywhere else draws the first, via iconOf().
+ */
+export function spritesOf(page) {
+  const sprite = (page.fm || {}).sprite;
+  if (!sprite) return [];
+  if (typeof sprite === 'string') return [{ label: page.title, name: sprite }];
+  const pairs = Array.isArray(sprite)
+    ? sprite.map((name) => [name, name])
+    : Object.entries(sprite);
+  return pairs.map(([label, name]) => ({ label: String(label), name: String(name) }));
+}
+
+/** The one sprite a list draws beside a page: its first `sprite`, else its subject's. */
+export function iconOf(page, data) {
+  const [first] = spritesOf(page);
+  return first ? first.name : data.nameOf(subjectsOf(page)[0].name);
+}
+
+/**
  * Build the lookup used to resolve [[wiki links]]: every page is addressable by
  * its title, its slug, and any aliases it declares.
  *

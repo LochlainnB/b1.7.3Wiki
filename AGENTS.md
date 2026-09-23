@@ -167,7 +167,7 @@ Only `title` is required. The rest:
 | `description` | one sentence, used in search results and meta tags |
 | `type` | the page's namespace - the same word as the directory it sits in |
 | `subject` | what the infobox and data templates look up, if not the title |
-| `sprite` | which icon represents the page, if not the title |
+| `sprite` | which icon represents the page, if not the title; a map such as `{Item: Sugar cane, Placed: block 83}` shows each, labelled, in the infobox, and the first is the icon everywhere else |
 | `aliases` | extra names that resolve to this page |
 | `categories` | shown at the foot, indexed on `/wiki/categories/`; names from the list in `wiki.config.js` only |
 | `infobox` | extra or overriding infobox rows |
@@ -222,7 +222,12 @@ from the client jar into `data/`. They reach pages automatically:
   — the page, the sprite, the slot in a recipe — so when the game gives two ids
   one name, the wiki gives them one page. Sometimes that is right; when it is
   not, split them in `data/name-overrides.json`, which is where *Brown
-  Mushroom*, *Red Mushroom* and *Clay Ball* come from.
+  Mushroom*, *Red Mushroom* and *Clay Ball* come from. The same file joins one
+  thing the game names twice: item 331 is *Redstone Dust* there and item 338
+  *Sugar cane*, so each is one page with its block.
+- Where an item and a block share a name, the item's icon is the picture of
+  both. The block keeps its own under its id, `block 83`, for a page that wants
+  to show it as it stands in the world; Sugar cane does, through `sprite`.
 - One page may answer to several names, and cover several ids. `aliases` make a
   page the target for each name, and `tools/seed.mjs` reads them before it stubs
   anything, so the two mushrooms stay one article across a reseed. `subject` may
@@ -334,6 +339,14 @@ flowing halves of water and wrong for the brown and the red mushroom, which is
 why 39 and 40 are named apart there, and 337 with them: `item.clay` and
 `tile.clay` are both *Clay*, and the collision had the clay block crafted out of
 four of itself.
+
+It joins, too, where the game gives one thing two names. Item 331 is the
+redstone a player carries and block 55 the dust it becomes when placed, but the
+game calls them *Redstone* and *Redstone Dust*; items 331 and 338 take their
+blocks' names here, so redstone and sugar cane are one page each rather than
+two. The game's own name for the item then survives only in the jar, so a
+joined page gives it as a sentence under its Data values, and keeps it as an
+alias.
 
 Everything else in `data/` is overwritten by the extractors.
 

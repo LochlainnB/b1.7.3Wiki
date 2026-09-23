@@ -32,6 +32,10 @@ The tools look for it in this order:
 2. `"sourceDir"` in `wiki.local.json`,
 3. a directory named `b1.7.3Source` beside this repository.
 
+In a git worktree, 2 and 3 are also tried against the main checkout, so an
+agent's worktree under `.claude/worktrees/` finds the same source as the
+checkout it came from.
+
 `npm run check` prints the path it found. If it finds none, say so and do not
 write behaviour from memory.
 
@@ -165,7 +169,7 @@ Only `title` is required. The rest:
 | `subject` | what the infobox and data templates look up, if not the title |
 | `sprite` | which icon represents the page, if not the title |
 | `aliases` | extra names that resolve to this page |
-| `categories` | shown at the foot, indexed on `/wiki/categories/` |
+| `categories` | shown at the foot, indexed on `/wiki/categories/`; names from the list in `wiki.config.js` only |
 | `infobox` | extra or overriding infobox rows |
 | `infoboxTitle` | heading for the infobox, if not the title |
 | `stub` | lists the page on `/wiki/stubs/` |
@@ -177,6 +181,12 @@ build time — the full list is `KNOWN_KEYS` in `tools/lib/integrity.mjs`.
 
 Remove `stub: true` when the page is genuinely written. That is what
 `/wiki/stubs/` tracks.
+
+`categories` in `wiki.config.js` is the whole list, with the rule for which
+pages carry each category. A page takes the one category that names its kind —
+Blocks, Items, Mobs — and then every topic category whose rule it meets. Any
+other name fails the build. A new category goes into that list first, not
+straight onto a page.
 
 ## Never hand-type game numbers
 
@@ -240,7 +250,7 @@ Full reference with live examples: `content/wiki/page-templates.md`, rendered at
 | `{{smelting\|Stone}}` | smelting recipes producing it |
 | `{{used in\|Cobblestone}}` | recipes that consume it |
 | `{{recipe list}}` | every recipe in the game |
-| `{{id\|Cobblestone}}` | the numeric id |
+| `{{id\|Cobblestone}}` | the numeric id; `31:2` for a subtype; `{{id\|block 68}}` for one of several ids |
 | `{{list\|blocks}}` | sortable table of a whole data set |
 | `{{pagelist\|namespace=biome}}` | linked list of pages |
 | `{{stub}}` `{{main\|X}}` `{{see also\|X}}` `{{hatnote\|…}}` `{{msgbox\|…}}` | notes |
@@ -411,22 +421,47 @@ repeat later. A lead paragraph that previews the article is always wrong.
 
 - Stay on the subject the page is named after. Ore generation belongs on the
   ore pages, not on [[Mining]].
-- Avoid duplicate explanations. Where the writing touches a broader mechanic,
-  link that mechanic's page and say only how it bears on this subject. If the
-  mechanic has no page, scaffold one.
 - Strategy and tutorials belong in `content/guide/`, not on reference pages.
 - **See also** takes bare links — no glosses — and only pages the body has not
   already linked. It is usually empty, and an empty one is deleted.
 
+### Hubs and subjects
+
+Every mechanic is explained on one page, its **hub**. A hub is a mechanic page,
+such as [[Mob Spawning]], [[Mining]] or [[Damage]], or the block or structure
+the mechanic belongs to, such as [[Fire]] or [[Dungeon]]. The pages the
+mechanic touches are its **subjects**.
+
+- The hub owns how the mechanic works, and the table comparing every subject.
+- A subject page owns its own row of that table: the values that apply to it,
+  stated as facts, with a link to the hub. It does not explain the mechanism.
+- A hub does not describe one subject in full. A hub section about a single
+  subject belongs on that subject's page, and the hub keeps one line and
+  `{{main|Subject}}`.
+- A paragraph that would be as true on a sibling's page belongs on the hub.
+
+[[Zombie]] says zombies spawn in the dark in every Overworld biome, and links
+[[Mob Spawning]]. The two random light tests stay on Mob Spawning, because
+they apply to skeletons, spiders and creepers too.
+
+When the hub has no page yet, the explanation still does not go on the subject
+page. Scaffold the hub and write it there, or leave the red link for whoever
+does.
+
 ### Length
 
-A signal to re-read, not a limit:
+There is no minimum. A page is as long as the facts about its subject, and many
+are short: a sword has a recipe, its rows in two hub tables and little else, and
+can be complete at fifty words. Padding a short page to look finished is the
+same fault as bloating a long one.
 
-| Page | Prose |
+The figures below are a signal to re-read, not a limit:
+
+| Page | Re-read past |
 |---|---|
-| Block, item, biome | 150–300 words; past 500, look for what belongs elsewhere |
-| Entity, structure, dimension | up to about 500 words |
-| Mechanic | as long as the mechanic, with each `###` under about 200 words |
+| Block, item, biome | 300 words |
+| Entity, structure, dimension | 500 words |
+| Mechanic | no total, but each `###` under about 200 words |
 
 A section running past four paragraphs is either two sections or partly another
 page's material.
@@ -506,7 +541,45 @@ miniature:
 - Always link the first mention of another subject in a section. Don't link further mentions within that section.
   To discover what subjects can be linked, always check what pages exist before writing.
 - When linking, use display text to match case/grammar. e.g. `Breaking clay drops [[Clay Ball|clay balls]]`
+- **Data values** is a list, one kind of value per line, with every id from
+  `{{id}}`:
+
+  ```markdown
+  ## Data values
+
+  - Block ID: {{id|Sign}}, {{id|block 68}}
+  - Item ID: {{id|item 323}}
+  - Translation key: `tile.sign`, `item.sign`
+  ```
+
+  Give the name when it resolves to that id. Use `block 68` or `item 323` for a
+  second id, or for the item of a name the block also answers to. A subtype
+  shows its metadata or damage value, so `{{id|Fern}}` gives `31:2`. Mobs take
+  `- Entity network ID: {{id|Chicken}}`, with the name as `data/` spells it
+  (`PigZombie`); an `{{id}}` that resolves to nothing warns. A fact the list
+  cannot hold, such as what the game itself calls the block, follows it as a
+  sentence. Stubs seeded before this rule carry typed ids; replace them when
+  writing the page.
 - Commit messages: short imperative subject, then why. Commit often, never leave the tree dirty.
+- Stage by path, `git add content/item/iron-sword.md`, never `git add -A`,
+  `git add .` or `git commit -a`. Other agents and people may have work in the
+  same tree. Do not push unless asked: pushing to `main` publishes the site.
+
+## Several agents at once
+
+Agents writing pages in parallel each work in their own git worktree, under
+`.claude/worktrees/`. `.claude/settings.json` branches those from the local
+HEAD rather than from `origin/main`, so work not yet pushed is in every
+worktree. Node finds `node_modules` in the main checkout above, and the tools
+find the decompiled source through it, so a worktree needs no setup. Before
+writing, `npm run check` must print `Verified against`.
+
+Each agent owns a fixed list of files and edits nothing else: no other page,
+and none of `AGENTS.md`, `data/`, `tools/` or `wiki.config.js`. A page it wants
+that does not exist stays a red link and goes in its report; two agents
+scaffolding the same page is a merge conflict. A fact that belongs on a page it
+does not own goes in its report too, with its `src:` line, rather than onto the
+page.
 
 ## Citing the source
 

@@ -30,6 +30,10 @@ generation.
 Step 4 is separate from step 3 on purpose. Answer first, in full; the wiki
 proposal comes after, as an offer.
 
+**Dispatched to write pages?** If a brief assigned you a list of pages, the
+brief is the yes. Write those pages without offering, and touch nothing outside
+the list. Where the brief and this skill differ, the brief wins.
+
 ## 1. Search the wiki
 
 ```bash

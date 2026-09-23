@@ -7,16 +7,41 @@
 //   2. "sourceDir" in wiki.local.json (gitignored),
 //   3. a sibling directory named b1.7.3Source.
 //
+// In a linked git worktree, 2 and 3 are also tried against the main checkout.
+//
 // Everything here treats the tree as strictly read-only. Nothing in this
 // repository ever writes to it.
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 
 /** Where the client tree's flat package lives, relative to the source root. */
 export const CLIENT_SRC = join('minecraft', 'net', 'minecraft', 'src');
 export const SERVER_SRC = join('minecraft_server', 'net', 'minecraft', 'src');
 
 const VERSION_MARKER = 'Minecraft Beta 1.7.3';
+
+/**
+ * The main checkout, when `root` is a linked git worktree; otherwise null.
+ *
+ * A worktree holds tracked files only, so the gitignored wiki.local.json is
+ * not in it, and the sibling directory is beside the worktree rather than the
+ * repository. Agent worktrees live in .claude/worktrees/, where both lookups
+ * miss and the source-backed checks would silently switch off.
+ */
+function mainCheckout(root) {
+  try {
+    const dotGit = join(root, '.git');
+    if (!statSync(dotGit).isFile()) return null;
+    const gitdir = readFileSync(dotGit, 'utf8').match(/^gitdir:\s*(.+?)\s*$/m);
+    if (!gitdir) return null;
+    const worktreeGit = resolve(root, gitdir[1]);
+    // Only a linked worktree has a commondir; a submodule's .git file does not.
+    const common = readFileSync(join(worktreeGit, 'commondir'), 'utf8').trim();
+    return dirname(resolve(worktreeGit, common));
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Resolve the source tree.
@@ -29,24 +54,29 @@ export function findSource(root) {
   if (process.env.B173_SOURCE) {
     candidates.push({ dir: resolve(process.env.B173_SOURCE), from: 'B173_SOURCE' });
   }
-  const localConfig = join(root, 'wiki.local.json');
-  if (existsSync(localConfig)) {
+  const main = mainCheckout(root);
+  const checkouts = main ? [[root, ''], [main, ' in the main checkout']] : [[root, '']];
+  for (const [base, where] of checkouts) {
+    const localConfig = join(base, 'wiki.local.json');
+    if (!existsSync(localConfig)) continue;
     try {
       const local = JSON.parse(readFileSync(localConfig, 'utf8'));
       if (local.sourceDir) {
-        candidates.push({ dir: resolve(root, local.sourceDir), from: 'wiki.local.json' });
+        candidates.push({ dir: resolve(base, local.sourceDir), from: `wiki.local.json${where}` });
       }
     } catch (err) {
-      return { dir: null, ok: false, reason: `wiki.local.json is not valid JSON (${err.message})` };
+      return { dir: null, ok: false, reason: `wiki.local.json${where} is not valid JSON (${err.message})` };
     }
   }
-  candidates.push({ dir: resolve(root, '..', 'b1.7.3Source'), from: 'sibling directory' });
+  for (const [base, where] of checkouts) {
+    candidates.push({ dir: resolve(base, '..', 'b1.7.3Source'), from: `sibling directory${where}`, quiet: true });
+  }
 
-  for (const { dir, from } of candidates) {
+  for (const { dir, from, quiet } of candidates) {
     if (!existsSync(join(dir, CLIENT_SRC, 'Block.java'))) {
       // An explicitly configured path that is not there is worth saying out
       // loud; the conventional sibling simply not existing is not.
-      if (from !== 'sibling directory') {
+      if (!quiet) {
         const want = join(CLIENT_SRC, 'Block.java').replace(/\\/g, '/');
         return { dir, ok: false, reason: `${from} points at ${dir}, which has no ${want}` };
       }

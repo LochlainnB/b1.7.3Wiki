@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**TNT** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
+**TNT** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

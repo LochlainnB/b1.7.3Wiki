@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Sticky Piston** is a block in Minecraft Beta 1.7.3. a blast resistance of 0.
+**Sticky Piston** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

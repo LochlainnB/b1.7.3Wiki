@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Cake** is a block in Minecraft Beta 1.7.3. It has a hardness of 0.5 and a blast resistance of 0.5.
+**Cake** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

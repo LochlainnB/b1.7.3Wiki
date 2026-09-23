@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Stone Stairs** is a block in Minecraft Beta 1.7.3. a blast resistance of 0.
+**Stone Stairs** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

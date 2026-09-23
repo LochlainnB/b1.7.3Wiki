@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Dispenser** is a block in Minecraft Beta 1.7.3. It has a hardness of 3.5 and a blast resistance of 3.5.
+**Dispenser** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

@@ -71,30 +71,17 @@ function prettyName(name) {
   return name.replace(/([a-z])([A-Z])/g, '$1 $2');
 }
 
+// A placeholder, and the build fails any page that keeps it once `stub: true`
+// comes off. It carries no numbers: the infobox already shows them from data/,
+// and a copy typed into prose goes stale the moment the data is re-extracted.
 function leadSentence(entry) {
   const r = entry.rec;
   const name = prettyName(entry.name);
-  if (r.kind === 'block') {
-    const bits = [];
-    if (r.hardness != null) {
-      bits.push(r.hardness < 0
-        ? 'It cannot be broken in survival mode'
-        : `It has a hardness of ${round(r.hardness)}`);
-    }
-    if (r.blastResistance != null && r.hardness >= 0) {
-      bits.push(`a blast resistance of ${round(r.blastResistance)}`);
-    }
-    let s = `**${name}** is a block in Minecraft Beta 1.7.3.`;
-    if (bits.length) s += ` ${bits.join(' and ')}.`;
-    if (r.lightEmission) s += ` It emits light level ${r.lightEmission}.`;
-    return s;
-  }
+  if (r.kind === 'block') return `**${name}** is a block in Minecraft Beta 1.7.3.`;
   if (r.kind === 'item') return `**${name}** is an item in Minecraft Beta 1.7.3.`;
   const kind = isMob(entry.name) ? 'mob' : 'entity';
   return `**${name}** is a ${kind} in Minecraft Beta 1.7.3.`;
 }
-
-const round = (n) => String(Math.round(n * 1000) / 1000);
 
 function categoriesFor(entry) {
   if (entry.blockIds.length) return ['Blocks'];

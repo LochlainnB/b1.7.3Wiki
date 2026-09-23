@@ -9,7 +9,7 @@ stub: true
 
 {{stub|block}}
 
-**Redstone Torch** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0.
+**Redstone Torch** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Water** is a block in Minecraft Beta 1.7.3. It has a hardness of 100 and a blast resistance of 100.
+**Water** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

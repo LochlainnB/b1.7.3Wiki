@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Piston** is a block in Minecraft Beta 1.7.3. a blast resistance of 0.
+**Piston** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

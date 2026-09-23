@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Torch** is a block in Minecraft Beta 1.7.3. It has a hardness of 0 and a blast resistance of 0. It emits light level 14.
+**Torch** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

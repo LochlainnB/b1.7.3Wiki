@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Ladder** is a block in Minecraft Beta 1.7.3. It has a hardness of 0.4 and a blast resistance of 0.4.
+**Ladder** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

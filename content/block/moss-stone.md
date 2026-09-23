@@ -8,7 +8,7 @@ stub: true
 
 {{stub|block}}
 
-**Moss Stone** is a block in Minecraft Beta 1.7.3. It has a hardness of 2 and a blast resistance of 6.
+**Moss Stone** is a block in Minecraft Beta 1.7.3.
 
 ## Obtaining
 

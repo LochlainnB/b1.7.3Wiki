@@ -1,135 +1,67 @@
 # Minecraft Beta 1.7.3 Wiki
 
-A static wiki for **Minecraft Beta 1.7.3**, laid out and styled after
-[minecraft.wiki](https://minecraft.wiki) — MediaWiki's Vector-legacy skin, with
-the game's own inventory chrome for crafting grids and infoboxes.
+A reference wiki for **Minecraft Beta 1.7.3**, the release of 8 July 2011, laid
+out like [minecraft.wiki](https://minecraft.wiki).
 
-Pages are Markdown files. Edit them with any tool, run the build, get a site.
+**Read it at [lochlainnb.github.io/b1.7.3Wiki](https://lochlainnb.github.io/b1.7.3Wiki/).**
+
+<!-- Screenshot: a page from the live site -->
+
+## What's in it
+
+Blocks, items, mobs, biomes, dimensions, structures, game mechanics and guides,
+plus tables of every [block and item ID](https://lochlainnb.github.io/b1.7.3Wiki/wiki/data-values/),
+every [crafting recipe](https://lochlainnb.github.io/b1.7.3Wiki/mechanic/crafting/)
+and every [sprite](https://lochlainnb.github.io/b1.7.3Wiki/wiki/sprites/).
+
+The game-mechanic pages are the most complete. Many block and item pages are
+still stubs: the infobox and recipes are there, the prose is not.
+[Stubs](https://lochlainnb.github.io/b1.7.3Wiki/wiki/stubs/) lists them.
+
+## Only Beta 1.7.3
+
+Every page describes Beta 1.7.3 and nothing else. There are no history
+sections, no "in later versions" and no Java/Bedrock split. Anything on a page
+applies to the game you are playing or modding.
+
+## Where the facts come from
+
+- **Numbers and recipes are read out of the game.** Block and item IDs,
+  hardness, blast resistance, light levels, biome colours and every crafting and
+  smelting recipe are extracted from the Beta 1.7.3 client jar. None are typed
+  by hand.
+- **Icons look as they do in game.** A block is drawn as the three-quarter cube
+  an inventory slot shows, and each wool and dye has its own colour. Water, lava,
+  fire, the portal, the clock and the compass are drawn as the game paints them,
+  not as the placeholders in its texture files.
+- **Mechanics are checked against the game's code.** Much of the prose is
+  written by LLM agents working from a decompiled copy of Beta 1.7.3. A fact
+  taken from the code cites the class and line it came from in a hidden comment,
+  which a page's **View source** tab shows.
+
+## Reading offline
+
+The site is plain static files, and works opened straight from disk, search
+included. Building it needs [Node.js](https://nodejs.org/) 18 or later:
 
 ```bash
+git clone https://github.com/LochlainnB/b1.7.3Wiki.git
+cd b1.7.3Wiki
 npm install
-npm run dev        # http://localhost:8173, rebuilds on save
+npm run build
 ```
 
-<!-- Screenshot: run `npm run build` and open site/index.html -->
+Then open `site/index.html`.
 
-## What makes it different
+## Found a mistake?
 
-**The game data is extracted, not transcribed.** Block and item ids, hardness,
-blast resistance, light levels, biome colours, every sprite, and every crafting
-and smelting recipe are read directly out of the Beta 1.7.3 client jar by
-`tools/extract/`. A page never restates a number the game already knows:
+[Open an issue](https://github.com/LochlainnB/b1.7.3Wiki/issues/new) naming the
+page and what the game does instead. Say how you know — a test in a world, or
+the line of code — so the fix can be checked.
 
-- infoboxes build themselves from a page's title,
-- `{{crafting}}` renders the real recipe grid,
-- `{{id|Cobblestone}}` prints the real id.
+Questions go in [Discussions](https://github.com/LochlainnB/b1.7.3Wiki/discussions).
 
-That means the reference data is correct by construction, and the part humans
-(or language models) write is the prose.
-
-The extractors are dependency-free Python: a Java class-file parser, an
-abstract interpreter that reads static initialisers, a concrete JVM interpreter
-that *runs* the game's crafting registration rather than pattern-matching it,
-and a small PNG codec for slicing the texture sheets.
-
-Sprites go through the same door. Block and Item's initialisers are executed,
-and the registry they leave behind is asked what
-`RenderItem.drawItemIntoGui` would ask — cube or flat tile, which tile on each
-face, what tint — then that is rasterised into the three-quarter cube the
-inventory shows, lit by the GUI's own two lamps. So all sixteen wools are
-sixteen colours, and a furnace shows its front.
-
-Nine of the sheets' tiles never ship at all: the game paints water, lava, fire, the portal,
-the clock and the compass into the atlas at load, over placeholders that in the
-file are a blue square, an orange smear and a red card reading FIRE TEX!. Each
-of those `TextureFX` classes is reimplemented, down to `java.util.Random` and
-`MathHelper`'s sine table, so a page shows the texture and not the placeholder.
-And where the inventory itself is misleading — a grass block is half dirt in a
-slot, a fern is grey tall grass — the sprite follows what the world draws.
-
-## Commands
-
-| Command | Does |
-|---|---|
-| `npm run dev` | Build, serve on `:8173`, rebuild on save |
-| `npm run build` | One-off build into `site/` |
-| `npm run check` | The full test suite: validate content, verify `data/` |
-| `npm run new -- block "Mossy Cobblestone"` | Scaffold a page |
-| `npm run sourcemap` | Regenerate the skill's `SOURCEMAP.md` |
-| `node tools/seed.mjs` | Stub every block/item/entity/biome not yet written |
-| `node tools/seed.mjs --force` | Rebuild existing stubs from newly extracted data |
-
-The build reports broken links, missing sprites, unknown templates and bad
-frontmatter, naming the file responsible. Recipes are checked in both
-directions: a page asking for a recipe the data does not have, and a recipe in
-the data that the page never shows. Errors fail the build; warnings are the
-editorial to-do list.
-
-`npm run check` adds a second half, replaying `Block`, `Item`, `EntityList`,
-`FurnaceRecipes` and the whole crafting registry out of a decompiled copy of
-the game and comparing
-them against `data/` — an independent second opinion on the extractors. It is
-skipped, with a note, when no decompiled source is installed.
-
-## Layout
-
-```
-content/        the wiki — Markdown + YAML frontmatter
-data/           game data extracted from the jar (generated)
-assets/         sprites and textures sliced from the jar (generated)
-theme/          wiki.css, wiki.js
-tools/          build (Node) and extractors (Python)
-site/           build output (generated, gitignored)
-wiki.config.js  title, sidebar, namespaces, footer
-wiki.local.json optional, gitignored — where the jar, mappings and source live
-.claude/skills/ the b173-wiki skill and its generated source map
-```
-
-## Editing
-
-See **[AGENTS.md](AGENTS.md)** — the contributor guide and the style guide in
-one — and the [template reference](content/wiki/page-templates.md) for the
-`{{...}}` templates, with live examples.
-
-The one rule worth repeating here: **pages describe Beta 1.7.3 and nothing
-else** — no version history, no comparisons to later releases.
-
-## Regenerating from the jar
-
-Only needed if the extractors change:
-
-```bash
-python tools/extract/gamedata.py --out data
-python tools/extract/sprites.py  --out .
-```
-
-The client jar and the Babric mappings are Mojang's, shipped without a licence,
-so they are never vendored here. `tools/extract/paths.py` finds them: `B173_JAR`
-and `B173_CACHE`, then `"jarPath"` and `"cachePath"` in `wiki.local.json`, then
-the sibling directory `../BabricKit/cache`. Pointing at the cache is normally
-enough, since the jar sits beside the mappings; `--jar` and `--cache` override.
-
-`data/name-overrides.json` is hand-maintained and survives regeneration;
-everything else in `data/` is overwritten. It names the few things
-`lang/en_US.lang` leaves nameless, and splits the ones it names twice: Beta
-calls both mushrooms *Mushroom* and both the clay block and the clay ball
-*Clay*, and a name is what the wiki hands a page and a sprite to.
-
-## Deploying
-
-The output is plain static files with relative URLs, so `site/` works opened
-straight off disk, behind any web server, or on GitHub Pages under a subpath —
-no configuration either way.
-
-Pushing to `main` publishes it: `.github/workflows/deploy.yml` builds the site
-on GitHub Actions and deploys `site/` to GitHub Pages. A build with errors fails
-the workflow and leaves the live site as it was. It needs one setting, once:
-the repository's **Settings → Pages → Source** set to **GitHub Actions**.
-
-Built there, "View source" links each page's Markdown on GitHub instead of
-opening it in VS Code, and Recent changes dates each page by its last commit.
-
-## Licence and attribution
+## Licence
 
 Wiki prose is available under
 [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/).
@@ -138,3 +70,53 @@ This is an unofficial fan project. Minecraft content, textures and materials are
 trademarks and copyrights of Mojang AB and its licensors. Textures are extracted
 from a local copy of the game for reference use. Not affiliated with Mojang or
 Microsoft.
+
+## Contributing
+
+Pages are Markdown files in `content/`, and most are written with an LLM agent.
+This section is the short version. [AGENTS.md](AGENTS.md) is the full guide,
+written for your agent to read.
+
+### Setup
+
+- **Node.js 18 or later.** Run `npm install`, then `npm run dev` to serve the
+  wiki at http://localhost:8173, rebuilding on save.
+- **A decompiled copy of Beta 1.7.3**, for checking mechanics. It is Mojang's
+  code, with no licence, so it is never committed here. The build expects MCP
+  class names, laid out as `minecraft/net/minecraft/src/Block.java`. Point at it
+  with the `B173_SOURCE` environment variable, with `"sourceDir"` in a
+  gitignored `wiki.local.json`, or by placing it beside this repository as
+  `../b1.7.3Source`. Without it the wiki still builds, and `npm run check` skips
+  its comparison against the code.
+- **Python 3 and the client jar**, only to change the extractors. AGENTS.md
+  covers them.
+
+### Working with an agent
+
+Start the agent in the repository root. Most agents read AGENTS.md on their
+own; Claude Code reaches it through CLAUDE.md. It holds the editorial rule, the
+page format, the templates and the writing style guide.
+
+Claude Code also loads the **b173-wiki** skill from `.claude/skills/`. It answers
+a Beta 1.7.3 question from the wiki first and the decompiled code second, then
+offers to write what it found back to the wiki. Its `SOURCEMAP.md` maps each
+topic to the classes that decide it, and is worth handing to any agent.
+
+A request that works:
+
+> Write the Slime page. Check every behaviour against the decompiled source and
+> cite it. Follow the writing style in AGENTS.md, then do its edit pass.
+
+### Before opening a pull request
+
+- `npm run check` ends with `0 errors`. Warnings are expected: most are red
+  links, the wiki's to-do list.
+- You have read every sentence the agent wrote. Agents overwrite, and the
+  **Writing style** section of AGENTS.md is the standard a page is held to.
+- Every fact taken from the code carries a comment such as
+  `<!-- src: EntitySlime.java:134 getCanSpawnHere -->`.
+- No decompiled code is pasted into a page or committed anywhere.
+- The page describes Beta 1.7.3 only, and types no number a template can
+  produce.
+
+Merged changes go live: every push to `main` rebuilds and publishes the site.

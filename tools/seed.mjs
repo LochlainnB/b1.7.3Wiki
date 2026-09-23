@@ -102,15 +102,23 @@ function categoriesFor(entry) {
   return isMob(entry.name) ? ['Mobs'] : ['Entities'];
 }
 
+// Ids go through {{id}} so the page never carries a typed number. The name is
+// enough when it resolves to this very id; a second block id, or the item half
+// of a name the block also answers to, needs the "block 68" form.
+function idRef(kind, id, name) {
+  const rec = data.lookup(name);
+  return rec && rec.kind === kind && rec.id === id ? `{{id|${name}}}` : `{{id|${kind} ${id}}}`;
+}
+
 function dataValuesSection(entry) {
   const lines = [];
   if (entry.blockIds.length) {
-    lines.push(`- Block ID: ${entry.blockIds.map((i) => `\`${i}\``).join(', ')}`);
+    lines.push(`- Block ID: ${entry.blockIds.map((i) => idRef('block', i, entry.name)).join(', ')}`);
   }
   if (entry.itemIds.length) {
-    lines.push(`- Item ID: ${entry.itemIds.map((i) => `\`${i}\``).join(', ')}`);
+    lines.push(`- Item ID: ${entry.itemIds.map((i) => idRef('item', i, entry.name)).join(', ')}`);
   }
-  if (entry.entity) lines.push(`- Entity network ID: \`${entry.entity.networkId}\``);
+  if (entry.entity) lines.push(`- Entity network ID: {{id|${entry.name}}}`);
   if (entry.rec.langKey) lines.push(`- Translation key: \`${entry.rec.langKey}\``);
   return lines.join('\n');
 }

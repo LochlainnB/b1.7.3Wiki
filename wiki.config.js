@@ -25,6 +25,40 @@ export default {
     wiki: { label: 'Wiki', plural: 'Wiki', index: 'Wiki pages' },
   },
 
+  // Every category a page may carry, and which pages carry it. A category not
+  // listed here is a build error: add it here, deliberately, rather than
+  // inventing it on a page. A page takes the one category that names its kind,
+  // then every topic category whose rule it meets.
+  categories: {
+    // One per page, by what the page is about.
+    'Blocks': 'Every page in content/block/.',
+    'Items': 'Every page in content/item/.',
+    'Mobs': 'Entity pages for living creatures.',
+    'Entities': 'Entity pages that are not mobs: projectiles, vehicles, falling blocks, primed TNT.',
+    'Biomes': 'Every biome page.',
+    'Dimensions': 'Every dimension page.',
+    'Structures': 'Every structure page.',
+    'Game mechanics': 'Every page in content/mechanic/.',
+    'Guides': 'Every page in content/guide/.',
+    'Wiki': 'Pages about the wiki itself.',
+
+    // Topics, as many as apply.
+    'Naturally generated': 'Blocks the world generator places.',
+    'Building blocks': 'Full or partial blocks placed to build with: stone, planks, bricks, glass, wool, slabs, stairs.',
+    'Plants': 'Saplings, leaves, flowers, tall grass, ferns, dead bushes, mushrooms, crops, cactus, sugar cane and pumpkins.',
+    'Ores': 'The six ore blocks.',
+    'Redstone': 'Blocks and items that give off, carry or respond to redstone power.',
+    'Transportation': 'Rails, minecarts, boats and the saddle.',
+    'Utility blocks': 'Blocks placed to be used rather than built with: crafting table, furnace, chest, bed, sign, ladder, jukebox, note block.',
+    'Tools': 'Pickaxes, axes, shovels, hoes, shears, flint and steel, buckets, the fishing rod, compass, clock and map.',
+    'Weapons': 'Swords, the bow and arrows.',
+    'Armour': 'The twenty armour pieces.',
+    'Food': 'Everything eaten to heal.',
+    'Materials': 'Items whose only use is as a crafting ingredient, a smelting input or fuel.',
+    'Hostile mobs': 'Mobs the game counts as monsters: zombie, skeleton, spider, creeper, slime, ghast, pig zombie, giant.',
+    'Passive mobs': 'Mobs the game counts as creatures or water creatures: pig, sheep, cow, chicken, wolf, squid.',
+  },
+
   // Left sidebar. Each portlet becomes a #p-<id> block in the Vector sidebar.
   sidebar: [
     {

@@ -102,9 +102,9 @@ if (PROSE_SECTIONS[nsArg]) {
   if (rec) {
     lines.push('## Data values', '');
     if (rec.id != null) {
-      lines.push(`- ${rec.kind === 'block' ? 'Block' : 'Item'} ID: \`${rec.id}\``);
+      lines.push(`- ${rec.kind === 'block' ? 'Block' : 'Item'} ID: {{id|${title}}}`);
     }
-    if (rec.networkId != null) lines.push(`- Entity network ID: \`${rec.networkId}\``);
+    if (rec.networkId != null) lines.push(`- Entity network ID: {{id|${title}}}`);
     if (rec.langKey) lines.push(`- Translation key: \`${rec.langKey}\``);
     lines.push('');
   }

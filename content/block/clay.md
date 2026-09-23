@@ -40,5 +40,7 @@ hands break it and drop the same four.
 
 ## Data values
 
-Clay uses block ID {{id|Clay}} and the translation key `tile.clay`. The item it
-drops is a separate id: see [[Clay Ball]].
+- Block ID: {{id|Clay}}
+- Translation key: `tile.clay`
+
+The item it drops has its own id: see [[Clay Ball]].

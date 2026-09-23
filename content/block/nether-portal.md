@@ -90,5 +90,7 @@ The block gives off purple particles and plays an ambient sound at random.
 
 ## Data values
 
-Nether Portal uses block ID {{id|Portal}} and the translation key `tile.portal`.
+- Block ID: {{id|Portal}}
+- Translation key: `tile.portal`
+
 The game names the block simply *Portal*.

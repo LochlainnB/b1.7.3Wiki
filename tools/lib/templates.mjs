@@ -247,11 +247,20 @@ define(['msgbox', 'notice'], ({ args, named, ctx }) =>
 define(['exclusive', 'version'], ({ args, ctx }) =>
   `<sup class="version-note">[${escapeHtml(args[0] || ctx.config.version)}]</sup>`);
 
-/** Inline "ID 4" style reference pulled from the extracted data. */
+/**
+ * Inline "ID 4" style reference pulled from the extracted data. A subtype
+ * carries its metadata or damage value too, as the game writes it: Fern is
+ * 31:2. Takes a name, or "block 63" / "item 323" for one id of several.
+ */
 define(['id', 'dv'], ({ args, ctx }) => {
-  const rec = ctx.data.lookup(args[0] || ctx.subjectName());
-  if (!rec) return '<code>?</code>';
-  return `<code>${rec.id != null ? rec.id : rec.networkId}</code>`;
+  const name = args[0] || ctx.subjectName();
+  const rec = ctx.data.lookup(name);
+  if (!rec) {
+    ctx.warn(`{{id}}: nothing in data/ is called "${name}"`);
+    return '<code>?</code>';
+  }
+  const id = rec.id != null ? rec.id : rec.networkId;
+  return `<code>${rec.damage ? `${id}:${rec.damage}` : id}</code>`;
 });
 
 /** A sortable table of a whole data set: {{list|blocks}} */

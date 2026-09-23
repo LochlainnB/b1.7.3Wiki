@@ -64,13 +64,15 @@ An explicit grid, for a recipe the data does not cover:
 
 ```
 {{id|Cobblestone}}              the numeric id, as code
+{{id|Fern}}                     a subtype's id with its metadata: 31:2
+{{id|block 68}}                 one id of several that share a name
 {{list|blocks}}                 sortable table of every block
 {{list|items}}                  every item
 {{list|entities}}               every entity
 {{pagelist|namespace=biome}}    linked, sprite-led list of pages
 ```
 
-Cobblestone's block id is {{id|Cobblestone}}.
+Cobblestone's block id is {{id|Cobblestone}}, and a fern is {{id|Fern}}.
 
 ## Infoboxes
 

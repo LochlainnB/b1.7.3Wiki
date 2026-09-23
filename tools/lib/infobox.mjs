@@ -1,5 +1,6 @@
-// The infobox builds itself from data/*.json, so a block page states hardness,
-// blast resistance and id without an editor retyping (or mistyping) them.
+// The infobox builds itself from data/*.json, so a page states hardness, blast
+// resistance, stack size, durability, attack damage, healing, a mob's health
+// and the id without an editor retyping (or mistyping) them.
 // Anything in the page's `infobox:` frontmatter overrides or extends the
 // generated rows.
 import { subjectsOf } from './content.mjs';
@@ -7,12 +8,30 @@ import { escapeHtml } from './templates.mjs';
 
 const fmt = (n) => (n == null ? null : String(Math.round(n * 1000) / 1000));
 
+/** A stack size the way minecraft.wiki words it: "Yes (64)", "Yes (16)", "No". */
+const stackable = (n) => (n == null ? null : n > 1 ? `Yes (${n})` : 'No');
+
+/**
+ * How many of a block fit in one slot. A block that shares its name with an
+ * item -- a sign, a door, a bed, a cake, a repeater -- is placed from that
+ * item, which is the thing a player carries and the picture the page shows,
+ * so its stack size is the item's. Every other block is carried as its own
+ * item form, which every block id has.
+ */
+function blockStackSize(rec, ctx) {
+  const item = ctx.data.items.find((i) => i.name === rec.name);
+  return (item || rec).stackSize;
+}
+
 /** Rows derived from the extracted game data for this page's subject. */
 function autoRows(rec, ctx) {
   if (!rec) return [];
   const rows = [];
+  const push = (label, value) => {
+    if (value != null) rows.push([label, String(value)]);
+  };
   if (rec.kind === 'block') {
-    rows.push(['Stackable', 'Yes (64)']);
+    push('Stackable', stackable(blockStackSize(rec, ctx)));
     if (rec.hardness != null) {
       rows.push(['Hardness', rec.hardness < 0 ? 'Unbreakable' : fmt(rec.hardness)]);
     }
@@ -27,9 +46,14 @@ function autoRows(rec, ctx) {
     rows.push(['Block ID', `<code>${rec.id}</code>`]);
     if (rec.damage) rows.push(['Metadata', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'item') {
+    push('Stackable', stackable(rec.stackSize));
+    push('Durability', rec.durability);
+    push('Attack damage', rec.attackDamage);
+    push('Heals', rec.heal);
     rows.push(['Item ID', `<code>${rec.id}</code>`]);
     if (rec.damage) rows.push(['Damage value', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'entity') {
+    push('Health', rec.health);
     rows.push(['Entity ID', `<code>${rec.networkId}</code>`]);
   }
   return rows;

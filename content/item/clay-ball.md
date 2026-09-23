@@ -1,20 +1,17 @@
 ---
 title: Clay Ball
-description: The item a clay block drops, fired into bricks or packed back into a block.
+description: The item a clay block drops, smelted into bricks or crafted back into clay.
 type: item
-categories: [Items]
+categories: [Items, Materials]
 ---
 
-**Clay Ball** is the item a [[Clay|clay]] block drops when broken. The game calls it
-simply *Clay*, the same name it gives the block, and the wiki tells the two
-apart because they are separate things with separate ids.
+**Clay Ball** is the item dropped by breaking a [[Clay|clay]] block.
 
 ## Obtaining
 
 ### Breaking
 
-Breaking a [[Clay|clay block]] drops four clay balls, whatever it is broken with. The
-block itself never drops, so the only way to get one back is to craft it.
+Breaking a [[Clay|clay]] block drops four clay balls, whatever breaks it.
 <!-- src: BlockClay.java:10-16 idDropped, quantityDropped -->
 
 ## Usage
@@ -31,3 +28,5 @@ block itself never drops, so the only way to get one back is to craft it.
 
 - Item ID: {{id|Clay Ball}}
 - Translation key: `item.clay`
+
+The game names the item *Clay*, the same as the block.

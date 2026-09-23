@@ -11,7 +11,7 @@ categories: [Game mechanics]
 
 Damage to a block is measured in *strength* — a fraction added once per tick,
 with the block breaking on the tick the running total reaches 1. Strength comes
-from one of two formulas, depending on whether theplayer can harvest the block
+from one of two formulas, depending on whether the player can harvest the block
 at all:
 
 - **Harvestable** — `speed ÷ (hardness × 30)` per tick, where *speed* is the
@@ -133,7 +133,7 @@ different reason. See [[Mining#The pause in multiplayer|the pause in multiplayer
 ### Water and falling
 
 Two conditions reduce the player's speed, and both are checked *only* when
-mining a harvestable block
+mining a harvestable block:
 
 - Mining with the head underwater divides speed by five.
 - Mining while not standing on the ground divides speed by five.
@@ -245,9 +245,8 @@ is only ever asked of five materials — the only ones flagged as needing a tool
 <!-- src: Material.java:114,115,129,130,136 setNoHarvest;
      InventoryPlayer.java:271 canHarvestBlock -->
 
-Note that this list is completely seperate from the list of blocks each tool is
-effective against. A block can be harvestable by a tool that is not effective
-against it.
+This table is separate from the lists of what each tool is effective against.
+A tool can harvest a block it is not effective against.
 
 ### Harvest levels
 
@@ -270,7 +269,7 @@ speed it cannot harvest iron, gold, redstone, lapis, diamond or obsidian.
 Mining a non-harvestable block always uses the slow `strength = 1 ÷ (hardness × 100)`
 formula.
 
-### What blocks actually give
+### What blocks drop
 
 Mining does not always return the block. The substitutions:
 

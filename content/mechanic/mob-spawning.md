@@ -157,27 +157,10 @@ The [[Giant|giant]] appears on no list and never spawns naturally.
 
 ## Monster spawners
 
-A [[Monster Spawner|monster spawner]] holds the name of one mob and runs only
-while a player is within 16 blocks.
-<!-- src: TileEntityMobSpawner.java:67 anyPlayerInRange, :71 updateEntity -->
+{{main|Monster Spawner}}
 
-The spawner counts down a delay. At zero it makes four attempts, each of which:
-
-- abandons the round if six or more of that mob are already within 8 blocks
-  horizontally and 4 vertically;
-- picks a point up to 4 blocks away in x and z and 1 block in y, biased towards
-  the spawner;
-- creates the mob there and applies the mob's own light conditions, exactly as
-  a natural spawn does.
-
-A successful attempt sets the delay to 200 ticks plus a random 0 to 599 — 10 to
-about 40 seconds. A round in which nothing spawns leaves the delay at zero, and
-the spawner tries again on the next tick.
-<!-- src: TileEntityMobSpawner.java:94, :135 updateDelay -->
-
-Spawners generate only in [[Dungeon|dungeons]], one per dungeon, set to Zombie
-half the time and to Skeleton or Spider a quarter each.
-<!-- src: WorldGenDungeons.java:96, :131 pickMobSpawner -->
+A [[Monster Spawner|monster spawner]] spawns its mob near itself while a player
+is within 16 blocks, subject to the same conditions as a natural spawn.
 
 ## Despawning
 

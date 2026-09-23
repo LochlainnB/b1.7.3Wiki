@@ -56,6 +56,10 @@ npm run new -- block "Mossy Cobblestone"    scaffold a page
 **The build must end with `0 errors`.** Warnings are the editorial to-do list
 (mostly red links) and are expected to be non-zero.
 
+**Pushing to `main` publishes the site.** GitHub Actions rebuilds it and deploys
+it to GitHub Pages (`.github/workflows/deploy.yml`); a build with errors does not
+deploy. Committing is local; pushing is going live.
+
 `npm run check` does two things. It validates every page — frontmatter, links,
 templates, sprites — and it replays `Block`, `Item`, `EntityList`,
 `FurnaceRecipes` and the whole crafting registry out of the decompiled source

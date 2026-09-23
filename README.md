@@ -121,6 +121,14 @@ The output is plain static files with relative URLs, so `site/` works opened
 straight off disk, behind any web server, or on GitHub Pages under a subpath —
 no configuration either way.
 
+Pushing to `main` publishes it: `.github/workflows/deploy.yml` builds the site
+on GitHub Actions and deploys `site/` to GitHub Pages. A build with errors fails
+the workflow and leaves the live site as it was. It needs one setting, once:
+the repository's **Settings → Pages → Source** set to **GitHub Actions**.
+
+Built there, "View source" links each page's Markdown on GitHub instead of
+opening it in VS Code, and Recent changes dates each page by its last commit.
+
 ## Licence and attribution
 
 Wiki prose is available under

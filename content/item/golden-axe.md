@@ -1,14 +1,12 @@
 ---
 title: Golden Axe
-description: Golden Axe in Minecraft Beta 1.7.3.
+description: The axe made from gold ingots, the fastest and shortest-lived, with a mining speed of 12, lasting 33 blocks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Golden Axe** is an item in Minecraft Beta 1.7.3.
+**Golden Axe** is the [[Mining#Tools|axe]] made from
+[[Gold Ingot|gold ingots]].
 
 ## Obtaining
 
@@ -18,9 +16,16 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A golden axe has a [[Mining#Tools|mining speed]] of 12 on the blocks an axe is
+effective against, the fastest of any axe.
+<!-- src: EnumToolMaterial.java:8 GOLD(0, 32, 12.0F, 0); ItemAxe.java:11 -->
+
+It [[Mining#Tool wear|wears out]] after 33 blocks, the fewest of any axe.
+<!-- src: EnumToolMaterial.java:8 maxUses 32; ItemTool.java:34
+     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
+     damage exceeds 32 -->
 
 ## Data values
 
-- Item ID: `286`
+- Item ID: {{id|Golden Axe}}
 - Translation key: `item.hatchetGold`

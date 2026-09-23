@@ -1,14 +1,12 @@
 ---
 title: Golden Pickaxe
-description: Golden Pickaxe in Minecraft Beta 1.7.3.
+description: The pickaxe made from gold ingots, the fastest and shortest-lived, which harvests coal ore but no other ore.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Golden Pickaxe** is an item in Minecraft Beta 1.7.3.
+**Golden Pickaxe** is the [[Mining#Tools|pickaxe]] made from
+[[Gold Ingot|gold ingots]].
 
 ## Obtaining
 
@@ -18,9 +16,23 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A golden pickaxe has a [[Mining#Tools|mining speed]] of 12 on the blocks a
+pickaxe is effective against, the fastest of any pickaxe.
+<!-- src: EnumToolMaterial.java:8 GOLD(0, 32, 12.0F, 0) -->
+
+It has [[Mining#Harvest levels|harvest level]] 0, the same as a
+[[Wooden Pickaxe|wooden pickaxe]]. It harvests [[Coal Ore|coal ore]] but no
+other ore. It cannot harvest [[Obsidian|obsidian]], or a
+[[Block of Iron|block of iron]], [[Block of Gold|gold]],
+[[Block of Diamond|diamond]] or [[Lapis Lazuli Block|lapis lazuli]].
+<!-- src: ItemPickaxe.java:10 canHarvestBlock -->
+
+It [[Mining#Tool wear|wears out]] after 33 blocks, the fewest of any pickaxe.
+<!-- src: EnumToolMaterial.java:8 maxUses 32; ItemTool.java:34
+     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
+     damage exceeds 32 -->
 
 ## Data values
 
-- Item ID: `285`
+- Item ID: {{id|Golden Pickaxe}}
 - Translation key: `item.pickaxeGold`

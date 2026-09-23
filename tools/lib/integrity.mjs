@@ -11,7 +11,7 @@ const KNOWN_KEYS = new Set([
   'redirects', 'infobox', 'infoboxTitle', 'stub', 'toc', 'id', 'order',
 ]);
 
-function checkFrontmatter(page, problems) {
+function checkFrontmatter(page, problems, config) {
   const at = page.relFile;
   if (!page.hasFrontmatter) {
     problems.push({ page: at, level: 'error', message: 'missing YAML frontmatter block' });
@@ -30,6 +30,18 @@ function checkFrontmatter(page, problems) {
   const cats = page.fm.categories;
   if (cats !== undefined && !Array.isArray(cats)) {
     problems.push({ page: at, level: 'error', message: '"categories" must be a list' });
+  }
+  // Agents invent categories freely, and each invention is a near-duplicate of
+  // one that exists. The list in wiki.config.js is the whole vocabulary.
+  if (Array.isArray(cats) && config?.categories) {
+    for (const c of cats) {
+      if (!Object.hasOwn(config.categories, c)) {
+        problems.push({
+          page: at, level: 'error',
+          message: `unknown category "${c}" - use one from \`categories\` in wiki.config.js, or add it there`,
+        });
+      }
+    }
   }
   if (page.fm.stub !== undefined && typeof page.fm.stub !== 'boolean') {
     problems.push({ page: at, level: 'error', message: '"stub" must be true or false' });
@@ -148,11 +160,11 @@ function checkRecipeCoverage(pages, data, shown, problems) {
  * Print the build report and return counts. Errors fail the build; warnings are
  * the editorial to-do list (red links, unwritten pages).
  */
-export function report({ pages, problems, links, backlinks, data, shown, quiet }) {
+export function report({ pages, problems, links, backlinks, data, shown, quiet, config }) {
   const all = problems.slice();
   for (const page of pages) {
     if (page.generated) continue;
-    checkFrontmatter(page, all);
+    checkFrontmatter(page, all, config);
     checkTablePipes(page, all);
   }
   checkRecipeCoverage(pages, data, shown || new Map(), all);

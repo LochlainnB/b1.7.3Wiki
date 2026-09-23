@@ -29,4 +29,5 @@ block itself never drops, so the only way to get one back is to craft it.
 
 ## Data values
 
-Clay Ball uses item ID {{id|Clay Ball}} and the translation key `item.clay`.
+- Item ID: {{id|Clay Ball}}
+- Translation key: `item.clay`

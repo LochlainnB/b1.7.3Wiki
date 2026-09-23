@@ -187,7 +187,7 @@ async function main() {
   }
 
   const stats = report({
-    pages, problems, links, backlinks: ctx.backlinks, data, shown: ctx.shown, quiet,
+    pages, problems, links, backlinks: ctx.backlinks, data, shown: ctx.shown, quiet, config,
   });
 
   if (!checkOnly) {

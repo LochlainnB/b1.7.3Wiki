@@ -33,5 +33,5 @@ Cobblestone returns to [[Stone]] in a [[Furnace]].
 
 ## Data values
 
-Cobblestone uses block ID {{id|Cobblestone}} and the translation key
-`tile.stonebrick`.
+- Block ID: {{id|Cobblestone}}
+- Translation key: `tile.stonebrick`

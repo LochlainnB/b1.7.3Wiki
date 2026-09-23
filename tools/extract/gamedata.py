@@ -33,6 +33,12 @@ blocks set their own hardness, a stair block copies whatever block it is cut
 from, and stairs, slabs and farmland set their own light opacity. Reading the
 <clinit> alone left six block ids with no hardness at all, so BlockCtor below
 runs each constructor and records what it calls. See its docstring.
+
+What an item does in a slot, a hit or a meal
+--------------------------------------------
+Stack size, durability, attack damage, healing and a mob's starting health
+are not read here but asked of the game's own item objects, built by running
+Item's initialiser (appearance.py). properties.py does the asking.
 """
 import argparse
 import hashlib
@@ -44,11 +50,13 @@ import sys
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from appearance import Appearance
 from classfile import ClassFile
 from disasm import disassemble, trace_clinit, trace_calls, params_of, u2
 from interp import ArrayRef, Interp, Obj, Ref, Unsupported, default_for
 from mappings import load as load_mappings
 from paths import Missing, find_cache, find_jar
+from properties import Properties
 
 # Block builder methods, by obfuscated name (see module docstring for evidence)
 B_HARDNESS = 'c'
@@ -405,7 +413,11 @@ def extract_items(jar, mp, lang_names, overrides=None):
 
 
 def extract_entities(jar, mp):
-    """Find the registry class by the mob names in its constant pool."""
+    """Find the registry class by the mob names in its constant pool.
+
+    Returns the records and, separately, each one's obfuscated class, which
+    the records do not carry but the health lookup in properties.py needs.
+    """
     mobs = {'Pig', 'Sheep', 'Cow', 'Creeper', 'Skeleton', 'Zombie', 'Spider', 'Ghast'}
     for name in jar.classes():
         cf = jar.cls(name)
@@ -414,15 +426,33 @@ def extract_entities(jar, mp):
         strs = {e[1] for e in cf.cp if e and e[0] == 'utf8'}
         if len(mobs & strs) < 6:
             continue
-        out = []
+        out, classes = [], {}
         for c in trace_calls(cf):
             a = c['args']
             if (len(a) == 3 and isinstance(a[0], str)
                     and isinstance(a[1], str) and isinstance(a[2], int)):
                 out.append({'name': a[1], 'networkId': a[2], 'class': mp.simple(a[0])})
+                classes[a[1]] = a[0]
         if out:
-            return sorted(out, key=lambda e: e['networkId'])
-    return []
+            return sorted(out, key=lambda e: e['networkId']), classes
+    return [], {}
+
+
+def add_properties(jar, mp, blocks, items, entities, entity_classes):
+    """Stack size, durability, attack damage, healing and health. See properties.py.
+
+    A block's stack size is its own item form's: every block id has one, made
+    at the end of Block's <clinit>, and a player can hold any of them.
+    """
+    props = Properties(Appearance(jar, mp), jar, mp)
+    for b in blocks:
+        b['stackSize'] = props.of_item(b['id'])['stackSize']
+    for i in items:
+        i.update(props.of_item(i['id']))
+    for e in entities:
+        health = props.health(entity_classes[e['name']])
+        if health is not None:
+            e['health'] = health
 
 
 def extract_biomes(jar, mp):
@@ -787,7 +817,8 @@ def main():
     block_names, item_names, variant_names = load_name_overrides(a.out)
     blocks, bfield, block_obf = extract_blocks(jar, mp, lang_names, lang_descs, block_names)
     items, ifield, item_obf = extract_items(jar, mp, lang_names, item_names)
-    entities = extract_entities(jar, mp)
+    entities, entity_classes = extract_entities(jar, mp)
+    add_properties(jar, mp, blocks, items, entities, entity_classes)
     biomes = extract_biomes(jar, mp)
     recipes = extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf)
     smelting = extract_smelting(jar, mp, bfield, ifield, block_obf, item_obf)

@@ -128,7 +128,7 @@ class Appearance(object):
         bcf = jar.cls(self.block_cls)
         icf = jar.cls(self.item_cls)
         self._identify(jar, mp, bcf, icf)
-        self._run(jar, bcf, icf)
+        self._run(jar, bcf)
 
     # -- what the methods are called ---------------------------------------
     def _identify(self, jar, mp, bcf, icf):
@@ -144,9 +144,6 @@ class Appearance(object):
         self.f_block_id = (block, _one([f['name'] for f in bcf.fields if f['desc'] == 'I'
                                         and mp.member(block, f['name'], 'I') == 'id'],
                                        'Block.id'))
-        self.f_item_id = (item, _one([f['name'] for f in icf.fields if f['desc'] == 'I'
-                                      and mp.member(item, f['name'], 'I') == 'id'],
-                                     'Item.id'))
         self.f_blocks = _one([f['name'] for f in bcf.fields
                               if mp.member(block, f['name'], f['desc']) == 'BLOCKS'], 'Block.BLOCKS')
         self.f_items = _one([f['name'] for f in icf.fields
@@ -233,15 +230,21 @@ class Appearance(object):
         return out
 
     # -- building the registries -------------------------------------------
-    def _run(self, jar, bcf, icf):
+    def _run(self, jar, bcf):
         """Execute both static initialisers and keep what they registered.
 
-        The constructors are intercepted rather than run. Block's real one
+        Block's constructors are intercepted rather than run. The real one
         checks the slot is free, asks the material questions and files the
         block in half a dozen lookup tables -- registration bookkeeping that
         would need a modelled Material to answer and that nothing here reads.
         What it leaves on the object is an id, a texture and a unit cube, and
         those are set directly.
+
+        Item's constructor runs as written. It is the id, a conflict warning
+        and the registry slot, after the field initialisers javac folds into
+        it -- and those are where every item gets its stack size of 64 and its
+        durability of 0 unless a subclass says otherwise. properties.py reads
+        both back off the finished objects.
         """
         interp = Interp(jar.cls, budget=50000000)
         self.interp = interp
@@ -295,11 +298,6 @@ class Appearance(object):
             recv.fields[self.f_texture] = args[1]
             return Interp.NOTHING
 
-        def new_item(_it, recv, args):
-            recv.fields[self.f_item_id] = args[0] + 256
-            register((self.item_cls, self.f_items), args[0] + 256, recv, 32000)
-            return Interp.NOTHING
-
         # Nothing here has a world, and getBlockTexture wants one: BlockGrass
         # asks whether the block above is snow. A stub that answers every
         # question with nothing is the plain, snowless, sea-level case.
@@ -308,9 +306,6 @@ class Appearance(object):
 
         interp.hooks[(self.block_cls, '<init>', self.ctor_plain)] = new_block
         interp.hooks[(self.block_cls, '<init>', self.ctor_tex)] = new_textured_block
-        for m in icf.methods:
-            if m['name'] == '<init>':
-                interp.hooks[(self.item_cls, '<init>', m['desc'])] = new_item
 
         self.stopped = {}
         for owner, label in ((self.block_cls, 'Block'), (self.item_cls, 'Item')):

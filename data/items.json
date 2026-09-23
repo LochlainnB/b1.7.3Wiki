@@ -9,7 +9,10 @@
       "x": 2,
       "y": 5
     },
-    "field": "d"
+    "field": "d",
+    "stackSize": 1,
+    "durability": 250,
+    "attackDamage": 3
   },
   {
     "id": 257,
@@ -21,7 +24,10 @@
       "x": 2,
       "y": 6
     },
-    "field": "e"
+    "field": "e",
+    "stackSize": 1,
+    "durability": 250,
+    "attackDamage": 4
   },
   {
     "id": 258,
@@ -33,7 +39,10 @@
       "x": 2,
       "y": 7
     },
-    "field": "f"
+    "field": "f",
+    "stackSize": 1,
+    "durability": 250,
+    "attackDamage": 5
   },
   {
     "id": 259,
@@ -45,7 +54,9 @@
       "x": 5,
       "y": 0
     },
-    "field": "g"
+    "field": "g",
+    "stackSize": 1,
+    "durability": 64
   },
   {
     "id": 260,
@@ -57,7 +68,9 @@
       "x": 10,
       "y": 0
     },
-    "field": "h"
+    "field": "h",
+    "stackSize": 1,
+    "heal": 4
   },
   {
     "id": 261,
@@ -69,7 +82,8 @@
       "x": 5,
       "y": 1
     },
-    "field": "i"
+    "field": "i",
+    "stackSize": 1
   },
   {
     "id": 262,
@@ -81,7 +95,8 @@
       "x": 5,
       "y": 2
     },
-    "field": "j"
+    "field": "j",
+    "stackSize": 64
   },
   {
     "id": 263,
@@ -94,6 +109,7 @@
       "y": 0
     },
     "field": "k",
+    "stackSize": 64,
     "variants": {
       "0": "Coal",
       "1": "Charcoal"
@@ -109,7 +125,8 @@
       "x": 7,
       "y": 3
     },
-    "field": "l"
+    "field": "l",
+    "stackSize": 64
   },
   {
     "id": 265,
@@ -121,7 +138,8 @@
       "x": 7,
       "y": 1
     },
-    "field": "m"
+    "field": "m",
+    "stackSize": 64
   },
   {
     "id": 266,
@@ -133,7 +151,8 @@
       "x": 7,
       "y": 2
     },
-    "field": "n"
+    "field": "n",
+    "stackSize": 64
   },
   {
     "id": 267,
@@ -145,7 +164,10 @@
       "x": 2,
       "y": 4
     },
-    "field": "o"
+    "field": "o",
+    "stackSize": 1,
+    "durability": 250,
+    "attackDamage": 8
   },
   {
     "id": 268,
@@ -157,7 +179,10 @@
       "x": 0,
       "y": 4
     },
-    "field": "p"
+    "field": "p",
+    "stackSize": 1,
+    "durability": 59,
+    "attackDamage": 4
   },
   {
     "id": 269,
@@ -169,7 +194,10 @@
       "x": 0,
       "y": 5
     },
-    "field": "q"
+    "field": "q",
+    "stackSize": 1,
+    "durability": 59,
+    "attackDamage": 1
   },
   {
     "id": 270,
@@ -181,7 +209,10 @@
       "x": 0,
       "y": 6
     },
-    "field": "r"
+    "field": "r",
+    "stackSize": 1,
+    "durability": 59,
+    "attackDamage": 2
   },
   {
     "id": 271,
@@ -193,7 +224,10 @@
       "x": 0,
       "y": 7
     },
-    "field": "s"
+    "field": "s",
+    "stackSize": 1,
+    "durability": 59,
+    "attackDamage": 3
   },
   {
     "id": 272,
@@ -205,7 +239,10 @@
       "x": 1,
       "y": 4
     },
-    "field": "t"
+    "field": "t",
+    "stackSize": 1,
+    "durability": 131,
+    "attackDamage": 6
   },
   {
     "id": 273,
@@ -217,7 +254,10 @@
       "x": 1,
       "y": 5
     },
-    "field": "u"
+    "field": "u",
+    "stackSize": 1,
+    "durability": 131,
+    "attackDamage": 2
   },
   {
     "id": 274,
@@ -229,7 +269,10 @@
       "x": 1,
       "y": 6
     },
-    "field": "v"
+    "field": "v",
+    "stackSize": 1,
+    "durability": 131,
+    "attackDamage": 3
   },
   {
     "id": 275,
@@ -241,7 +284,10 @@
       "x": 1,
       "y": 7
     },
-    "field": "w"
+    "field": "w",
+    "stackSize": 1,
+    "durability": 131,
+    "attackDamage": 4
   },
   {
     "id": 276,
@@ -253,7 +299,10 @@
       "x": 3,
       "y": 4
     },
-    "field": "x"
+    "field": "x",
+    "stackSize": 1,
+    "durability": 1561,
+    "attackDamage": 10
   },
   {
     "id": 277,
@@ -265,7 +314,10 @@
       "x": 3,
       "y": 5
     },
-    "field": "y"
+    "field": "y",
+    "stackSize": 1,
+    "durability": 1561,
+    "attackDamage": 4
   },
   {
     "id": 278,
@@ -277,7 +329,10 @@
       "x": 3,
       "y": 6
     },
-    "field": "z"
+    "field": "z",
+    "stackSize": 1,
+    "durability": 1561,
+    "attackDamage": 5
   },
   {
     "id": 279,
@@ -289,7 +344,10 @@
       "x": 3,
       "y": 7
     },
-    "field": "A"
+    "field": "A",
+    "stackSize": 1,
+    "durability": 1561,
+    "attackDamage": 6
   },
   {
     "id": 280,
@@ -301,7 +359,8 @@
       "x": 5,
       "y": 3
     },
-    "field": "B"
+    "field": "B",
+    "stackSize": 64
   },
   {
     "id": 281,
@@ -313,7 +372,8 @@
       "x": 7,
       "y": 4
     },
-    "field": "C"
+    "field": "C",
+    "stackSize": 64
   },
   {
     "id": 282,
@@ -325,7 +385,9 @@
       "x": 8,
       "y": 4
     },
-    "field": "D"
+    "field": "D",
+    "stackSize": 1,
+    "heal": 10
   },
   {
     "id": 283,
@@ -337,7 +399,10 @@
       "x": 4,
       "y": 4
     },
-    "field": "E"
+    "field": "E",
+    "stackSize": 1,
+    "durability": 32,
+    "attackDamage": 4
   },
   {
     "id": 284,
@@ -349,7 +414,10 @@
       "x": 4,
       "y": 5
     },
-    "field": "F"
+    "field": "F",
+    "stackSize": 1,
+    "durability": 32,
+    "attackDamage": 1
   },
   {
     "id": 285,
@@ -361,7 +429,10 @@
       "x": 4,
       "y": 6
     },
-    "field": "G"
+    "field": "G",
+    "stackSize": 1,
+    "durability": 32,
+    "attackDamage": 2
   },
   {
     "id": 286,
@@ -373,7 +444,10 @@
       "x": 4,
       "y": 7
     },
-    "field": "H"
+    "field": "H",
+    "stackSize": 1,
+    "durability": 32,
+    "attackDamage": 3
   },
   {
     "id": 287,
@@ -385,7 +459,8 @@
       "x": 8,
       "y": 0
     },
-    "field": "I"
+    "field": "I",
+    "stackSize": 64
   },
   {
     "id": 288,
@@ -397,7 +472,8 @@
       "x": 8,
       "y": 1
     },
-    "field": "J"
+    "field": "J",
+    "stackSize": 64
   },
   {
     "id": 289,
@@ -409,7 +485,8 @@
       "x": 8,
       "y": 2
     },
-    "field": "K"
+    "field": "K",
+    "stackSize": 64
   },
   {
     "id": 290,
@@ -421,7 +498,9 @@
       "x": 0,
       "y": 8
     },
-    "field": "L"
+    "field": "L",
+    "stackSize": 1,
+    "durability": 59
   },
   {
     "id": 291,
@@ -433,7 +512,9 @@
       "x": 1,
       "y": 8
     },
-    "field": "M"
+    "field": "M",
+    "stackSize": 1,
+    "durability": 131
   },
   {
     "id": 292,
@@ -445,7 +526,9 @@
       "x": 2,
       "y": 8
     },
-    "field": "N"
+    "field": "N",
+    "stackSize": 1,
+    "durability": 250
   },
   {
     "id": 293,
@@ -457,7 +540,9 @@
       "x": 3,
       "y": 8
     },
-    "field": "O"
+    "field": "O",
+    "stackSize": 1,
+    "durability": 1561
   },
   {
     "id": 294,
@@ -469,7 +554,9 @@
       "x": 4,
       "y": 8
     },
-    "field": "P"
+    "field": "P",
+    "stackSize": 1,
+    "durability": 32
   },
   {
     "id": 295,
@@ -481,7 +568,8 @@
       "x": 9,
       "y": 0
     },
-    "field": "Q"
+    "field": "Q",
+    "stackSize": 64
   },
   {
     "id": 296,
@@ -493,7 +581,8 @@
       "x": 9,
       "y": 1
     },
-    "field": "R"
+    "field": "R",
+    "stackSize": 64
   },
   {
     "id": 297,
@@ -505,7 +594,9 @@
       "x": 9,
       "y": 2
     },
-    "field": "S"
+    "field": "S",
+    "stackSize": 1,
+    "heal": 5
   },
   {
     "id": 298,
@@ -517,7 +608,9 @@
       "x": 0,
       "y": 0
     },
-    "field": "T"
+    "field": "T",
+    "stackSize": 1,
+    "durability": 33
   },
   {
     "id": 299,
@@ -529,7 +622,9 @@
       "x": 0,
       "y": 1
     },
-    "field": "U"
+    "field": "U",
+    "stackSize": 1,
+    "durability": 48
   },
   {
     "id": 300,
@@ -541,7 +636,9 @@
       "x": 0,
       "y": 2
     },
-    "field": "V"
+    "field": "V",
+    "stackSize": 1,
+    "durability": 45
   },
   {
     "id": 301,
@@ -553,7 +650,9 @@
       "x": 0,
       "y": 3
     },
-    "field": "W"
+    "field": "W",
+    "stackSize": 1,
+    "durability": 39
   },
   {
     "id": 302,
@@ -565,7 +664,9 @@
       "x": 1,
       "y": 0
     },
-    "field": "X"
+    "field": "X",
+    "stackSize": 1,
+    "durability": 66
   },
   {
     "id": 303,
@@ -577,7 +678,9 @@
       "x": 1,
       "y": 1
     },
-    "field": "Y"
+    "field": "Y",
+    "stackSize": 1,
+    "durability": 96
   },
   {
     "id": 304,
@@ -589,7 +692,9 @@
       "x": 1,
       "y": 2
     },
-    "field": "Z"
+    "field": "Z",
+    "stackSize": 1,
+    "durability": 90
   },
   {
     "id": 305,
@@ -601,7 +706,9 @@
       "x": 1,
       "y": 3
     },
-    "field": "aa"
+    "field": "aa",
+    "stackSize": 1,
+    "durability": 78
   },
   {
     "id": 306,
@@ -613,7 +720,9 @@
       "x": 2,
       "y": 0
     },
-    "field": "ab"
+    "field": "ab",
+    "stackSize": 1,
+    "durability": 132
   },
   {
     "id": 307,
@@ -625,7 +734,9 @@
       "x": 2,
       "y": 1
     },
-    "field": "ac"
+    "field": "ac",
+    "stackSize": 1,
+    "durability": 192
   },
   {
     "id": 308,
@@ -637,7 +748,9 @@
       "x": 2,
       "y": 2
     },
-    "field": "ad"
+    "field": "ad",
+    "stackSize": 1,
+    "durability": 180
   },
   {
     "id": 309,
@@ -649,7 +762,9 @@
       "x": 2,
       "y": 3
     },
-    "field": "ae"
+    "field": "ae",
+    "stackSize": 1,
+    "durability": 156
   },
   {
     "id": 310,
@@ -661,7 +776,9 @@
       "x": 3,
       "y": 0
     },
-    "field": "af"
+    "field": "af",
+    "stackSize": 1,
+    "durability": 264
   },
   {
     "id": 311,
@@ -673,7 +790,9 @@
       "x": 3,
       "y": 1
     },
-    "field": "ag"
+    "field": "ag",
+    "stackSize": 1,
+    "durability": 384
   },
   {
     "id": 312,
@@ -685,7 +804,9 @@
       "x": 3,
       "y": 2
     },
-    "field": "ah"
+    "field": "ah",
+    "stackSize": 1,
+    "durability": 360
   },
   {
     "id": 313,
@@ -697,7 +818,9 @@
       "x": 3,
       "y": 3
     },
-    "field": "ai"
+    "field": "ai",
+    "stackSize": 1,
+    "durability": 312
   },
   {
     "id": 314,
@@ -709,7 +832,9 @@
       "x": 4,
       "y": 0
     },
-    "field": "aj"
+    "field": "aj",
+    "stackSize": 1,
+    "durability": 66
   },
   {
     "id": 315,
@@ -721,7 +846,9 @@
       "x": 4,
       "y": 1
     },
-    "field": "ak"
+    "field": "ak",
+    "stackSize": 1,
+    "durability": 96
   },
   {
     "id": 316,
@@ -733,7 +860,9 @@
       "x": 4,
       "y": 2
     },
-    "field": "al"
+    "field": "al",
+    "stackSize": 1,
+    "durability": 90
   },
   {
     "id": 317,
@@ -745,7 +874,9 @@
       "x": 4,
       "y": 3
     },
-    "field": "am"
+    "field": "am",
+    "stackSize": 1,
+    "durability": 78
   },
   {
     "id": 318,
@@ -757,7 +888,8 @@
       "x": 6,
       "y": 0
     },
-    "field": "an"
+    "field": "an",
+    "stackSize": 64
   },
   {
     "id": 319,
@@ -769,7 +901,9 @@
       "x": 7,
       "y": 5
     },
-    "field": "ao"
+    "field": "ao",
+    "stackSize": 1,
+    "heal": 3
   },
   {
     "id": 320,
@@ -781,7 +915,9 @@
       "x": 8,
       "y": 5
     },
-    "field": "ap"
+    "field": "ap",
+    "stackSize": 1,
+    "heal": 8
   },
   {
     "id": 321,
@@ -793,7 +929,8 @@
       "x": 10,
       "y": 1
     },
-    "field": "aq"
+    "field": "aq",
+    "stackSize": 64
   },
   {
     "id": 322,
@@ -805,7 +942,9 @@
       "x": 11,
       "y": 0
     },
-    "field": "ar"
+    "field": "ar",
+    "stackSize": 1,
+    "heal": 42
   },
   {
     "id": 323,
@@ -817,7 +956,8 @@
       "x": 10,
       "y": 2
     },
-    "field": "as"
+    "field": "as",
+    "stackSize": 1
   },
   {
     "id": 324,
@@ -829,7 +969,8 @@
       "x": 11,
       "y": 2
     },
-    "field": "at"
+    "field": "at",
+    "stackSize": 1
   },
   {
     "id": 325,
@@ -841,7 +982,8 @@
       "x": 10,
       "y": 4
     },
-    "field": "au"
+    "field": "au",
+    "stackSize": 1
   },
   {
     "id": 326,
@@ -853,7 +995,8 @@
       "x": 11,
       "y": 4
     },
-    "field": "av"
+    "field": "av",
+    "stackSize": 1
   },
   {
     "id": 327,
@@ -865,7 +1008,8 @@
       "x": 12,
       "y": 4
     },
-    "field": "aw"
+    "field": "aw",
+    "stackSize": 1
   },
   {
     "id": 328,
@@ -877,7 +1021,8 @@
       "x": 7,
       "y": 8
     },
-    "field": "ax"
+    "field": "ax",
+    "stackSize": 1
   },
   {
     "id": 329,
@@ -889,7 +1034,8 @@
       "x": 8,
       "y": 6
     },
-    "field": "ay"
+    "field": "ay",
+    "stackSize": 1
   },
   {
     "id": 330,
@@ -901,7 +1047,8 @@
       "x": 12,
       "y": 2
     },
-    "field": "az"
+    "field": "az",
+    "stackSize": 1
   },
   {
     "id": 331,
@@ -913,7 +1060,8 @@
       "x": 8,
       "y": 3
     },
-    "field": "aA"
+    "field": "aA",
+    "stackSize": 64
   },
   {
     "id": 332,
@@ -925,7 +1073,8 @@
       "x": 14,
       "y": 0
     },
-    "field": "aB"
+    "field": "aB",
+    "stackSize": 16
   },
   {
     "id": 333,
@@ -937,7 +1086,8 @@
       "x": 8,
       "y": 8
     },
-    "field": "aC"
+    "field": "aC",
+    "stackSize": 1
   },
   {
     "id": 334,
@@ -949,7 +1099,8 @@
       "x": 7,
       "y": 6
     },
-    "field": "aD"
+    "field": "aD",
+    "stackSize": 64
   },
   {
     "id": 335,
@@ -961,7 +1112,8 @@
       "x": 13,
       "y": 4
     },
-    "field": "aE"
+    "field": "aE",
+    "stackSize": 1
   },
   {
     "id": 336,
@@ -973,7 +1125,8 @@
       "x": 6,
       "y": 1
     },
-    "field": "aF"
+    "field": "aF",
+    "stackSize": 64
   },
   {
     "id": 337,
@@ -985,7 +1138,8 @@
       "x": 9,
       "y": 3
     },
-    "field": "aG"
+    "field": "aG",
+    "stackSize": 64
   },
   {
     "id": 338,
@@ -997,7 +1151,8 @@
       "x": 11,
       "y": 1
     },
-    "field": "aH"
+    "field": "aH",
+    "stackSize": 64
   },
   {
     "id": 339,
@@ -1009,7 +1164,8 @@
       "x": 10,
       "y": 3
     },
-    "field": "aI"
+    "field": "aI",
+    "stackSize": 64
   },
   {
     "id": 340,
@@ -1021,7 +1177,8 @@
       "x": 11,
       "y": 3
     },
-    "field": "aJ"
+    "field": "aJ",
+    "stackSize": 64
   },
   {
     "id": 341,
@@ -1033,7 +1190,8 @@
       "x": 14,
       "y": 1
     },
-    "field": "aK"
+    "field": "aK",
+    "stackSize": 64
   },
   {
     "id": 342,
@@ -1045,7 +1203,8 @@
       "x": 7,
       "y": 9
     },
-    "field": "aL"
+    "field": "aL",
+    "stackSize": 1
   },
   {
     "id": 343,
@@ -1057,7 +1216,8 @@
       "x": 7,
       "y": 10
     },
-    "field": "aM"
+    "field": "aM",
+    "stackSize": 1
   },
   {
     "id": 344,
@@ -1069,7 +1229,8 @@
       "x": 12,
       "y": 0
     },
-    "field": "aN"
+    "field": "aN",
+    "stackSize": 16
   },
   {
     "id": 345,
@@ -1081,7 +1242,8 @@
       "x": 6,
       "y": 3
     },
-    "field": "aO"
+    "field": "aO",
+    "stackSize": 64
   },
   {
     "id": 346,
@@ -1093,7 +1255,9 @@
       "x": 5,
       "y": 4
     },
-    "field": "aP"
+    "field": "aP",
+    "stackSize": 1,
+    "durability": 64
   },
   {
     "id": 347,
@@ -1105,7 +1269,8 @@
       "x": 6,
       "y": 4
     },
-    "field": "aQ"
+    "field": "aQ",
+    "stackSize": 64
   },
   {
     "id": 348,
@@ -1117,7 +1282,8 @@
       "x": 9,
       "y": 4
     },
-    "field": "aR"
+    "field": "aR",
+    "stackSize": 64
   },
   {
     "id": 349,
@@ -1129,7 +1295,9 @@
       "x": 9,
       "y": 5
     },
-    "field": "aS"
+    "field": "aS",
+    "stackSize": 1,
+    "heal": 2
   },
   {
     "id": 350,
@@ -1141,7 +1309,9 @@
       "x": 10,
       "y": 5
     },
-    "field": "aT"
+    "field": "aT",
+    "stackSize": 1,
+    "heal": 5
   },
   {
     "id": 351,
@@ -1154,6 +1324,7 @@
       "y": 4
     },
     "field": "aU",
+    "stackSize": 64,
     "variants": {
       "0": "Ink Sac",
       "1": "Rose Red",
@@ -1183,7 +1354,8 @@
       "x": 12,
       "y": 1
     },
-    "field": "aV"
+    "field": "aV",
+    "stackSize": 64
   },
   {
     "id": 353,
@@ -1195,7 +1367,8 @@
       "x": 13,
       "y": 0
     },
-    "field": "aW"
+    "field": "aW",
+    "stackSize": 64
   },
   {
     "id": 354,
@@ -1207,7 +1380,8 @@
       "x": 13,
       "y": 1
     },
-    "field": "aX"
+    "field": "aX",
+    "stackSize": 1
   },
   {
     "id": 355,
@@ -1219,7 +1393,8 @@
       "x": 13,
       "y": 2
     },
-    "field": "aY"
+    "field": "aY",
+    "stackSize": 1
   },
   {
     "id": 356,
@@ -1231,7 +1406,8 @@
       "x": 6,
       "y": 5
     },
-    "field": "aZ"
+    "field": "aZ",
+    "stackSize": 64
   },
   {
     "id": 357,
@@ -1243,7 +1419,9 @@
       "x": 12,
       "y": 5
     },
-    "field": "ba"
+    "field": "ba",
+    "stackSize": 8,
+    "heal": 1
   },
   {
     "id": 358,
@@ -1255,7 +1433,8 @@
       "x": 12,
       "y": 3
     },
-    "field": "bb"
+    "field": "bb",
+    "stackSize": 1
   },
   {
     "id": 359,
@@ -1267,7 +1446,9 @@
       "x": 13,
       "y": 5
     },
-    "field": "bc"
+    "field": "bc",
+    "stackSize": 1,
+    "durability": 238
   },
   {
     "id": 2256,
@@ -1279,7 +1460,8 @@
       "x": 0,
       "y": 15
     },
-    "field": "bd"
+    "field": "bd",
+    "stackSize": 1
   },
   {
     "id": 2257,
@@ -1291,6 +1473,7 @@
       "x": 1,
       "y": 15
     },
-    "field": "be"
+    "field": "be",
+    "stackSize": 1
   }
 ]

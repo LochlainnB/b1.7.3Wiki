@@ -139,7 +139,8 @@ first edit in a session. The four rules that matter most:
 - **Describe Beta 1.7.3 and nothing else.** No `## History` sections, ever. No
   "this changed in 1.8", no "in modern versions", no Java/Bedrock split.
 - **Never hand-type game numbers.** Ids, hardness, blast resistance, light
-  levels and recipes come from `data/` through the infobox and the `{{crafting}}`,
+  levels, stack sizes, durability, attack damage, healing, mob health and
+  recipes come from `data/` through the infobox and the `{{crafting}}`,
   `{{smelting}}`, `{{id}}` templates. If you are typing "hardness of 2" into
   prose, the infobox already says it.
 - **Remove `stub: true`** when a page stops being a stub. That is what

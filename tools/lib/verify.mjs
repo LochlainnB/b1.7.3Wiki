@@ -253,9 +253,12 @@ function parseItems(src) {
     const ctor = /new\s+(\w+)\(\s*(\d+)/.exec(rhs);
     if (!ctor) continue;
     const id = 256 + Number(ctor[2]);   // Item(int): this.shiftedIndex = 256 + var1
+    const argText = rhs.slice(rhs.indexOf('(', ctor.index) + 1);
+    const args = splitArgs(argText.slice(0, matchedParen(argText)));
+    const builders = chain(rhs);
     let icon = null;
     let key = null;
-    for (const [name, arg] of chain(rhs)) {
+    for (const [name, arg] of builders) {
       if (name === 'setIconCoord') {
         const xy = /(\d+)\s*,\s*(\d+)/.exec(arg);
         if (xy) icon = { x: Number(xy[1]), y: Number(xy[2]) };
@@ -264,9 +267,50 @@ function parseItems(src) {
       }
     }
     fields.set(field, id);
-    if (!items.has(id)) items.set(id, { id, field, key, icon });
+    if (!items.has(id)) items.set(id, { id, field, key, icon, cls: ctor[1], args, builders });
   }
   return { items, fields };
+}
+
+/**
+ * stackSize, durability, attackDamage and heal for one item, from the source.
+ *
+ * Each is what the finished item answers when the game asks it:
+ * getItemStackLimit(), getMaxDamage(), getDamageVsEntity() where a subclass
+ * overrides Item's flat 1, and the heal() in onItemRightClick. A durability of
+ * 0 and a missing override or heal come back as null, meaning data/ should
+ * carry no such key; undefined means the source could not be read.
+ */
+function itemProperties(readCls, cls, argTexts, builders) {
+  const scope = ctorScope(readCls, [], [], {}, []);
+  const built = itemState(readCls, cls, argTexts.map((a) => evaluate(a, scope)), builders);
+  if (!built) return null;
+  const { state, chain: classes } = built;
+  const attack = getterValue(classes, 'getDamageVsEntity', state);
+  const durability = getterValue(classes, 'getMaxDamage', state)?.value;
+  const heal = healValue(classes, state);
+  return {
+    stackSize: getterValue(classes, 'getItemStackLimit', state)?.value,
+    durability: durability === 0 ? null : durability,
+    attackDamage: attack && attack.cls !== 'Item' ? attack.value : null,
+    heal: heal ? heal.value : null,
+  };
+}
+
+/**
+ * Compare one extracted property with the source's reading of it.
+ * `theirs` null means the key should be absent; undefined, unreadable.
+ */
+function checkProperty(add, label, what, mine, theirs, where) {
+  if (theirs === undefined) {
+    add('warn', `${label}: ${what} could not be read from ${where}`);
+  } else if ((mine ?? null) === theirs) {
+    // agrees
+  } else if (mine == null) {
+    add('warn', `${label}: ${where} gives a ${what} of ${theirs}, which data/ does not carry`);
+  } else {
+    add('error', `${label}: ${what} is ${mine} in data/, ${theirs ?? 'none'} in ${where}`);
+  }
 }
 
 function parseEntities(src) {
@@ -303,6 +347,400 @@ function parseSmelting(src, blockFields, itemFields) {
 }
 
 // ---------------------------------------------------------------------------
+// Constructor arithmetic
+//
+// A stack size, a durability, a hit, a meal and a mob's health are all set in
+// constructors, and several are computed there: `4 + var2.getDamageVsEntity() * 2`
+// for a sword, `maxDamageArray[var4] * 3 << var2` for armour, `this.health *= 10`
+// for the giant. So the check evaluates Java expressions -- literals, the
+// constructor's parameters, `this.` fields, a class's static int arrays, and an
+// enum constant's getters -- and gives up with undefined on anything else.
+// ---------------------------------------------------------------------------
+
+const THIS = Symbol('this');
+
+function tokenize(text) {
+  const re = /\s*(?:(\d+(?:\.\d+)?)[FfDdLl]?|("[^"]*")|([A-Za-z_]\w*)|(<<|>>|[-+*/%()[\].,]))/y;
+  const out = [];
+  re.lastIndex = 0;
+  while (re.lastIndex < text.length) {
+    const at = re.lastIndex;
+    const m = re.exec(text);
+    if (!m) return /^\s*$/.test(text.slice(at)) ? out : null;
+    if (m[1] !== undefined) out.push({ num: parseFloat(m[1]) });
+    else if (m[2] !== undefined) out.push({ str: m[2].slice(1, -1) });
+    else if (m[3] !== undefined) out.push({ id: m[3] });
+    else out.push({ op: m[4] });
+  }
+  return out;
+}
+
+function arith(op, a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') return undefined;
+  switch (op) {
+    case '+': return a + b;
+    case '-': return a - b;
+    case '*': return a * b;
+    case '/': return b ? Math.trunc(a / b) : undefined;
+    case '%': return b ? a % b : undefined;
+    case '<<': return a << b;
+    case '>>': return a >> b;
+    default: return undefined;
+  }
+}
+
+/** A Java expression's value in `scope`, or undefined if it is not plain arithmetic. */
+function evaluate(text, scope) {
+  const toks = tokenize(text.trim());
+  if (!toks || !toks.length) return undefined;
+  let i = 0;
+  const peek = (op) => toks[i] && toks[i].op === op;
+  const binary = (ops, sub) => () => {
+    let left = sub();
+    while (toks[i] && ops.includes(toks[i].op)) {
+      const op = toks[i++].op;
+      left = arith(op, left, sub());
+    }
+    return left;
+  };
+  const primary = () => {
+    const t = toks[i++];
+    if (!t) throw new Error('end of expression');
+    if (t.num !== undefined) return t.num;
+    if (t.str !== undefined) return t.str;
+    if (t.op === '(') {
+      // A cast: (float)x is x, for the arithmetic done here.
+      if (toks[i]?.id && /^(int|float|double|byte|short|long)$/.test(toks[i].id) && toks[i + 1]?.op === ')') {
+        i += 2;
+        return unary();
+      }
+      const v = expr();
+      if (!peek(')')) throw new Error('unclosed (');
+      i++;
+      return v;
+    }
+    if (t.id) return scope.name(t.id);
+    throw new Error(`unexpected ${t.op}`);
+  };
+  const postfix = () => {
+    let v = primary();
+    for (;;) {
+      if (peek('.')) {
+        i++;
+        const name = toks[i++]?.id;
+        if (peek('(')) {
+          i++;
+          const args = [];
+          while (!peek(')')) {
+            args.push(expr());
+            if (peek(',')) i++;
+            else if (!peek(')')) throw new Error('bad argument list');
+          }
+          i++;
+          v = scope.call(v, name, args);
+        } else {
+          v = scope.member(v, name);
+        }
+      } else if (peek('[')) {
+        i++;
+        const idx = expr();
+        if (!peek(']')) throw new Error('unclosed [');
+        i++;
+        v = Array.isArray(v) && typeof idx === 'number' ? v[idx] : undefined;
+      } else {
+        return v;
+      }
+    }
+  };
+  const unary = () => {
+    if (peek('-')) {
+      i++;
+      const v = unary();
+      return typeof v === 'number' ? -v : undefined;
+    }
+    return postfix();
+  };
+  const mul = binary(['*', '/', '%'], unary);
+  const add = binary(['+', '-'], mul);
+  const expr = binary(['<<', '>>'], add);
+  try {
+    const v = expr();
+    return i === toks.length ? v : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Primitive field initialisers declared on a class: `protected int maxStackSize = 64;`. */
+function fieldDefaults(src) {
+  const out = {};
+  const re = /^ {4}(?:(?:public|protected|private|final|transient|volatile)\s+)*(?:int|float|double|boolean|byte|short|long)\s+(\w+)\s*=\s*([^;]+);/gm;
+  let m;
+  while ((m = re.exec(src))) out[m[1]] = evaluate(m[2], plainScope());
+  return out;
+}
+
+/** A class's static int arrays: `private static final int[] maxDamageArray = new int[]{11, 16, 15, 13};`. */
+function staticArrays(src) {
+  const out = {};
+  const re = /^ {4}(?:(?:public|protected|private|final)\s+)*static\s+(?:final\s+)?int\[\]\s+(\w+)\s*=\s*new int\[\]\s*\{([^}]*)\};/gm;
+  let m;
+  while ((m = re.exec(src))) out[m[1]] = splitArgs(m[2]).map(Number);
+  return out;
+}
+
+/** Scope with nothing in it, for literals. */
+function plainScope() {
+  return { name: () => undefined, member: () => undefined, call: () => undefined };
+}
+
+/**
+ * The scope a constructor body runs in: its parameters, `this`, the static
+ * arrays of the classes it belongs to, and enum constants by `Enum.NAME`.
+ */
+function ctorScope(readCls, params, args, state, srcs) {
+  const statics = Object.assign({}, ...srcs.map(staticArrays));
+  const bound = Object.fromEntries(params.map((p, n) => [p, args[n]]));
+  return {
+    name(id) {
+      if (id === 'this') return THIS;
+      if (id in bound) return bound[id];
+      if (id in statics) return statics[id];
+      if (/^[A-Z]/.test(id)) return { cls: id };
+      return undefined;
+    },
+    member(v, name) {
+      if (v === THIS) return state[name];
+      if (v && v.cls && enumOf(readCls, v.cls)?.constants[name]) return { enumCls: v.cls, constant: name };
+      return undefined;
+    },
+    call(v, name) {
+      if (!v || !v.enumCls) return undefined;
+      const e = enumOf(readCls, v.enumCls);
+      const field = e.getters[name];
+      return field === undefined ? undefined : e.constants[v.constant][field];
+    },
+  };
+}
+
+const enums = new Map();
+
+/** An enum's constants as field values: EnumToolMaterial.IRON -> {maxUses: 250, ...}. */
+function enumOf(readCls, cls) {
+  if (enums.has(cls)) return enums.get(cls);
+  const src = readCls(cls);
+  let out = null;
+  if (src && new RegExp(`\\benum\\s+${cls}\\b`).test(src)) {
+    const ctor = new RegExp(`${cls}\\s*\\(([^)]*)\\)\\s*\\{`).exec(src);
+    const params = ctor ? splitArgs(ctor[1]).map((p) => p.split(/\s+/).pop()) : [];
+    const body = ctor ? block(src, ctor.index) : '';
+    const assigns = [...body.matchAll(/this\.(\w+)\s*=\s*(\w+);/g)];
+    const constants = {};
+    for (const m of src.matchAll(/^ {4}([A-Z][A-Z0-9_]*)\(([^)]*)\)[,;]/gm)) {
+      const args = splitArgs(m[2]).map((a) => evaluate(a, plainScope()));
+      constants[m[1]] = Object.fromEntries(assigns.map(([, field, p]) => [field, args[params.indexOf(p)]]));
+    }
+    const getters = {};
+    for (const m of src.matchAll(/public\s+\w+\s+(\w+)\(\)\s*\{\s*return this\.(\w+);\s*\}/g)) getters[m[1]] = m[2];
+    out = { constants, getters };
+  }
+  enums.set(cls, out);
+  return out;
+}
+
+/** Statements of a method body, split on the semicolons at its own level. */
+function bodyStatements(body) {
+  const out = [];
+  let depth = 0;
+  let buf = '';
+  for (const c of body) {
+    if (c === '(' || c === '{') depth++;
+    else if (c === ')' || c === '}') depth--;
+    if (c === ';' && depth === 0) {
+      out.push(buf.trim());
+      buf = '';
+    } else if (c !== '{' && c !== '}') {
+      buf += c;
+    }
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+
+/** The body of a method declared in `src`, by name. */
+function methodBody(src, name) {
+  const re = new RegExp(`(?:public|protected|private)[^;{}()]*\\b${name}\\s*\\([^)]*\\)\\s*\\{`);
+  const m = re.exec(src);
+  return m ? block(src, m.index) : null;
+}
+
+/**
+ * The field a one-argument builder writes: `setMaxDamage(int var1) { this.maxDamage = var1; return this; }`.
+ * Looked for across the chain, nearest class first, so an override wins.
+ */
+function setterField(srcs, name) {
+  for (const src of srcs) {
+    const re = new RegExp(`\\b${name}\\s*\\(\\s*\\w+\\s+(\\w+)\\s*\\)\\s*\\{\\s*this\\.(\\w+)\\s*=\\s*(\\w+);\\s*return this;\\s*\\}`);
+    const m = re.exec(src);
+    if (m) return m[1] === m[3] ? m[2] : null;
+    if (methodBody(src, name) !== null) return null;
+  }
+  return null;
+}
+
+/** Class sources from `cls` up to and including `stop`, nearest first. */
+function classChain(readCls, cls, stop) {
+  const out = [];
+  let current = cls;
+  while (current && out.length < 12) {
+    const src = readCls(current);
+    if (!src) return null;
+    out.push({ cls: current, src });
+    if (current === stop) return out;
+    current = new RegExp(`class\\s+${current}\\s+extends\\s+(\\w+)`).exec(src)?.[1];
+  }
+  return null;
+}
+
+/**
+ * The fields an item holds once constructed and its builder chain has run.
+ *
+ * Constructor frames are replayed base class first, each applying its own
+ * field initialisers, then its body. A super() argument is evaluated in the
+ * calling frame, so `super(var1, 2, var2, blocksEffectiveAgainst)` hands the
+ * pickaxe's 2 on to ItemTool.
+ */
+function itemState(readCls, cls, args, builders) {
+  const frames = [];
+  let current = cls;
+  let callArgs = args;
+  while (current && frames.length < 8) {
+    const src = readCls(current);
+    const ctor = src && ctorOf(src, current, callArgs.length);
+    if (!ctor) return null;
+    frames.push({ cls: current, src, ctor, args: callArgs });
+    if (current === 'Item') break;
+    const scope = ctorScope(readCls, ctor.params, callArgs, {}, [src]);
+    callArgs = ctor.superArgs.map((a) => evaluate(a, scope));
+    current = ctor.superName;
+  }
+  if (current !== 'Item') return null;
+  const srcs = frames.map((f) => f.src);
+  const state = {};
+  for (const f of [...frames].reverse()) {
+    Object.assign(state, fieldDefaults(f.src));
+    const scope = ctorScope(readCls, f.ctor.params, f.args, state, srcs);
+    for (const stmt of bodyStatements(f.ctor.body)) applyStatement(stmt, scope, state, srcs);
+  }
+  const scope = ctorScope(readCls, [], [], state, srcs);
+  for (const [name, arg] of builders) applyStatement(`this.${name}(${arg})`, scope, state, srcs);
+  return { state, chain: frames.map(({ cls: c, src }) => ({ cls: c, src })) };
+}
+
+function applyStatement(stmt, scope, state, srcs) {
+  let m = /^this\.(\w+)\s*([-+*/]?)=\s*([\s\S]+)$/.exec(stmt);
+  if (m) {
+    const v = evaluate(m[3], scope);
+    state[m[1]] = m[2] ? arith(m[2], state[m[1]], v) : v;
+    return;
+  }
+  m = /^(?:this\.)?(\w+)\(([\s\S]*)\)$/.exec(stmt);
+  if (m && m[1] !== 'super') {
+    const field = setterField(srcs, m[1]);
+    if (field) state[field] = evaluate(m[2], scope);
+  }
+}
+
+/** A scope that knows only `this`, for reading a finished object's fields. */
+function fieldScope(state) {
+  return {
+    ...plainScope(),
+    name: (id) => (id === 'this' ? THIS : undefined),
+    member: (v, f) => (v === THIS ? state[f] : undefined),
+  };
+}
+
+/**
+ * What the nearest override of a getter returns, as { cls, value }: the class
+ * declaring it, and `return this.x;` or a literal evaluated against the item.
+ */
+function getterValue(chain, name, state) {
+  for (const { cls, src } of chain) {
+    const body = methodBody(src, name);
+    if (body === null) continue;
+    const m = /^\s*return\s+([^;]+);\s*$/.exec(body);
+    return { cls, value: m ? evaluate(m[1], fieldScope(state)) : undefined };
+  }
+  return null;
+}
+
+/**
+ * What eating an item restores, as { value }: the argument onItemRightClick
+ * passes to heal(), following super.onItemRightClick() up the chain. Null for
+ * an item whose use never heals.
+ */
+function healValue(chain, state) {
+  for (const { src } of chain) {
+    const body = methodBody(src, 'onItemRightClick');
+    if (body === null) continue;
+    const heal = /\.heal\(([^;]*)\);/.exec(body);
+    if (heal) return { value: evaluate(heal[1], fieldScope(state)) };
+    if (!/super\.onItemRightClick\(/.test(body)) return null;
+  }
+  return null;
+}
+
+/** Method names a body calls on `this`, bare or qualified. */
+function selfCalls(body) {
+  return [...body.matchAll(/(?<![\w.])(?:this\.)?(\w+)\s*\(/g)]
+    .map((m) => m[1]).filter((n) => !/^(super|this|if|for|while|switch|return|new)$/.test(n));
+}
+
+/** Whether the nearest override of `name` in the chain can assign health. */
+function writesHealth(chain, name, seen) {
+  if (seen.has(name)) return false;
+  seen.add(name);
+  for (const { src } of chain) {
+    const body = methodBody(src, name);
+    if (body === null) continue;
+    if (/this\.health\s*[-+*/]?=[^=]/.test(body)) return true;
+    return selfCalls(body).some((n) => writesHealth(chain, n, seen));
+  }
+  return false;
+}
+
+/**
+ * The health a mob starts with: EntityLiving's initialiser, then each
+ * constructor's `this.health = n` or `this.health *= n`, base class first.
+ * Returns { health } or { unknown: why }, and null for a non-living entity.
+ */
+function mobHealth(readCls, cls) {
+  const chain = classChain(readCls, cls, 'Entity');
+  if (!chain) return { unknown: `the class chain of ${cls} could not be read` };
+  if (!chain.some((c) => c.cls === 'EntityLiving')) return null;
+  const state = {};
+  for (const { cls: c, src } of [...chain].reverse()) {
+    Object.assign(state, fieldDefaults(src));
+    const ctor = ctorOf(src, c, 1);
+    if (!ctor) return { unknown: `${c} has no constructor taking a World` };
+    const scope = ctorScope(readCls, ctor.params, [undefined], state, [src]);
+    for (const stmt of bodyStatements(ctor.body)) {
+      const m = /^this\.health\s*([-+*/]?)=\s*([\s\S]+)$/.exec(stmt);
+      if (m) {
+        const v = evaluate(m[2], scope);
+        state.health = m[1] ? arith(m[1], state.health, v) : v;
+        if (typeof state.health !== 'number') return { unknown: `${c} computes its health` };
+        continue;
+      }
+      for (const n of selfCalls(stmt)) {
+        if (writesHealth(chain, n, new Set())) return { unknown: `${c} calls ${n}, which sets health` };
+      }
+    }
+  }
+  return { health: state.health };
+}
+
+// ---------------------------------------------------------------------------
 // Comparisons
 // ---------------------------------------------------------------------------
 
@@ -323,6 +761,16 @@ function compareBlocks(source, data, add) {
   const { blocks, fields } = parseBlocks(src, superId, readCls, (what) =>
     add('warn', `${what} is a constructor value this check cannot read`));
   const mine = new Map(data.blocks.map((b) => [b.id, b]));
+
+  // Every block's item form: a handful are named at the end of Block's
+  // <clinit> (`Item.itemsList[cloth.blockID] = new ItemCloth(...)`), and a
+  // loop gives each remaining block the class it names there.
+  const forms = new Map();
+  for (const m of src.matchAll(/Item\.itemsList\[(\w+)\.blockID\]\s*=\s*\(?\s*new\s+(\w+)\(/g)) {
+    forms.set(m[1], m[2]);
+  }
+  const fallback = /Item\.itemsList\[\w+\]\s*=\s*new\s+(\w+)\(\w+\s*-\s*256\)/.exec(src)?.[1];
+  if (!fallback) add('warn', 'Block.java: the loop giving blocks their item form was not found');
 
   let checked = 0;
   for (const [id, s] of blocks) {
@@ -345,6 +793,12 @@ function compareBlocks(source, data, add) {
     if ((m.lightOpacity ?? null) !== (s.lightOpacity ?? null)) {
       add('error', `${label}: light opacity is ${m.lightOpacity} in data/blocks.json, ${s.lightOpacity} in the source`);
     }
+    const form = forms.get(s.field) ?? fallback;
+    if (form) {
+      const want = itemProperties(readCls, form, [String(id - 256)], []);
+      checkProperty(add, label, 'stack size', m.stackSize, want ? want.stackSize : undefined,
+        `its item form, ${form}`);
+    }
   }
   for (const b of data.blocks) {
     if (!blocks.has(b.id)) add('warn', `block ${b.id} (${b.name}) is in data/blocks.json but was not found in Block.java`);
@@ -357,6 +811,7 @@ function compareItems(source, data, add) {
   if (!src) return add('warn', 'Item.java not found in the source tree');
   const { items, fields } = parseItems(src);
   const mine = new Map(data.items.map((i) => [i.id, i]));
+  const readCls = (cls) => readClass(source, cls);
 
   let checked = 0;
   for (const [id, s] of items) {
@@ -366,10 +821,21 @@ function compareItems(source, data, add) {
       continue;
     }
     checked++;
+    const label = `item ${id} (${m.name || s.field})`;
     if (s.icon && m.icon && (s.icon.x !== m.icon.x || s.icon.y !== m.icon.y)) {
-      add('error', `item ${id} (${m.name || s.field}): icon is ${m.icon.x},${m.icon.y} in data/items.json, ` +
+      add('error', `${label}: icon is ${m.icon.x},${m.icon.y} in data/items.json, ` +
         `${s.icon.x},${s.icon.y} in Item.java`);
     }
+    const want = itemProperties(readCls, s.cls, s.args, s.builders);
+    if (!want) {
+      add('warn', `${label}: the constructor chain of ${s.cls} could not be read`);
+      continue;
+    }
+    const where = `${s.cls}'s constructor chain`;
+    checkProperty(add, label, 'stack size', m.stackSize, want.stackSize, where);
+    checkProperty(add, label, 'durability', m.durability, want.durability, where);
+    checkProperty(add, label, 'attack damage', m.attackDamage, want.attackDamage, where);
+    checkProperty(add, label, 'heal', m.heal, want.heal, where);
   }
   for (const i of data.items) {
     if (!items.has(i.id)) add('warn', `item ${i.id} (${i.name}) is in data/items.json but was not found in Item.java`);
@@ -394,6 +860,16 @@ function compareEntities(source, data, add) {
     if (m.networkId !== s.networkId) {
       add('error', `entity "${name}": network id is ${m.networkId} in data/entities.json, ` +
         `${s.networkId} in EntityList.java`);
+    }
+    const want = mobHealth((cls) => readClass(source, cls), s.cls);
+    const label = `entity "${name}"`;
+    if (want && want.unknown) {
+      if (m.health != null) {
+        add('error', `${label}: health is ${m.health} in data/entities.json, but the source ` +
+          `gives no single figure (${want.unknown})`);
+      }
+    } else {
+      checkProperty(add, label, 'health', m.health, want ? want.health : null, `${s.cls}'s constructor chain`);
     }
   }
   return { checked };

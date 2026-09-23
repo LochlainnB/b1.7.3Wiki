@@ -103,6 +103,9 @@ tools/             the build (Node) and the extractors (Python).
                    game's registration code rather than pattern-matching it.
   extract/appearance.py  runs Block's and Item's initialisers and asks the
                    result what the inventory draws for each stack.
+  extract/properties.py  asks the same items their stack size, durability,
+                   attack damage and healing, and reads each mob's health
+                   out of its constructors.
   extract/isometric.py   draws it: the three-quarter cube, lit as the GUI lights it.
   extract/animated.py    the tiles the game generates at load rather than
                    shipping: water, lava, fire, the portal, the clock and the
@@ -177,9 +180,10 @@ Remove `stub: true` when the page is genuinely written. That is what
 
 ## Never hand-type game numbers
 
-Block ids, hardness, blast resistance, light levels, sprites, biome colours and
-every crafting and smelting recipe are extracted from the client jar into
-`data/`. They reach pages automatically:
+Block ids, hardness, blast resistance, light levels, sprites, biome colours,
+stack sizes, tool and armour durability, attack damage, what food heals, a
+mob's starting health, and every crafting and smelting recipe are extracted
+from the client jar into `data/`. They reach pages automatically:
 
 - The **infobox builds itself** when a page's `title` (or `subject`) matches a
   block, item or entity. You do not write it.

@@ -5,3 +5,4 @@ site/
 minecraft.wiki-examples/
 wiki.local.json
 __pycache__/
+.claude/worktrees/

@@ -4,6 +4,7 @@
 // from the site's chrome.
 import { join } from 'node:path';
 import { statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { subjectsOf } from './content.mjs';
 import { escapeHtml } from './templates.mjs';
 import { slug, anchorId } from './slug.mjs';
@@ -25,6 +26,33 @@ function virtual({ url, title, render, root, config, namespace = null, fm = {} }
     render,
     outPath: join(root, config.outDir, ...segments, 'index.html'),
   };
+}
+
+/**
+ * When each page last changed, in ms: its last commit, or its file's mtime when
+ * it has uncommitted edits or is not in git at all. The mtime alone is useless
+ * on a fresh checkout, which stamps every file with the moment it was cloned.
+ */
+function lastChanged(pages, root, contentDir) {
+  const git = (...args) => {
+    try {
+      return execFileSync('git', ['-c', 'core.quotepath=off', ...args], {
+        cwd: root, encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'],
+      });
+    } catch { return ''; }
+  };
+  // Newest commit first, so a path's first appearance is its latest change.
+  const committed = new Map();
+  let time = 0;
+  for (const line of git('log', '--relative', '--name-only', '--format=%x01%ct', '--', contentDir).split('\n')) {
+    if (line.startsWith('\x01')) time = Number(line.slice(1)) * 1000;
+    else if (line && !committed.has(line)) committed.set(line, time);
+  }
+  const edited = new Set(git('diff', '--relative', '--name-only', 'HEAD', '--', contentDir).split('\n'));
+  return pages.map((p) => {
+    if (committed.has(p.relFile) && !edited.has(p.relFile)) return { p, time: committed.get(p.relFile) };
+    try { return { p, time: statSync(p.file).mtimeMs }; } catch { return { p, time: 0 }; }
+  });
 }
 
 /** Alphabetical, sprite-led list of pages. */
@@ -116,21 +144,16 @@ export function generatedPages(filePages, config, data, root) {
   out.push(virtual({
     root, config, url: '/wiki/recent-changes/', namespace: 'wiki', title: 'Recent changes',
     render: (ctx) => {
-      const rows = contentPages(ctx.allPages())
-        .map((p) => {
-          let mtime = 0;
-          try { mtime = statSync(p.file).mtimeMs; } catch { /* generated or moved */ }
-          return { p, mtime };
-        })
-        .filter((r) => r.mtime)
-        .sort((a, b) => b.mtime - a.mtime)
+      const rows = lastChanged(contentPages(ctx.allPages()), root, config.contentDir)
+        .filter((r) => r.time)
+        .sort((a, b) => b.time - a.time)
         .slice(0, 100)
-        .map(({ p, mtime }) =>
-          `<tr><td>${new Date(mtime).toISOString().slice(0, 16).replace('T', ' ')}</td>` +
+        .map(({ p, time }) =>
+          `<tr><td>${new Date(time).toISOString().slice(0, 16).replace('T', ' ')}</td>` +
           `<td>${ctx.hrefWrap(p.url, escapeHtml(p.title))}</td>` +
           `<td><code>${escapeHtml(p.relFile)}</code></td></tr>`);
       if (!rows.length) return '<p class="mcui-empty">No pages yet.</p>';
-      return `<p>The 100 most recently modified pages, by file modification time.</p>` +
+      return `<p>The 100 most recently changed pages.</p>` +
         `<table class="wikitable"><thead><tr><th>Modified</th><th>Page</th><th>Source file</th></tr></thead>` +
         `<tbody>${rows.join('')}</tbody></table>`;
     },

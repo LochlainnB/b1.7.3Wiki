@@ -1,14 +1,12 @@
 ---
 title: Stone Axe
-description: Stone Axe in Minecraft Beta 1.7.3.
+description: The axe made from cobblestone, with a mining speed of 4, lasting 132 blocks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Stone Axe** is an item in Minecraft Beta 1.7.3.
+**Stone Axe** is the [[Mining#Tools|axe]] made from
+[[Cobblestone|cobblestone]].
 
 ## Obtaining
 
@@ -18,9 +16,16 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A stone axe has a [[Mining#Tools|mining speed]] of 4 on the blocks an axe is
+effective against.
+<!-- src: EnumToolMaterial.java:5 STONE(1, 131, 4.0F, 1); ItemAxe.java:11 -->
+
+It [[Mining#Tool wear|wears out]] after 132 blocks.
+<!-- src: EnumToolMaterial.java:5 maxUses 131; ItemTool.java:34
+     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
+     damage exceeds 131 -->
 
 ## Data values
 
-- Item ID: `275`
+- Item ID: {{id|Stone Axe}}
 - Translation key: `item.hatchetStone`

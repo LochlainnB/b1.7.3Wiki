@@ -24,23 +24,24 @@ for the templates themselves, with live examples that have to render.
 - If you cannot tell whether a behaviour is 1.7.3 or a later version, leave it
   out, or leave an HTML comment saying what needs checking. Do not guess.
 
-The authoritative source for behaviour is the game itself. A full decompiled and
-deobfuscated copy of Beta 1.7.3 sits outside this repository:
+The authoritative source for behaviour is the game itself: a decompiled and
+deobfuscated copy of Beta 1.7.3, with MCP names, kept outside this repository.
+The tools look for it in this order:
 
-```
-C:\Users\Lochlainn\Documents\Source\Minecraft\b1.7.3Source
-```
+1. the `B173_SOURCE` environment variable,
+2. `"sourceDir"` in `wiki.local.json`,
+3. a directory named `b1.7.3Source` beside this repository.
+
+`npm run check` prints the path it found. If it finds none, say so and do not
+write behaviour from memory.
 
 It is read-only, and it is never vendored here — it is Mojang's code with no
 licence attached, so it must stay out of this repo and out of `site/`.
 
-Two skills use it:
-
-- **`b173-wiki`** (`.claude/skills/b173-wiki/`) — the workflow for answering a
-  question from the wiki, falling back to the source, and offering to write the
-  result back. Its `SOURCEMAP.md` maps a topic to the classes that answer it.
-- **`babric-b1.7.3`** — obfuscated names, mappings and mixin targets. For
-  modding, not for game facts.
+The **`b173-wiki`** skill (`.claude/skills/b173-wiki/`) is the workflow for
+answering a question from the wiki, falling back to the source, and offering to
+write the result back. Its `SOURCEMAP.md` maps a topic to the classes that
+answer it.
 
 ## Commands
 
@@ -110,8 +111,7 @@ tools/             the build (Node) and the extractors (Python).
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
 wiki.local.json    optional, gitignored. Where the external, unvendored inputs
-                   are, when they are not in the conventional sibling directory:
-                   {"sourceDir": ..., "cachePath": ..., "jarPath": ...}.
+                   are: {"sourceDir": ..., "cachePath": ..., "jarPath": ...}.
 .claude/skills/    the b173-wiki skill and its generated SOURCEMAP.md.
 ```
 
@@ -262,7 +262,7 @@ template argument in a table: `{{sprite\|Iron Ore}}`. The build fails on both.
 ## Regenerating data and assets
 
 Only needed if the extractors change. Requires the Beta 1.7.3 client jar and
-the Babric mappings:
+two Babric mapping files:
 
 ```
 python tools/extract/gamedata.py --out data
@@ -271,17 +271,26 @@ node tools/seed.mjs              stub any newly discovered block/item/entity
 node tools/seed.mjs --force      rebuild existing stubs from the new data
 ```
 
-The jar and the mappings are Mojang's, shipped without a licence, so like the
-decompiled source they are never vendored here. `tools/extract/paths.py` finds
-them the same way `tools/lib/source.mjs` finds the source: `B173_JAR` and
-`B173_CACHE`, then `"jarPath"` and `"cachePath"` in `wiki.local.json`, then the
-sibling directory `../BabricKit/cache`. The cache is one directory holding
-`intermediary.tiny` and `barn.tiny` with the jar beside them, so pointing at it
-is normally enough. `--jar` and `--cache` still override.
+None of the three is vendored here. The jar is Mojang's, shipped without a
+licence, like the decompiled source. Download them into one directory:
+
+| File | From |
+|---|---|
+| `client.jar` | [Mojang](https://launcher.mojang.com/v1/objects/43db9b498cb67058d2e12d394e6507722e71bb45/client.jar) |
+| `barn.tiny` | [barn b1.7.3+build.9](https://maven.glass-launcher.net/babric/babric/barn/b1.7.3+build.9/barn-b1.7.3+build.9-v2.jar) |
+| `intermediary.tiny` | [intermediary b1.7.3](https://maven.glass-launcher.net/babric/babric/intermediary/b1.7.3/intermediary-b1.7.3-v2.jar) |
+
+Each mappings jar is a zip holding `mappings/mappings.tiny`; extract it under
+the name in the first column. These are the versions `data/` was extracted
+with.
+
+Point `B173_CACHE`, or `"cachePath"` in `wiki.local.json`, at that directory.
+`B173_JAR` or `"jarPath"` is only for a jar kept somewhere else, and `--jar` and
+`--cache` override both. `tools/extract/paths.py` does the finding.
 
 Unlike the source, these are not optional: the build never opens the jar, but
-the extractors are nothing without it, so a bad path is a fatal error that
-names all three ways to fix it.
+the extractors are nothing without it, so a missing file is a fatal error that
+says how to fix it.
 
 `--force` rewrites only files still carrying `stub: true`, and skips every page
 anyone has actually written. Use it when new data should reach pages that were
@@ -321,9 +330,11 @@ the fix for a bloated page is shorter sentences, not fewer of them.
 
 ### The model to copy
 
-The house style is minecraft.wiki's. Three of its pages are saved in
-`minecraft.wiki-examples/`; open one when you are unsure how a section should
-read. What to notice is how little happens in each sentence:
+The house style is minecraft.wiki's. [Wooden Stairs](https://minecraft.wiki/w/Wooden_Stairs)
+and [Trading](https://minecraft.wiki/w/Trading) show it well; read one when you
+are unsure how a section should read. Copy their style, not their facts: they
+describe modern Minecraft. What to notice is how little happens in each
+sentence:
 
 > Wooden stairs can be broken with anything, but axes are the fastest.
 >

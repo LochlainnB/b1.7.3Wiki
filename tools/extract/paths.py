@@ -5,17 +5,18 @@ this repository - the same rule the decompiled source lives under. It sits
 outside, is read strictly read-only, and is found by:
 
   1. the B173_JAR and B173_CACHE environment variables,
-  2. "jarPath" and "cachePath" in wiki.local.json (gitignored),
-  3. a sibling directory named BabricKit/cache.
+  2. "jarPath" and "cachePath" in wiki.local.json (gitignored).
 
 The mappings cache is one directory holding intermediary.tiny and barn.tiny,
 and the jar normally sits beside them, so pointing at the cache is usually
-enough; jarPath is only for a jar kept somewhere else.
+enough; jarPath is only for a jar kept somewhere else. AGENTS.md says where to
+download all three.
 
-This mirrors tools/lib/source.mjs, with one deliberate difference. A missing
-source tree is not an error - the wiki builds and validates without it. These
-files are what the extractors are made of, so not finding them is fatal, and
-the message names all three ways to point at them.
+This follows tools/lib/source.mjs, with two differences. A missing source tree
+is not an error - the wiki builds and validates without it. These files are
+what the extractors are made of, so not finding them is fatal, and the message
+says how to point at them. And there is no conventional directory to fall back
+on: a path nobody configured is not guessed at.
 """
 import collections
 import io
@@ -24,7 +25,6 @@ import os
 
 CACHE_FILES = ('intermediary.tiny', 'barn.tiny')
 JAR_NAME = 'client.jar'
-SIBLING = os.path.join('..', 'BabricKit', 'cache')
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -47,49 +47,45 @@ def _local_config(root):
         raise Missing('wiki.local.json is not valid JSON (%s)' % err)
 
 
-def _dirs(root):
-    """Directories to search, most explicit first, convention last."""
-    out = []
+def _cache_dir(root):
+    """The configured cache directory, the environment first, or None."""
     env = os.environ.get('B173_CACHE')
     if env:
-        out.append(Found(os.path.abspath(env), 'B173_CACHE'))
+        return Found(os.path.abspath(env), 'B173_CACHE')
     cfg = _local_config(root).get('cachePath')
     if cfg:
-        out.append(Found(os.path.normpath(os.path.join(root, cfg)),
-                         'wiki.local.json "cachePath"'))
-    out.append(Found(os.path.normpath(os.path.join(root, SIBLING)), 'the conventional ' + SIBLING))
-    return out
-
-
-def _search(root, wanted):
-    """First candidate directory holding every name in `wanted`.
-
-    An explicitly configured directory that does not have them is worth saying
-    out loud; the conventional sibling simply not being there is not, so the
-    search moves on and the caller reports the whole list at the end.
-    """
-    for cand in _dirs(root):
-        absent = [f for f in wanted if not os.path.exists(os.path.join(cand.path, f))]
-        if not absent:
-            return cand
-        if not cand.origin.startswith('the conventional'):
-            raise Missing('%s points at %s, which has no %s'
-                          % (cand.origin, cand.path, ' or '.join(absent)))
+        return Found(os.path.normpath(os.path.join(root, cfg)),
+                     'wiki.local.json "cachePath"')
     return None
 
 
-def _nowhere(root, wanted, env, key):
-    looked = '\n'.join('    %s  (%s)' % (c.path, c.origin) for c in _dirs(root))
-    return Missing('no %s found. Looked in:\n%s\nSet %s, or "%s" in '
-                   'wiki.local.json, or put the files in %s.'
-                   % (' or '.join(wanted), looked, env, key, SIBLING))
+def _search(root, wanted):
+    """The configured cache directory, if it holds every name in `wanted`.
+
+    None when no directory is configured at all. One that is configured but
+    lacks a file is an error, named for the setting that points at it.
+    """
+    cand = _cache_dir(root)
+    if cand is None:
+        return None
+    absent = [f for f in wanted if not os.path.exists(os.path.join(cand.path, f))]
+    if absent:
+        raise Missing('%s points at %s, which has no %s'
+                      % (cand.origin, cand.path, ' or '.join(absent)))
+    return cand
+
+
+def _nowhere(wanted, env, key):
+    return Missing('no %s found. Set %s, or "%s" in wiki.local.json; '
+                   '"Regenerating data and assets" in AGENTS.md lists the '
+                   'downloads.' % (' or '.join(wanted), env, key))
 
 
 def find_cache(root=REPO_ROOT):
     """The directory holding intermediary.tiny and barn.tiny."""
     hit = _search(root, CACHE_FILES)
     if hit is None:
-        raise _nowhere(root, CACHE_FILES, 'B173_CACHE', 'cachePath')
+        raise _nowhere(CACHE_FILES, 'B173_CACHE', 'cachePath')
     return hit
 
 
@@ -107,5 +103,5 @@ def find_jar(root=REPO_ROOT):
 
     hit = _search(root, (JAR_NAME,))
     if hit is None:
-        raise _nowhere(root, (JAR_NAME,), 'B173_JAR', 'jarPath')
+        raise _nowhere((JAR_NAME,), 'B173_JAR', 'jarPath')
     return Found(os.path.join(hit.path, JAR_NAME), hit.origin)

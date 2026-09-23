@@ -3,8 +3,7 @@
 
     python tools/extract/sprites.py --out . [--contact-sheet F]
 
-The jar is found automatically; see paths.py for the three ways to say where
-it is.
+The jar is found automatically; see paths.py for how to say where it is.
 
 Three things happen here, in order.
 

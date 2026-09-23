@@ -7,10 +7,11 @@ description: Answer questions about how Minecraft Beta 1.7.3 works - mobs, block
 
 Two sources of truth, in this order:
 
-```
-C:\Users\Lochlainn\Documents\Source\Minecraft\b1.7.3Wiki      the wiki   (edit this)
-C:\Users\Lochlainn\Documents\Source\Minecraft\b1.7.3Source    the game   (read only)
-```
+- **The wiki**: `content/` in this repository. Edit this.
+- **The game**: a decompiled copy of Beta 1.7.3, outside this repository. Read
+  only. `npm run check` prints where it is, and `AGENTS.md` says where it is
+  looked for. If none is installed, tell the user so rather than answering
+  from memory.
 
 The wiki is what has already been established. The source is the game itself and
 settles anything the wiki does not, or gets wrong. **Never answer from memory of
@@ -70,9 +71,6 @@ The three things that will otherwise cost time:
   members that were never named. Quote them as they are.
 
 The tree is **read-only**. Nothing in this workflow writes to it, ever.
-
-For questions about obfuscated names, mappings or mixin targets — modding rather
-than game facts — use the `babric-b1.7.3` skill instead.
 
 ## 3. Answer
 

@@ -8,8 +8,8 @@ the site build never needs the jar.
 
     python tools/extract/gamedata.py --out data
 
-The jar and the Babric mappings are found automatically; see paths.py for the
-three ways to say where they are.
+The jar and the Babric mappings are found automatically; see paths.py for how
+to say where they are.
 
 Setter identification
 ---------------------

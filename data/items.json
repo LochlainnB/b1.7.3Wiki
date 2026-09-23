@@ -1316,7 +1316,7 @@
   {
     "id": 351,
     "key": "dyePowder",
-    "name": "dyePowder",
+    "name": "Dye",
     "langKey": "item.dyePowder",
     "class": "class_242",
     "icon": {

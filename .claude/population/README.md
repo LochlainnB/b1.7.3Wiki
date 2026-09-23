@@ -23,8 +23,7 @@ All of these must hold. Agents cannot fix any of them from inside a worktree.
    hub was written under a different name from the one `groups.json` guessed,
    rename it in `groups.json`.
 2. **Every stub has a group.** `node .claude/population/check.mjs` exits 0.
-   A new stub, for example from splitting the dye page, must be added to a
-   group before dispatch.
+   A new stub must be added to a group before dispatch.
 3. **`npm run check` ends with `0 errors`** and prints `Verified against`.
 4. **Everything is committed.** Each worktree starts from the local HEAD
    (`.claude/settings.json` sets that). Uncommitted work, this directory
@@ -47,8 +46,6 @@ Write the "<id>" group of pages on the Beta 1.7.3 wiki. Your group id is
 <id>. Read .claude/population/brief.md first and follow it exactly. End with
 the report it describes.
 ```
-
-Hold `mob-drops` until the dye page's naming is settled; its notes say why.
 
 ## Merging a finished group
 

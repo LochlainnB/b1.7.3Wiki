@@ -157,7 +157,9 @@ function imageArea(fm, page, columns, ctx) {
   // one picture stands alone at full size, as on any other page.
   const shown = [];
   for (const column of columns) {
-    const name = column.rec.name;
+    // A subtype draws its own icon where it has one: Fern is not Tall Grass.
+    const { label, name: idName } = column.rec;
+    const name = label && ctx.data.sprite(label) ? label : idName;
     if (ctx.data.sprite(name) && !shown.some((s) => s.name === name)) {
       shown.push({ name, label: column.label });
     }

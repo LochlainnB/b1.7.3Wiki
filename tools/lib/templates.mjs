@@ -49,6 +49,15 @@ function spriteName(ctx, name, label) {
   return label && ctx.data.sprite(label) ? label : name;
 }
 
+/**
+ * The page a resolved reference should link to: the subtype's, when the wiki
+ * has a page answering to it, and the id's otherwise. Lapis lazuli is dye at
+ * damage 4 but has a page of its own, so its slot in a recipe goes there.
+ */
+function linkName(ctx, name, label) {
+  return label && label !== name && ctx.resolveLink(label).hit ? label : name;
+}
+
 /** One inventory slot, optionally holding a linked item sprite and a count. */
 function invslot(ctx, name, { count, large = false, plain = false, title, label } = {}) {
   const cls = ['invslot', large && 'invslot-large', plain && 'invslot-plain']
@@ -62,7 +71,7 @@ function invslot(ctx, name, { count, large = false, plain = false, title, label 
   }
   if (!name) return `<span class="${cls}"></span>`;
   const icon = ctx.sprite(spriteName(ctx, name, label), { link: false, title: title || name });
-  const inner = ctx.linkWrap(name, icon, '', title || name);
+  const inner = ctx.linkWrap(linkName(ctx, name, label), icon, '', title || name);
   const stack = count && count > 1
     ? `<span class="invslot-stacksize">${escapeHtml(count)}</span>` : '';
   return `<span class="${cls}"><span class="invslot-item invslot-item-image">${inner}</span>${stack}</span>`;
@@ -211,7 +220,8 @@ define(['used-in', 'usedin', 'crafting-uses'], ({ args, named, ctx }) => {
   const rows = recipes.map((r) => {
     const out = ctx.data.resolveRef(r.output);
     const icon = out ? ctx.sprite(spriteName(ctx, out.name, out.label)) : '';
-    return `<tr><td>${out ? ctx.linkWrap(out.name, `${icon} ${escapeHtml(out.label)}`) : '?'}</td>` +
+    return `<tr><td>${out ? ctx.linkWrap(linkName(ctx, out.name, out.label),
+      `${icon} ${escapeHtml(out.label)}`) : '?'}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`;
   });
   return `<table class="wikitable recipe-uses"><thead><tr><th>Result</th><th>Recipe</th></tr></thead>` +
@@ -334,7 +344,7 @@ define(['recipe-list', 'all-recipes'], ({ named, ctx }) => {
     .filter((x) => x.out)
     .sort((a, b) => a.out.label.localeCompare(b.out.label))
     .map(({ r, out }) =>
-      `<tr><td>${ctx.linkWrap(out.name,
+      `<tr><td>${ctx.linkWrap(linkName(ctx, out.name, out.label),
         `${ctx.sprite(spriteName(ctx, out.name, out.label))} ${escapeHtml(out.label)}`)}</td>` +
       `<td>${r.output.count || 1}</td>` +
       `<td>${recipeToGrid(ctx, r)}</td></tr>`);

@@ -13,7 +13,8 @@
     "94": "Redstone Repeater"
   },
   "byItemId": {
-    "337": "Clay Ball"
+    "337": "Clay Ball",
+    "351": "Dye"
   },
   "variantsByBlockId": {
     "31": {

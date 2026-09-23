@@ -151,7 +151,7 @@ async function main() {
 
   const filePages = loadPages(ROOT, config);
   const pages = [...filePages, ...generatedPages(filePages, config, data, ROOT)];
-  const index = buildIndex(pages);
+  const index = buildIndex(pages, data);
 
   const ctx = makeContext({ config, data, pages, index, problems, links });
   const renderer = createRenderer(ctx);

@@ -42,37 +42,44 @@
   {
     "name": "Mob",
     "networkId": 48,
-    "class": "LivingEntity"
+    "class": "LivingEntity",
+    "health": 10
   },
   {
     "name": "Monster",
     "networkId": 49,
-    "class": "class_146"
+    "class": "class_146",
+    "health": 20
   },
   {
     "name": "Creeper",
     "networkId": 50,
-    "class": "class_114"
+    "class": "class_114",
+    "health": 20
   },
   {
     "name": "Skeleton",
     "networkId": 51,
-    "class": "class_90"
+    "class": "class_90",
+    "health": 20
   },
   {
     "name": "Spider",
     "networkId": 52,
-    "class": "class_558"
+    "class": "class_558",
+    "health": 20
   },
   {
     "name": "Giant",
     "networkId": 53,
-    "class": "class_311"
+    "class": "class_311",
+    "health": 200
   },
   {
     "name": "Zombie",
     "networkId": 54,
-    "class": "class_480"
+    "class": "class_480",
+    "health": 20
   },
   {
     "name": "Slime",
@@ -82,41 +89,49 @@
   {
     "name": "Ghast",
     "networkId": 56,
-    "class": "class_364"
+    "class": "class_364",
+    "health": 10
   },
   {
     "name": "PigZombie",
     "networkId": 57,
-    "class": "class_535"
+    "class": "class_535",
+    "health": 20
   },
   {
     "name": "Pig",
     "networkId": 90,
-    "class": "class_443"
+    "class": "class_443",
+    "health": 10
   },
   {
     "name": "Sheep",
     "networkId": 91,
-    "class": "class_613"
+    "class": "class_613",
+    "health": 10
   },
   {
     "name": "Cow",
     "networkId": 92,
-    "class": "class_466"
+    "class": "class_466",
+    "health": 10
   },
   {
     "name": "Chicken",
     "networkId": 93,
-    "class": "class_313"
+    "class": "class_313",
+    "health": 4
   },
   {
     "name": "Squid",
     "networkId": 94,
-    "class": "class_151"
+    "class": "class_151",
+    "health": 10
   },
   {
     "name": "Wolf",
     "networkId": 95,
-    "class": "class_121"
+    "class": "class_121",
+    "health": 8
   }
 ]

@@ -19,7 +19,7 @@ Health regenerates only on Peaceful, at 1 point per second.
      `ticksExisted % 20 * 12 == 0`, which Java groups as
      ((ticksExisted % 20) * 12) == 0 and so passes every 20th tick -->
 
-Eating restores the food's own healing value at any difficulty.
+[[Food|Eating]] restores the food's own healing value at any difficulty.
 <!-- src: ItemFood.java:14 onItemRightClick calls heal(healAmount) -->
 
 ## Environmental damage

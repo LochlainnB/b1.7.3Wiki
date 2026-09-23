@@ -259,7 +259,7 @@ Full reference with live examples: `content/wiki/page-templates.md`, rendered at
 | `{{used in\|Cobblestone}}` | recipes that consume it |
 | `{{recipe list}}` | every recipe in the game |
 | `{{id\|Cobblestone}}` | the numeric id; `31:2` for a subtype; `{{id\|block 68}}` for one of several ids |
-| `{{list\|blocks}}` | sortable table of a whole data set |
+| `{{list\|blocks}}` | sortable table of a whole data set; `light`, `opacity` and `food` give the narrower tables the hubs use |
 | `{{pagelist\|namespace=biome}}` | linked list of pages |
 | `{{stub}}` `{{main\|X}}` `{{see also\|X}}` `{{hatnote\|…}}` `{{msgbox\|…}}` | notes |
 

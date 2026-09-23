@@ -273,7 +273,12 @@ define(['id', 'dv'], ({ args, ctx }) => {
   return `<code>${rec.damage ? `${id}:${rec.damage}` : id}</code>`;
 });
 
-/** A sortable table of a whole data set: {{list|blocks}} */
+/**
+ * A sortable table of a whole data set: {{list|blocks}}, {{list|items}},
+ * {{list|entities}}. Three narrower sets serve the hub pages: {{list|light}}
+ * the blocks that give off light, {{list|opacity}} the blocks with a
+ * hand-set opacity, {{list|food}} the items that heal.
+ */
 define(['list', 'datatable'], ({ args, named, ctx }) => {
   const which = (args[0] || named.of || 'blocks').toLowerCase();
   const rows = [];
@@ -290,6 +295,35 @@ define(['list', 'datatable'], ({ args, named, ctx }) => {
         fmtNum(b.blastResistance),
         b.lightEmission || 0,
       ]);
+    }
+  } else if (which === 'light') {
+    // Blocks that give off light. Two ids under one name -- lit and unlit
+    // furnace, still and flowing lava -- are one row, at the brighter id.
+    head.push('Icon', 'Name', 'Light');
+    const seen = new Set();
+    for (const b of ctx.data.blocks.filter((x) => x.key && x.lightEmission)
+      .sort((x, y) => y.lightEmission - x.lightEmission)) {
+      if (seen.has(b.name)) continue;
+      seen.add(b.name);
+      rows.push([ctx.sprite(b.name), ctx.linkWrap(b.name, escapeHtml(b.name)), b.lightEmission]);
+    }
+  } else if (which === 'opacity') {
+    // Blocks whose opacity the game sets by hand, rather than taking the
+    // default of opaque for a full cube and clear for anything else.
+    head.push('Icon', 'Name', 'Light lost per block');
+    const seen = new Set();
+    for (const b of ctx.data.blocks.filter((x) => x.key && x.lightOpacity != null)
+      .sort((x, y) => x.lightOpacity - y.lightOpacity)) {
+      if (seen.has(b.name)) continue;
+      seen.add(b.name);
+      rows.push([ctx.sprite(b.name), ctx.linkWrap(b.name, escapeHtml(b.name)),
+        b.lightOpacity >= 15 ? 'All' : b.lightOpacity]);
+    }
+  } else if (which === 'food') {
+    head.push('Icon', 'Name', 'Heals', 'Stackable');
+    for (const i of ctx.data.items.filter((x) => x.heal != null)) {
+      rows.push([ctx.sprite(i.name), ctx.linkWrap(i.name, escapeHtml(i.name)), i.heal,
+        i.stackSize > 1 ? `Yes (${i.stackSize})` : 'No']);
     }
   } else if (which.startsWith('item')) {
     head.push('Icon', 'Name', 'ID');

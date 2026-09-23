@@ -15,7 +15,7 @@ Every space stores two values from 0 to 15:
 - **Sky light**, which comes from the sky.
 - **Block light**, which comes from blocks that give off light.
 
-A space's light level is the higher of its block light and its sky light less
+A space's light level is the higher of its block light and its sky light minus
 the sky's [[Light#Day and night|darkness]].
 <!-- src: Chunk.java:341 getBlockLightValue, max(sky - skylightSubtracted,
      block); World.java:545 getBlockLightValue_do passes skylightSubtracted -->
@@ -25,7 +25,7 @@ the sky's [[Light#Day and night|darkness]].
 A space open to the sky has sky light 15, however far down it is. A space is
 open to the sky when nothing above it is a full opaque block or one of the
 blocks [[Light#What stops light|listed below]]. Any other space takes the brightest
-sky light among its six neighbours, less the light lost in its own block.
+sky light among its six neighbours, minus the [[Light#What stops light|light lost in its own block]].
 <!-- src: Chunk.java:397 canBlockSeeTheSky, true at or above the column's
      height map; Chunk.java:67 the height map stops at the first block with
      non-zero opacity; MetadataChunkBlock.java:84 sets 15 where the sky is
@@ -72,8 +72,8 @@ spaces above and beside it.
 
 ## Day and night
 
-The sky's darkness is taken off sky light when a light level is read. It is 0
-by day and 11 at night, so a space open to the sky reads 15 by day and 4 at
+The sky's darkness is subtracted from sky light when a light level is read. It is 
+0 by day and 11 at night, so a space open to the sky reads 15 by day and 4 at
 night:
 
 | Time of day (ticks) | Sky light read |
@@ -95,8 +95,8 @@ The game counts it as day while the sky reads 12 or brighter.
 <!-- src: World.java:700 isDaytime, skylightSubtracted < 4 -->
 
 The stored sky light never changes with the time of day. Some checks read a
-space's light without taking the darkness off, and see a space open to the sky
-at 15 at midnight.
+space's light without subtracting darkness, and see a space open to the sky
+as 15 at midnight.
 <!-- src: World.java:529 getFullBlockLightValue passes 0 for the darkness -->
 
 A day is 24,000 ticks, kept by the [[Game Tick#The world clock|world clock]].

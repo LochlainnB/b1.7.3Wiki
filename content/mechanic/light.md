@@ -109,15 +109,16 @@ A day is 24,000 ticks, kept by the [[Game Tick#The world clock|world clock]].
 | [[Mob Spawning#Passive mobs\|Animal spawning]] | above 8 | light level, ignoring night |
 | [[Crops]] and [[Sapling\|saplings]] growing | 9 or more, in the space above | light level |
 | [[Grass]] spreading | 9 or more above the grass, 4 or more above the dirt | light level |
-| [[Grass]] dying | below 4, with water, ice or an opaque block above | light level |
+| [[Grass]] dying | below 4, under water, ice, lava, an opaque block, a slab, stairs or farmland | light level |
 | [[Flower\|Flowers]], [[Rose\|roses]], [[Tall Grass\|tall grass]], [[Dead Bush\|dead bushes]], crops and saplings staying put | 8 or more, or open to the sky | light level, ignoring night |
 | [[Mushroom\|Mushrooms]] spreading and staying put | 12 or less | light level, ignoring night |
 | [[Ice]] melting | above 8 | block light alone |
-| [[Snow]] melting | above 11 | block light alone |
-| [[Zombie\|Zombies]] and [[Skeleton\|skeletons]] catching fire | 12 or more, open to the sky, by day | light level |
+| [[Snow]] layers melting | above 11 | block light alone |
+| [[Zombie\|Zombies]], [[Skeleton\|skeletons]] and [[Pig Zombie\|pig zombies]] catching fire | 12 or more, open to the sky, by day: a chance each tick, from 1 in 120 at 12 to 1 in 25 at 15 | light level |
 | [[Spider\|Spiders]] seeking a player | 11 or less | light level |
 | Hostile mobs except slimes and ghasts ageing towards [[Mob Spawning#Despawning\|despawning]] | 12 or more, at three times the rate | light level |
-| Hostile mobs except slimes and ghasts wandering | prefer darker spaces | light level |
+| Hostile mobs except slimes, ghasts and giants wandering | prefer darker spaces | light level |
+| [[Giant\|Giants]] wandering | prefer brighter spaces | light level |
 | Animals wandering | prefer [[Grass\|grass]], then brighter spaces | light level |
 
 <!-- src: EntityMob.java:69 getCanSpawnHere; EntityAnimal.java:24
@@ -125,10 +126,16 @@ A day is 24,000 ticks, kept by the [[Game Tick#The world clock|world clock]].
      and :43 updateTick; BlockFlower.java:40 canBlockStay, which BlockCrops,
      BlockSapling, BlockTallGrass and BlockDeadBush inherit;
      BlockMushroom.java:35; BlockIce.java:34, 11 less its own opacity of 3;
-     BlockSnow.java:72, BlockSnowBlock.java:20; EntityZombie.java:12,
-     EntitySkeleton.java:24; EntitySpider.java:20 findPlayerToAttack;
-     EntityMob.java:12 onLivingUpdate; EntityMob.java:57 and
-     EntityAnimal.java:9 getBlockPathWeight. Slimes and ghasts are not
-     EntityMob. A mob's brightness is read at two thirds of its height
+     BlockSnow.java:72. BlockSnowBlock.java:19 tests the block light stored in
+     its own space, which is 0 for an opaque block, so a snow block never
+     melts. Grass dying: BlockGrass.java:32 tests lightOpacity above 2, which
+     BlockStep.java:16, BlockStairs.java:15, BlockFarmland.java:11 and lava
+     (Block.java:602-:603) all have. EntityZombie.java:11-:14 and
+     EntitySkeleton.java:24 roll rand * 30 < (brightness - 0.4) * 2 each tick;
+     EntityPigZombie extends EntityZombie and runs it too.
+     EntitySpider.java:20 findPlayerToAttack; EntityMob.java:12 onLivingUpdate;
+     EntityMob.java:57 and EntityAnimal.java:9 getBlockPathWeight;
+     EntityGiantZombie.java:14 overrides it as brightness - 0.5, the reverse.
+     Slimes and ghasts are not EntityMob. A mob's brightness is read at two thirds of its height
      (Entity.java:628), and a brightness above 0.5 is light 12 or more in the
      table WorldProvider.java:19 builds -->

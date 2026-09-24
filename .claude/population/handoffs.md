@@ -15,12 +15,6 @@ None yet.
   (tools)
 - **Sheep**: each shearing costs the shears 1 durability.
   `src: EntitySheep.java:49` (tools)
-- **Light** (the burning row): by day a zombie or skeleton catches fire with
-  chance `(brightness − 0.4) × 2 / 30` a tick, 1 in 25 in full daylight.
-  `src: EntityZombie.java:14, EntitySkeleton.java:26` (hostile-mobs)
-- **Light**: a pig zombie runs the same burning check and takes no damage from
-  it. `src: EntityPigZombie extends EntityZombie; EntityPigZombie.java:15`
-  (hostile-mobs)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
 - **Damage#Armour**: does not say how armour is worn. Each of the four slots
@@ -45,11 +39,6 @@ None yet.
   chunk, at block (x+16, z+16), and applies its tree and plant counts to the
   whole populated area, so trees can appear in Plains, Desert or Tundra columns
   near a border. `src: ChunkProviderGenerate.java:314` (biomes)
-- **Overworld or Light**: the daytime sky colour comes from a temperature noise
-  read at the player's position, through the same function in every Overworld
-  biome; it is not the biome's own temperature. `src: World.java:1030-:1031;
-  WorldChunkManager.java:31 getTemperature; BiomeGenBase.java:123
-  getSkyColorByTemp` (biomes)
 - **Saddle**: hitting a pig with a saddle saddles it, as using it does.
   `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
 - **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
@@ -104,33 +93,6 @@ None yet.
 
 ## Hub or data problems
 
-- **Light#What light affects**: "Hostile mobs except slimes and ghasts
-  wandering | prefer darker spaces" is wrong for the giant, which prefers
-  brighter spaces. `src: EntityGiantZombie.java:14 getBlockPathWeight =
-  brightness − 0.5` (hostile-mobs)
-- **Light#What light affects**: the "Grass dying" row names only "water, ice or
-  an opaque block above". The test is light opacity above 2, which also covers
-  slabs, stairs, farmland and lava. `src: BlockGrass.java:32; BlockStep.java:16,
-  BlockStairs.java:15, BlockFarmland.java:11` (terrain)
-- **Light#What light affects** ("Snow melting | above 11") and **Game
-  Tick#Random ticks** ("Snow | melts above block light 11"): only the snow
-  layer melts. A snow block reads the block light stored in its own space,
-  which is always 0 for an opaque block, so it never melts.
-  `src: BlockSnowBlock.java:19; Block.java:152; MetadataChunkBlock.java:85`
-  (fluids-and-cold; checked against source when merging)
-- **Game Tick#Random ticks**, Leaves row: "decay when a nearby break has flagged
-  them and no log is within 4 blocks" is wrong twice. The test is a chain of at
-  most 4 face-to-face steps through leaves to any wood, not a distance, so wood
-  2 blocks away across air does not keep them. And placed leaves start flagged,
-  not only leaves near a break. Leaves has it right.
-  `src: BlockLeaves.java:81-:144 updateTick; ItemLeaves.java:10
-  getPlacedBlockMetadata returns var1 | 8` (plants; face-to-face checked
-  against source when merging)
-- **Game Tick#Random ticks**, Farmland row: "turns to dirt when dry" is wrong
-  for farmland with crops on it, which never does. Only crops in the space
-  directly above count. Farmland has it right. `src: BlockFarmland.java:41,
-  :57 isCropsNearby, radius 0` (farming-and-food; checked against source when
-  merging)
 - **Monster Spawner**: with six of its mob nearby, the spawner does not just end
   the round; it also resets its delay to 200–799 ticks.
   `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source

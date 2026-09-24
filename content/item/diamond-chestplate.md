@@ -1,14 +1,12 @@
 ---
 title: Diamond Chestplate
-description: Diamond Chestplate in Minecraft Beta 1.7.3.
+description: The chestplate made from diamonds.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Armour]
 ---
 
-{{stub|item}}
-
-**Diamond Chestplate** is an item in Minecraft Beta 1.7.3.
+**Diamond Chestplate** is the [[Damage#Armour|chestplate]] made from
+[[Diamond|diamonds]].
 
 ## Obtaining
 
@@ -18,9 +16,13 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A diamond chestplate is worn in the second armour slot. It gives 8
+[[Damage#Armour|armour points]].
+<!-- src: Item.java:329 armorType 1; ItemArmor.java:4 damageReduceAmountArray
+     {3, 8, 6, 3}; ContainerPlayer.java:28 puts armour slot n at y = 8 + n * 18,
+     and SlotArmor.java:19 accepts only the matching armorType there -->
 
 ## Data values
 
-- Item ID: `311`
+- Item ID: {{id|Diamond Chestplate}}
 - Translation key: `item.chestplateDiamond`

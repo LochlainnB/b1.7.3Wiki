@@ -1,6 +1,6 @@
 ---
 title: Shears
-description: The iron tool that shears sheep and collects leaves and cobweb, lasting 239 uses.
+description: The iron tool that shears sheep and collects leaves and cobweb.
 type: item
 categories: [Items, Tools]
 ---
@@ -28,12 +28,10 @@ Shears act on:
 <!-- src: EntitySheep.java:36 interact; BlockLeaves.java:164 harvestBlock;
      ItemShears.java:22 getStrVsBlock; ItemShears.java:18 canHarvestBlock -->
 
-They [[Mining#Tool wear|wear out]] after 239 uses, counting each leaf block,
-cobweb and sheep sheared. Breaking any other block costs them nothing.
-<!-- src: ItemShears.java:7 setMaxDamage(238); ItemShears.java:10
-     onBlockDestroyed damages only on leaves and web; EntitySheep.java:49
-     damageItem(1) per shearing; ItemStack.java:127 damageItem breaks the
-     shears once damage exceeds 238 -->
+Each leaf block, cobweb and sheep sheared costs them 1
+[[Durability|durability]]. Breaking any other block costs them nothing.
+<!-- src: ItemShears.java:10 onBlockDestroyed damages only on leaves and web;
+     EntitySheep.java:49 damageItem(1) per shearing -->
 
 ## Data values
 

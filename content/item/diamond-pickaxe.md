@@ -29,11 +29,6 @@ pickaxe mines it at speed 1, in 15 seconds.
 <!-- src: ItemPickaxe.java:41 blocksEffectiveAgainst has no Block.obsidian;
      Block.java:327 blockStrength, 1 / (10 * 30) per tick at hardness 10 -->
 
-It [[Mining#Tool wear|wears out]] after 1562 blocks.
-<!-- src: EnumToolMaterial.java:7 maxUses 1561; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 1561 -->
-
 ## Data values
 
 - Item ID: {{id|Diamond Pickaxe}}

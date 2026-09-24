@@ -1,6 +1,6 @@
 ---
 title: Golden Sword
-description: The sword made from gold ingots, which deals the same damage as a wooden sword, lasting 33 hits.
+description: The sword made from gold ingots, which deals the same damage as a wooden sword.
 type: item
 categories: [Items, Weapons]
 ---
@@ -27,13 +27,6 @@ A golden sword deals the same [[Damage#Weapons|damage]] as a
 It has a [[Mining#Tools|mining speed]] of 1.5 on every block, and 15 on
 [[Cobweb|cobweb]]. It [[Mining#Drops|harvests]] cobweb.
 <!-- src: ItemSword.java:13 getStrVsBlock; ItemSword.java:35 canHarvestBlock -->
-
-It wears out after 33 hits, or 17 [[Mining#Tool wear|blocks mined]], the
-fewest of any sword.
-<!-- src: ItemSword.java:17 hitEntity damageItem(1); ItemSword.java:22
-     onBlockDestroyed damageItem(2); EnumToolMaterial.java:8 maxUses 32;
-     ItemStack.java:127 damageItem breaks the sword once damage exceeds 32,
-     which two points a block first passes on the 17th -->
 
 ## Data values
 

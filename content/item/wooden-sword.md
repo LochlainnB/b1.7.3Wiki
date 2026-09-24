@@ -1,6 +1,6 @@
 ---
 title: Wooden Sword
-description: The sword made from wooden planks, which deals the same damage as a golden sword, lasting 60 hits.
+description: The sword made from wooden planks, which deals the same damage as a golden sword.
 type: item
 categories: [Items, Weapons]
 ---
@@ -29,11 +29,6 @@ A wooden sword deals the same [[Damage#Weapons|damage]] as a
 It has a [[Mining#Tools|mining speed]] of 1.5 on every block, and 15 on
 [[Cobweb|cobweb]]. It [[Mining#Drops|harvests]] cobweb.
 <!-- src: ItemSword.java:13 getStrVsBlock; ItemSword.java:35 canHarvestBlock -->
-
-It wears out after 60 hits, or 30 [[Mining#Tool wear|blocks mined]].
-<!-- src: ItemSword.java:17 hitEntity damageItem(1); ItemSword.java:22
-     onBlockDestroyed damageItem(2); EnumToolMaterial.java:4 maxUses 59;
-     ItemStack.java:127 damageItem breaks the sword once damage exceeds 59 -->
 
 ## Data values
 

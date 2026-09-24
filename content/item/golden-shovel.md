@@ -1,6 +1,6 @@
 ---
 title: Golden Shovel
-description: The shovel made from gold ingots, the fastest and shortest-lived, with a mining speed of 12, lasting 33 blocks.
+description: The shovel made from gold ingots, the fastest and shortest-lived, with a mining speed of 12.
 type: item
 categories: [Items, Tools]
 ---
@@ -22,11 +22,6 @@ shovel is effective against, the fastest of any shovel.
 
 It [[Mining#Drops|harvests]] [[Snow|snow]], as a layer and as a block.
 <!-- src: ItemSpade.java:10 canHarvestBlock -->
-
-It [[Mining#Tool wear|wears out]] after 33 blocks, the fewest of any shovel.
-<!-- src: EnumToolMaterial.java:8 maxUses 32; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 32 -->
 
 ## Data values
 

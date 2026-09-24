@@ -1,6 +1,6 @@
 ---
 title: Iron Shovel
-description: The shovel made from iron ingots, with a mining speed of 6, lasting 251 blocks.
+description: The shovel made from iron ingots, with a mining speed of 6.
 type: item
 categories: [Items, Tools]
 ---
@@ -22,11 +22,6 @@ is effective against.
 
 It [[Mining#Drops|harvests]] [[Snow|snow]], as a layer and as a block.
 <!-- src: ItemSpade.java:10 canHarvestBlock -->
-
-It [[Mining#Tool wear|wears out]] after 251 blocks.
-<!-- src: EnumToolMaterial.java:6 maxUses 250; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 250 -->
 
 ## Data values
 

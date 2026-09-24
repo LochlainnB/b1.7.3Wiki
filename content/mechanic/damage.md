@@ -92,7 +92,8 @@ Gold deals the damage of wood. Every other item, and a bare hand, deals 1.
 Attacking while moving downwards adds 1 damage.
 <!-- src: EntityPlayer.java:492 ++var2 when motionY < 0 -->
 
-A sword loses 1 durability per hit and a tool loses 2. Anything else loses none.
+A sword loses 1 [[Durability|durability]] per hit and a tool loses 2. Anything else
+loses none.
 <!-- src: ItemSword.java:17, ItemTool.java:29 hitEntity; Item.hitEntity
      returns false without damaging the stack -->
 
@@ -176,8 +177,9 @@ hit rather than lost.
 Armour reduces every kind of damage, drowning, suffocation, fire and falling
 included.
 
-Damaged armour protects less. The point total is scaled by the durability left
-across all worn pieces together, down to a floor of 1 point.
+Damaged armour protects less. The point total is scaled by the
+[[Durability|durability]] left across all worn pieces together, down to a floor
+of 1 point.
 <!-- src: InventoryPlayer.java:284 getTotalArmorValue returns
      (points - 1) * remaining / max + 1 -->
 

@@ -1,14 +1,11 @@
 ---
 title: Book
-description: Book in Minecraft Beta 1.7.3.
+description: An item crafted from paper, used to make bookshelves.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Book** is an item in Minecraft Beta 1.7.3.
+**Book** is an item crafted from [[Paper|paper]].
 
 ## Obtaining
 
@@ -24,5 +21,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `340`
+- Item ID: {{id|Book}}
 - Translation key: `item.book`

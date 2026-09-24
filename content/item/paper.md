@@ -1,14 +1,11 @@
 ---
 title: Paper
-description: Paper in Minecraft Beta 1.7.3.
+description: An item crafted from sugar cane, used to make books and maps.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Paper** is an item in Minecraft Beta 1.7.3.
+**Paper** is an item crafted from [[Sugar cane|sugar cane]].
 
 ## Obtaining
 
@@ -24,5 +21,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `339`
+- Item ID: {{id|Paper}}
 - Translation key: `item.paper`

@@ -1,14 +1,11 @@
 ---
 title: Clock
-description: Clock in Minecraft Beta 1.7.3.
+description: An item crafted from gold and redstone, whose face shows the time of day.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Tools]
 ---
 
-{{stub|item}}
-
-**Clock** is an item in Minecraft Beta 1.7.3.
+**Clock** is an item whose face shows the time of day.
 
 ## Obtaining
 
@@ -18,9 +15,19 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+### Telling the time
+
+A clock's face turns with the sky, showing the sun at noon and the moon at
+midnight.
+<!-- src: TextureWatchFX.java:36 turns the dial by getCelestialAngle, which is
+     0 at time 6000 and 0.5 at 18000 (WorldProvider.java:42
+     calculateCelestialAngle). misc/dial.png has the sun in its upper half and
+     the moon in its lower, and the icon's face is its upper half. -->
+
+In the [[Nether#Light and weather|Nether]], the face spins at random.
+<!-- src: TextureWatchFX.java:38 -->
 
 ## Data values
 
-- Item ID: `347`
+- Item ID: {{id|Clock}}
 - Translation key: `item.clock`

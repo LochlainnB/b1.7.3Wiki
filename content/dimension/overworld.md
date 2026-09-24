@@ -43,6 +43,12 @@ midnight. Sleeping in a bed sets the clock to the start of the next day.
 <!-- src: World.java:999 calculateSkylightSubtracted; World.java:1755 rounds
      worldTime up to the next multiple of 24000 -->
 
+The colour of the sky by day follows the [[World Generation#Biomes|temperature]]
+where the player stands, so it shifts gradually rather than at biome borders.
+<!-- src: World.java:1028-:1031 reads WorldChunkManager.getTemperature at the
+     player's column and passes it to getSkyColorByTemp; every Overworld biome
+     uses BiomeGenBase.java:123's version, which only BiomeGenSky overrides -->
+
 The Overworld has [[Weather|weather]]. Most biomes get rain and lightning,
 [[Taiga]] and [[Tundra]] get snow, and [[Desert]] gets neither.
 <!-- src: BiomeGenBase.java:15-:21 setEnableSnow and setDisableRain, :150

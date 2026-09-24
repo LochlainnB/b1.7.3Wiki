@@ -180,12 +180,12 @@ Only blocks flagged for it do anything when drawn:
 | {{sprite\|Sapling}} | the same check, then one stage, then a tree |
 | {{sprite\|Brown Mushroom\|text=Mushroom}} | spreads to a nearby space, 1 time in 100 |
 | {{sprite\|Cactus}} {{sprite\|Sugar cane}} | advance one of 16 stages, and grow a block on the sixteenth, up to three tall |
-| {{sprite\|Farmland}} | wets to full beside water, dries one stage otherwise, and turns to dirt when dry — 1 time in 5 |
-| {{sprite\|Leaves}} | decay when a nearby break has flagged them and no {{sprite\|Wood\|text=log}} is within 4 blocks |
+| {{sprite\|Farmland}} | wets to full [[Farmland#Moisture\|near water or in rain]], dries one stage otherwise, and turns to dirt when dry unless crops stand on it — 1 time in 5 |
+| {{sprite\|Leaves}} | if [[Leaves#Decay\|flagged]], decay unless a chain of up to 4 leaves, joined face to face, reaches a {{sprite\|Wood\|text=log}} |
 | {{sprite\|Fire}} | spreads to what it can reach, and burns out |
 | {{sprite\|Water}} {{sprite\|Lava}} | flowing forms recompute where they flow |
 | {{sprite\|Ice}} | melts above block light 8 |
-| {{sprite\|Snow}} | melts above block light 11 |
+| {{sprite\|Snow}} | a layer melts above block light 11; a snow block never melts |
 | {{sprite\|Redstone Ore}} | stops glowing |
 | {{sprite\|Redstone Torch}} | rechecks whether it should be lit |
 | {{sprite\|Torch}} | reattaches itself, or drops, if it has no facing set |
@@ -196,7 +196,12 @@ Only blocks flagged for it do anything when drawn:
 <!-- src: the setTickOnLoad(true) call in each Block* constructor, plus
      Block.java:687 for the locked chest; BlockCake and BlockPumpkin are flagged
      but never override Block.updateTick, which is empty at Block.java:297;
-     BlockLeaves.java:37 onBlockRemoval sets the decay bit on leaves within 1 -->
+     BlockLeaves.java:37 onBlockRemoval sets the decay bit on leaves within 1,
+     and ItemLeaves.java:10 sets it on placed leaves; BlockLeaves.java:81-:144
+     spreads distance from wood along the six faces only.
+     BlockFarmland.java:41 keeps dry farmland with crops directly above (:57
+     isCropsNearby, radius 0). BlockSnowBlock.java:19 reads the block light in
+     its own space, 0 for an opaque block -->
 
 Still water takes no random ticks. Still lava does, which is how a lava pool
 sets fire to what is above it.

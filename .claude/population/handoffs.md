@@ -61,6 +61,28 @@ None yet.
   coloured wool cannot be re-dyed by crafting. `src: RecipesDyes.java:6` (ores)
 - **Dye**: dyeing a sheep that is sheared, or already that colour, does nothing
   and uses no dye. `src: ItemDye.java:84 saddleEntity` (ores)
+- **World Generation#Plants**: tall grass and dead bush patches fall from their
+  random y through air and leaves to the ground before placing. Flower, rose,
+  mushroom and cactus patches do not, and place only when their y lands within
+  3 of a surface they grow on. `src: WorldGenTallGrass.java:16,
+  WorldGenDeadBush.java:14, WorldGenFlowers.java:13, WorldGenCactus.java:7`
+  (biomes)
+- **Cactus / World Generation**: each cactus patch makes 10 attempts within 7
+  blocks in x and z and 3 in y of a random y from 0 to 127.
+  `src: ChunkProviderGenerate.java:567; WorldGenCactus.java:7` (biomes)
+- **World Generation#Population / #Trees**: population reads one biome per
+  chunk, at block (x+16, z+16), and applies its tree and plant counts to the
+  whole populated area, so trees can appear in Plains, Desert or Tundra columns
+  near a border. `src: ChunkProviderGenerate.java:314` (biomes)
+- **Grass, Leaves**: grass, tall grass and oak leaves take their colour from
+  the temperature and rainfall at the block, not from the biome; spruce and
+  birch leaves have fixed colours. `src: BlockGrass.java:23 colorMultiplier;
+  BlockTallGrass.java:32; BlockLeaves.java:26-:33` (biomes)
+- **Overworld or Light**: the daytime sky colour comes from a temperature noise
+  read at the player's position, through the same function in every Overworld
+  biome; it is not the biome's own temperature. `src: World.java:1030-:1031;
+  WorldChunkManager.java:31 getTemperature; BiomeGenBase.java:123
+  getSkyColorByTemp` (biomes)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
@@ -96,6 +118,26 @@ None yet.
 - **Mining#Drops**: the Rock row of the material table leaves out Lapis Lazuli
   Block, which is `Material.rock` and needs a pickaxe like the rest.
   `src: Block.java:614` (ores; checked against source when merging)
+- **World Generation#The noise fields**: "Rainforest and Swampland carry the
+  most extreme terrain, Tundra and Desert the least" is wrong twice. Relief
+  scales with `1 − (1 − r)^4`, r = rainfall × temperature. Swampland's r is 0.5
+  to 0.7, so 0.94 to 0.99, below Forest (r up to 0.97) and Seasonal Forest (up
+  to 0.9); Rainforest alone is the most. Savanna (r below 0.2) shares the least
+  with Tundra and Desert. The biome pages already say this, so the hub
+  contradicts them until fixed. `src: ChunkProviderGenerate.java:229-:236;
+  BiomeGenBase.java:100` (biomes; checked against source when merging)
+- **World Generation#Biomes**: the lookup rounds temperature and rainfall down
+  to steps of 1/63 before the table applies. Tundra's "temperature < 0.1" is
+  below 7/63, about 0.111, and Taiga and Tundra columns can read up to 0.508;
+  the ice and snow tests use the unrounded value, so a thin band at those
+  biomes' warm edge has no sea ice or low snow. `src: BiomeGenBase.java:94-:97;
+  ChunkProviderGenerate.java:82, :596` (biomes; checked against source when
+  merging)
+- **"Map colour" label** (data, not a page): BiomeGenBase's `color` is set but
+  never read in either source tree, so "Map colour" in each biome's infobox and
+  in `tools/seed.mjs` implies an in-game use it does not have. Each biome page
+  carries a src comment saying so. `src: BiomeGenBase.java:89 setColor`
+  (biomes; checked against source when merging)
 
 ## Unsettled
 

@@ -104,6 +104,15 @@ None yet.
 - **Bone Meal**: used on grass, spends one and makes 128 tries nearby; each
   plant is tall grass 9 in 10, otherwise a flower 2 in 3 or a rose 1 in 3.
   `src: ItemDye.java:42-:70` (terrain)
+- **Boat**: a boat that breaks, hit past 40 damage or crashing faster than
+  0.15, drops 3 wooden planks and 2 sticks. `src: EntityBoat.java:69-:81
+  attackEntityFrom, :246-:257 onUpdate` (building-blocks)
+- **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
+  stairs, leaves and TNT are not; a torch can also stand on a fence.
+  `src: BlockTorch.java:27-:41; BlockRedstoneWire.java:42; World.java:1644
+  isBlockNormalCube` (building-blocks)
+- **Note Block**: glass under a note block gives instrument 3, rock 1, wood 4.
+  `src: TileEntityNote.java:31-:48` (building-blocks)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
@@ -193,6 +202,28 @@ None yet.
   sand nothing notifies stays hanging. Falling Sand already says so.
   `src: ChunkProviderGenerate.java:311, :602; WorldGenLiquids.java:56;
   BlockSand.java:27-:39` (terrain; checked against source when merging)
+- **Mining#Drops**: the Rock row's "the stone slabs and stairs" should say every
+  slab, the wooden one included: it is rock and needs a pickaxe.
+  `src: BlockStep.java:10 Material.rock; ItemPickaxe.java:18` (building-blocks)
+- **Mining#What each tool is effective against**: gives Wooden Stairs as the
+  axe's gap, but Fence and every other wooden block but planks, wood,
+  bookshelf and chest are missing too: crafting table, doors, trapdoor,
+  jukebox, note block, sign, wooden pressure plate, locked chest.
+  `src: ItemAxe.java:11` (building-blocks)
+- **Smelting#Fuel**: the wooden block list leaves out the Locked Chest, which is
+  `Material.wood` and burns for 300 ticks. `src: BlockLockedChest.java:7;
+  TileEntityFurnace.java:190` (building-blocks)
+- **Mob Spawning#The spawn cycle**: "a solid block below" is really
+  `isBlockNormalCube`: solid, not translucent, rendered as a full block. Glass,
+  single slabs, stairs, fences, leaves, ice and TNT all fail it.
+  `src: SpawnerAnimals.java:157; World.java:1644; Material.java:87`
+  (building-blocks)
+- **data/blocks.json, block 44** (data, not a page): `variants` has no damage 3,
+  the cobblestone slab, so its recipe output draws the stone slab icon (the
+  game draws cobblestone, texture 16) and no `{{id}}` resolves to 44:3. Stone
+  Slab types `44:3` by hand until this is fixed. `src: BlockStep.java:31;
+  ItemSlab.java:10 getIconFromDamage` (building-blocks; checked against source
+  when merging)
 
 ## Unsettled
 

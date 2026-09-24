@@ -1,16 +1,22 @@
 ---
 title: Lapis Lazuli Block
-description: Lapis Lazuli Block in Minecraft Beta 1.7.3.
+description: The block crafted from nine lapis lazuli, and crafted back into them.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Building blocks]
 ---
 
-{{stub|block}}
-
-**Lapis Lazuli Block** is a block in Minecraft Beta 1.7.3.
+**Lapis Lazuli Block** is a block crafted from nine
+[[Lapis Lazuli|lapis lazuli]].
 
 ## Obtaining
+
+### Breaking
+
+A lapis lazuli block drops itself when [[Mining#Harvest levels|mined]] with a
+stone, iron or diamond pickaxe. Mined with anything else, it drops nothing.
+<!-- src: Block.java:323 idDropped returns the block's own id; Block.java:614
+     Material.rock; Material.java:114; ItemPickaxe.java:16 canHarvestBlock,
+     harvest level 1 or more -->
 
 ### Crafting
 
@@ -24,5 +30,5 @@ stub: true
 
 ## Data values
 
-- Block ID: `22`
+- Block ID: {{id|Lapis Lazuli Block}}
 - Translation key: `tile.blockLapis`

@@ -1,16 +1,21 @@
 ---
 title: Block of Gold
-description: Block of Gold in Minecraft Beta 1.7.3.
+description: The block crafted from nine gold ingots, and crafted back into them.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Building blocks]
 ---
 
-{{stub|block}}
-
-**Block of Gold** is a block in Minecraft Beta 1.7.3.
+**Block of Gold** is a block crafted from nine [[Gold Ingot|gold ingots]].
 
 ## Obtaining
+
+### Breaking
+
+A block of gold drops itself when [[Mining#Harvest levels|mined]] with an iron
+or diamond pickaxe. Mined with anything else, it drops nothing.
+<!-- src: Block.java:323 idDropped returns the block's own id; Block.java:633
+     BlockOreStorage, Material.iron; Material.java:115; ItemPickaxe.java:14
+     canHarvestBlock, harvest level 2 or more -->
 
 ### Crafting
 
@@ -24,5 +29,5 @@ stub: true
 
 ## Data values
 
-- Block ID: `41`
+- Block ID: {{id|Block of Gold}}
 - Translation key: `tile.blockGold`

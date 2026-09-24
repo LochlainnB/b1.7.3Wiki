@@ -1,24 +1,21 @@
 ---
 title: Gold Ingot
-description: Gold Ingot in Minecraft Beta 1.7.3.
+description: The metal smelted from gold ore, used for golden tools, armour, powered rails and clocks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Gold Ingot** is an item in Minecraft Beta 1.7.3.
+**Gold Ingot** is the metal smelted from [[Gold Ore|gold ore]].
 
 ## Obtaining
-
-### Crafting
-
-{{crafting|Gold Ingot}}
 
 ### Smelting
 
 {{smelting|Gold Ingot}}
+
+### Crafting
+
+{{crafting|Gold Ingot}}
 
 ## Usage
 
@@ -28,5 +25,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `266`
+- Item ID: {{id|Gold Ingot}}
 - Translation key: `item.ingotGold`

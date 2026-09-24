@@ -1,6 +1,6 @@
 ---
 title: Stone Shovel
-description: The shovel made from cobblestone, with a mining speed of 4, lasting 132 blocks.
+description: The shovel made from cobblestone, with a mining speed of 4.
 type: item
 categories: [Items, Tools]
 ---
@@ -22,11 +22,6 @@ is effective against.
 
 It [[Mining#Drops|harvests]] [[Snow|snow]], as a layer and as a block.
 <!-- src: ItemSpade.java:10 canHarvestBlock -->
-
-It [[Mining#Tool wear|wears out]] after 132 blocks.
-<!-- src: EnumToolMaterial.java:5 maxUses 131; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 131 -->
 
 ## Data values
 

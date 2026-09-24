@@ -24,11 +24,6 @@ It has [[Mining#Harvest levels|harvest level]] 2. It harvests every ore. It
 cannot harvest [[Obsidian|obsidian]].
 <!-- src: ItemPickaxe.java:10 canHarvestBlock -->
 
-It [[Mining#Tool wear|wears out]] after 251 blocks.
-<!-- src: EnumToolMaterial.java:6 maxUses 250; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 250 -->
-
 ## Data values
 
 - Item ID: {{id|Iron Pickaxe}}

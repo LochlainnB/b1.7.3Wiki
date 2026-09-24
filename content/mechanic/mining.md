@@ -157,19 +157,19 @@ returns its material's multiplier, and against everything else it returns 1 —
 the same as a bare hand.
 <!-- src: ItemTool.java:19 getStrVsBlock -->
 
-| Material | Speed | Harvest level | Blocks broken before it breaks |
+| Material | Speed | Harvest level | [[Durability]] |
 |---|---|---|---|
-| Wood | 2 | 0 | 60 |
-| Gold | 12 | 0 | 33 |
-| Stone | 4 | 1 | 132 |
-| Iron | 6 | 2 | 251 |
-| Diamond | 8 | 3 | 1562 |
+| Wood | 2 | 0 | 59 |
+| Gold | 12 | 0 | 32 |
+| Stone | 4 | 1 | 131 |
+| Iron | 6 | 2 | 250 |
+| Diamond | 8 | 3 | 1561 |
 
 <!-- src: EnumToolMaterial.java:4, constants in the order
      (harvestLevel, maxUses, efficiencyOnProperMaterial, damageVsEntity) -->
 
 Gold is the fastest material in the game and the most fragile, mining at one and
-a half times a diamond tool's rate and surviving a twentieth as long.
+a half times a diamond tool's rate and lasting a forty-seventh as many blocks.
 
 ### What each tool is effective against
 
@@ -211,19 +211,17 @@ whether or not it was on the tool's list or dropped anything. Breaking a
 
 The exceptions:
 
-- A **sword** takes two points per block, halving the number of blocks its
-  material would otherwise allow.
+- A **sword** takes two points per block.
   <!-- src: ItemSword.java:22 onBlockDestroyed -->
 - **[[Shears]]** take a point only on [[Leaves]] and [[Cobweb]], and nothing at
-  all for any other block. They last 239 blocks.
-  <!-- src: ItemShears.java:10 onBlockDestroyed; ItemShears.java:6 setMaxDamage(238) -->
+  all for any other block.
+  <!-- src: ItemShears.java:10 onBlockDestroyed -->
 - A **hoe**, and anything that is not a tool, take nothing.
 
-A tool is destroyed when its damage passes its material's maximum rather than
-when it reaches it, which is why the counts above are one higher than the
-material's rating. The block that destroys the tool still breaks, and still
-drops.
-<!-- src: ItemStack.java:127 damageItem, the > rather than >= -->
+A tool lasts one block more than its durability. The block that destroys the
+tool still breaks, and still drops. See [[Durability]].
+<!-- src: ItemStack.java:127 damageItem, the > rather than >=;
+     PlayerControllerSP.java:27 settles the drop before :29 wears the tool -->
 
 ## Drops
 

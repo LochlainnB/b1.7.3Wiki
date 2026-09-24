@@ -32,11 +32,6 @@ but no other ore. It cannot harvest [[Obsidian|obsidian]], or a
 [[Block of Gold|block of gold]] or [[Block of Diamond|diamond]].
 <!-- src: ItemPickaxe.java:10 canHarvestBlock -->
 
-It [[Mining#Tool wear|wears out]] after 132 blocks.
-<!-- src: EnumToolMaterial.java:5 maxUses 131; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 131 -->
-
 ## Data values
 
 - Item ID: {{id|Stone Pickaxe}}

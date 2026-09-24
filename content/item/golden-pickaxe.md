@@ -27,11 +27,6 @@ other ore. It cannot harvest [[Obsidian|obsidian]], or a
 [[Block of Diamond|diamond]] or [[Lapis Lazuli Block|lapis lazuli]].
 <!-- src: ItemPickaxe.java:10 canHarvestBlock -->
 
-It [[Mining#Tool wear|wears out]] after 33 blocks, the fewest of any pickaxe.
-<!-- src: EnumToolMaterial.java:8 maxUses 32; ItemTool.java:34
-     onBlockDestroyed; ItemStack.java:127 damageItem breaks the tool once
-     damage exceeds 32 -->
-
 ## Data values
 
 - Item ID: {{id|Golden Pickaxe}}

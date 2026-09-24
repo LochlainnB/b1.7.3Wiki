@@ -57,6 +57,13 @@ alone too. Instead:
   written next to each.
 - State your subject's own values and link the hub for how they come about.
   If a paragraph would be as true on a sibling page, it belongs on the hub.
+- Never write how many blocks, hits or uses an item lasts. The infobox carries
+  its durability, and [[Durability]] says how that becomes uses. What one use
+  costs is fine to state.
+- Where your subject earns an achievement, say so in one sentence in the
+  section for the action that earns it, and link: `The *Time to Mine!*
+  [[Achievements|achievement]] is for crafting a wooden pickaxe.` Your notes
+  name which pages this applies to.
 - Cite every fact read from the source with a `<!-- src: -->` comment.
 - Where the source does not settle something, leave it out and leave a
   `<!-- check: … -->` comment saying what is unsettled.

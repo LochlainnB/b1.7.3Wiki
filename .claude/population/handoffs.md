@@ -91,9 +91,8 @@ None yet.
   `src: EntityPlayer.java:380 returns false on 0 damage, before
   EntityLiving.attackEntityFrom; EntityFish.java:224 hooks only when that
   returns true` (entities; checked against source when merging)
-- **Mob Spawning#Hostile mobs, Achievements**: both could name and link
-  [[Monster]] (the Peaceful removal list, the Monster Hunter row). Nothing links
-  Monster yet, so the build lists it as an orphan. `src: EntityMob.java:20;
+- **Achievements**: the Monster Hunter row could name and link [[Monster]]; Mob
+  Spawning now links it. `src: EntityMob.java:20;
   EntityPlayer.java:797` (entities)
 - **Ghast#Fireballs**: Fireball is now written. Cut the section to one line and
   `{{main|Fireball}}`; Ghast keeps when and how often it fires. (entity
@@ -105,28 +104,6 @@ None yet.
 
 ## Hub or data problems
 
-- **Mob Spawning#Despawning**: slimes and ghasts never age, so the 1-in-800
-  check past 600 ticks never removes them; only the 128-block rule does. Their
-  despawn check also runs every tick, not only when they have no path.
-  `src: entityAge rises only at EntityLiving.java:690 and EntityMob.java:14;
-  EntitySlime.java:68 and EntityGhast.java:31 override updatePlayerActionState`
-  (hostile-mobs; checked against source when merging)
-- **Mob Spawning#Hostile mobs**: "A slime above the smallest size also needs a
-  difficulty above Peaceful" implies size-1 slimes spawn on Peaceful. No slime
-  does: Peaceful skips the whole monster category. `src: Minecraft.java:1164;
-  SpawnerAnimals.java:48` (hostile-mobs)
-- **Mob Spawning**: the Peaceful removal of ghasts is cited as
-  `EntityGhast.java:30 onUpdate`; it is at `EntityGhast.java:32`, in
-  updatePlayerActionState. (hostile-mobs)
-- **Mob Spawning#Passive mobs**: never says animals spawn on every difficulty,
-  Peaceful included. `src: Minecraft.java:1164
-  setAllowedMobSpawns(difficulty > 0, true)` (passive-mobs)
-- **Mob Spawning#The spawn cycle**: "a solid block below" is really
-  `isBlockNormalCube`: solid, not translucent, rendered as a full block. Glass,
-  single slabs, stairs, fences, leaves, ice, cactus and TNT all fail it, so no
-  mob spawns naturally on them. Monster spawners skip the test.
-  `src: SpawnerAnimals.java:156-:157; World.java:1644; Material.java:87,
-  :118-:131 setIsTranslucent` (building-blocks and fluids-and-cold)
 - **Light#What light affects**: "Hostile mobs except slimes and ghasts
   wandering | prefer darker spaces" is wrong for the giant, which prefers
   brighter spaces. `src: EntityGiantZombie.java:14 getBlockPathWeight =

@@ -54,15 +54,24 @@ whole group lands on one level.
 
 An attempt needs all of:
 
-- a solid block below,
-- a non-solid, non-liquid block at the spot,
-- a non-solid block above,
+- a full block below,
+- no full block and no liquid at the spot,
+- no full block above,
 - no player within 24 blocks,
 - 24 blocks or more from the world spawn point,
 - whatever the mob itself requires.
 
-A water creature instead needs a liquid at the spot and a non-solid block above.
-<!-- src: SpawnerAnimals.java:153 canCreatureTypeSpawnAtLocation, :115 -->
+A full block is solid, fills its whole space and is not see-through.
+[[Glass]], [[Ice|ice]], [[Leaves|leaves]], [[TNT]], [[Cactus|cactus]],
+[[Farmland|farmland]], single [[Stone Slab|slabs]], stairs and
+[[Fence|fences]] are not, so no mob spawns naturally on them.
+
+A water creature instead needs a liquid at the spot and no full block above.
+<!-- src: SpawnerAnimals.java:153 canCreatureTypeSpawnAtLocation, :115;
+     World.java:1644 isBlockNormalCube needs a solid material not flagged
+     translucent (Material.java:118-:131: leaves, glass, TNT, ice, snow,
+     cactus) and renderAsNormalBlock, false for farmland, slabs, stairs,
+     fences and the other part blocks -->
 
 Every mob a chunk produces in one tick is the same type, which is what makes
 packs. A chunk stops at 4 mobs, or 8 for wolves and 1 for ghasts. Each eligible
@@ -95,11 +104,11 @@ outdoors in daylight.
 
 On Peaceful no monster spawns at all, and any [[Zombie|zombie]],
 [[Skeleton|skeleton]], [[Spider|spider]], [[Creeper|creeper]], [[Giant|giant]],
-[[Ghast|ghast]] or [[Pig Zombie|pig zombie]] already in the world is removed on
-its next tick. [[Slime|Slimes]] are not removed.
+[[Monster|monster]], [[Ghast|ghast]] or [[Pig Zombie|pig zombie]] already in the
+world is removed on its next tick. [[Slime|Slimes]] are not removed.
 <!-- src: Minecraft.java:1164 setAllowedMobSpawns; EntityMob.java:20 onUpdate;
-     EntityGhast.java:30 onUpdate. EntitySlime extends EntityLiving, not
-     EntityMob, so it has no such check. -->
+     EntityGhast.java:32 updatePlayerActionState. EntitySlime extends
+     EntityLiving, not EntityMob, so it has no such check. -->
 
 Ghasts and pig zombies skip the light tests entirely and need only a difficulty
 above Peaceful and a clear space. A ghast additionally succeeds one attempt in
@@ -108,11 +117,12 @@ twenty.
 
 Slimes ignore light as well. A slime must be below y=16, in a chunk where a hash
 of the world seed and the chunk coordinates comes out zero — about one chunk in
-ten — and then succeeds one attempt in ten. A slime above the smallest size also
-needs a difficulty above Peaceful. The clear-space test is skipped, so a slime
-can appear partly inside blocks.
+ten — and then succeeds one attempt in ten. The clear-space test is skipped, so
+a slime can appear partly inside blocks.
 <!-- src: EntitySlime.java:134 getCanSpawnHere, via
-     Chunk.getRandomWithSeed(987234911L) -->
+     Chunk.getRandomWithSeed(987234911L). :136 also exempts a size 1 slime from
+     a difficulty test, which never matters: on Peaceful the whole monster
+     category is skipped (SpawnerAnimals.java:48) -->
 
 ## Passive mobs
 
@@ -132,6 +142,11 @@ follow accept any liquid.
 
 Animals spawn continuously on the same cycle as monsters. They are not placed
 once when a chunk generates, so an area cleared of [[Cow|cows]] fills up again.
+
+Animals and squid spawn on every difficulty, Peaceful included.
+<!-- src: Minecraft.java:1164 setAllowedMobSpawns(difficulty > 0, true), whose
+     second argument, for the peaceful categories, is always true;
+     EnumCreatureType.java:5-:6 flags creature and waterCreature peaceful -->
 
 ## What spawns where
 
@@ -153,14 +168,18 @@ and [[Pig Zombie]] 10 as monsters. [[Sky]] carries Chicken 10 alone.
 The draw only decides which mob is attempted. A slime is one monster pick in
 five, and almost always fails its own conditions.
 
-The [[Giant|giant]] appears on no list and never spawns naturally.
+The [[Giant|giant]] and the [[Monster|monster]] appear on no list and never
+spawn naturally.
 
 ## Monster spawners
 
 {{main|Monster Spawner}}
 
 A [[Monster Spawner|monster spawner]] spawns its mob near itself while a player
-is within 16 blocks, subject to the same conditions as a natural spawn.
+is within 16 blocks. The mob must meet its own conditions, such as light, but
+not the block tests of the spawn cycle.
+<!-- src: TileEntityMobSpawner.java:67 calls getCanSpawnHere alone, never
+     canCreatureTypeSpawnAtLocation -->
 
 ## Despawning
 
@@ -175,6 +194,12 @@ Both checks run only on ticks where the mob has no path to follow, plus one tick
 in a hundred where it does.
 <!-- src: EntityCreature.java:113, which reaches
      EntityLiving.updatePlayerActionState only on that branch -->
+
+[[Slime|Slimes]], [[Ghast|ghasts]] and [[Squid|squid]] never age, so only the
+128-block rule removes them. They check it every tick.
+<!-- src: entityAge rises only at EntityLiving.java:690 and EntityMob.java:14.
+     EntitySlime.java:68, EntityGhast.java:31 and EntitySquid.java:139 replace
+     updatePlayerActionState and call despawnEntity directly -->
 
 A hostile mob standing in light level 12 or brighter ages an extra 2 ticks per
 tick, reaching the 600-tick threshold three times faster.

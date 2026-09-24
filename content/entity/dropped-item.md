@@ -1,16 +1,15 @@
 ---
-title: Falling Sand
-description: Falling Sand in Minecraft Beta 1.7.3.
+title: Dropped Item
+description: Dropped Item in Minecraft Beta 1.7.3.
 type: entity
-subject: FallingSand
-aliases: [FallingSand]
+subject: Item
 categories: [Entities]
 stub: true
 ---
 
 {{stub|entity}}
 
-**Falling Sand** is an entity in Minecraft Beta 1.7.3.
+**Dropped Item** is an entity in Minecraft Beta 1.7.3.
 
 ## Spawning
 
@@ -22,4 +21,4 @@ stub: true
 
 ## Data values
 
-- Entity network ID: {{id|FallingSand}}
+- Entity network ID: {{id|Item}}

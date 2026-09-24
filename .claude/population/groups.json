@@ -96,7 +96,7 @@
       "notes": [
         "World Generation owns where these generate: the surface pass, bedrock, beaches and the Nether. Each page states its own row and links.",
         "Game Tick#Random ticks owns the tick rate. Grass states its own spread and die-back rules and links.",
-        "Falling Sand, the entity, owns falling. Sand and Gravel state that they fall, and link.",
+        "Falling Sand, the entity, owns falling. Sand and Gravel state that they fall, and link. Both become this one entity, which carries the block id (BlockGravel extends BlockSand; EntityFallingSand.java:74 saves it as Tile), so the page covers both under the game's own name.",
         "Fluid owns obsidian and cobblestone forming where lava meets water. Obsidian states that it forms, and links.",
         "Lighting a portal belongs to Nether Portal, and fire spread belongs to Fire. Flint and Steel states what it lights, and links.",
         "Light owns the thresholds Grass spreads and dies at. Grass states its values and links.",
@@ -131,13 +131,13 @@
       "pages": [
         "block/redstone-torch", "block/redstone-repeater", "block/lever", "block/button",
         "block/pressure-plate", "block/piston", "block/sticky-piston", "block/dispenser",
-        "block/tnt", "entity/primed-tnt", "block/wooden-door", "block/iron-door", "block/trapdoor"
+        "block/tnt", "block/wooden-door", "block/iron-door", "block/trapdoor"
       ],
       "hubs": ["mechanic/redstone-power", "block/redstone-dust", "mechanic/explosion", "mechanic/game-tick", "block/fire", "structure/dungeon"],
       "notes": [
         "The redstone hub and Redstone Dust own power: what powers a block, strong and weak power, and how dust carries it. A component states what it gives or needs, and its delay, and links.",
         "There is no separate Redstone page. Redstone Dust covers the item and the placed dust, and [[Redstone]] reaches it; link it for either.",
-        "Explosion owns what a blast does to blocks and entities. TNT owns how it is lit. Primed TNT owns its fuse and its row in the blast table.",
+        "Explosion owns what a blast does to blocks and entities. TNT owns how it is lit and the lit entity: its fuse, how it moves, and its row in the blast table. Primed TNT has no page of its own; TNT carries its aliases and its entity network id.",
         "Game Tick#Skipping a delay already covers random ticks cutting delays short. State it and link.",
         "Redstone Torch and Redstone Repeater carry subject maps for their two states. Keep them. The doors are each one page for a block and an item, and anything the placed door does goes there.",
         "Redstone Power#Blocks that respond already gives each component's trigger, which changes it notices, and that a repeater switching beside a door, trapdoor, TNT, note block or dispenser goes unnoticed. State the component's row and link.",
@@ -221,7 +221,7 @@
         "Light owns the growth thresholds for crops, and Weather owns rain wetting farmland. State the row and link.",
         "Crops owns growth, Farmland owns tilling, wetting, drying and trampling, and Seeds covers only obtaining and planting.",
         "Bone Meal owns fertilising. Crops states that bone meal grows it, and links.",
-        "Fishing belongs on Fishing Rod. Raw Fish states that it is caught, and links.",
+        "Fishing belongs on Fishing Rod, the bobber included: it has no page of its own. Raw Fish states that it is caught, and links.",
         "Cake is one page for the block and the item.",
         "Farmland#Obtaining already holds the tilling rule, moved there from the five hoe pages, which link it. Keep it when writing the rest of Farmland.",
         "Crafting bread earns Bake Bread, crafting a cake earns The Lie, and taking cooked fish out of a furnace earns Delicious Fish. Each page states its own in one sentence and links Achievements.",
@@ -313,6 +313,23 @@
         "Food already says a tamed wolf eats a raw or cooked porkchop and heals 3 from either. Wolf states it and links.",
         "Falling more than 5 blocks while riding a pig earns When Pigs Fly. Pig states it in one sentence and links Achievements. Cow Tipper is earned by picking up leather, and belongs to Leather, not Cow.",
         "Zombie's src comment works out how moveSpeed becomes blocks per second. Use that conversion, give speed as the hostile pages do (\"walks at 2.2 blocks per second, 50% of a player's walking speed\"), and cite \"see Zombie\" rather than repeating the working."
+      ]
+    },
+    {
+      "id": "entities",
+      "title": "Other entities",
+      "phase": "main",
+      "pages": ["entity/fireball", "entity/dropped-item", "entity/lightning-bolt", "entity/player", "entity/monster"],
+      "hubs": ["mechanic/damage", "mechanic/explosion", "mechanic/weather", "mechanic/mob-spawning", "mechanic/light", "mechanic/food", "mechanic/mining", "mechanic/game-tick", "mechanic/world-generation", "mechanic/achievements", "block/fire", "block/monster-spawner", "entity/zombie", "entity/ghast", "entity/giant"],
+      "notes": [
+        "These are the entities with no block or item of their own. An item or block in motion (an arrow in flight, a thrown snowball or egg, lit TNT, a minecart, a boat, a painting, the fishing bobber) is covered on that item's or block's page, not here.",
+        "Fireball, Dropped Item, Lightning Bolt and Player run Spawning, Behaviour, Data values, the shape AGENTS.md gives non-mob entities. Monster is a mob and runs Spawning, Drops, Behaviour, Data values. Write Fireball first as the template for the other three.",
+        "Fireball, Lightning Bolt and Player are not registered in EntityList, so they have no entity network id and no infobox. Say so in one sentence under Data values.",
+        "Ghast#Fireballs already holds verified prose with src lines. Fireball owns how a fireball flies, is deflected and hits; Ghast keeps when and how often it fires, and Explosion owns the blast. Start from the Ghast section. Do not edit Ghast: trimming it to one line is already a hand-off.",
+        "Weather#Lightning owns when and where lightning strikes. Lightning Bolt owns what one strike does: the fire, the damage, the pig and the creeper, and the extra flashes. Weather's strike list is verified; start from it. Do not edit Weather: trimming its strike list is already a hand-off. Weather keeps the alias Lightning, so link [[Lightning Bolt]] by its title.",
+        "Damage#Other entities and Explosion already give a dropped item's 5 health and what destroys it. State it and link. Dropped Item owns what creates one, how it moves, how it is picked up and how long it lasts. Mining and each mob page own what drops.",
+        "Player owns the player's own values: size, eye height, movement, inventory slots, air, death and respawning. Damage owns health, Food owns eating, Mining owns reach and breaking, Bed owns sleeping and the spawn point it sets, World Generation owns the world spawn point, and Achievements owns achievements. State each value and link. Zombie's src comment works out walking speed for an input of 1, which is the player's own; cite it rather than repeating the working.",
+        "Monster is EntityMob itself, registered as \"Monster\" (id 49). Like Giant, no biome list or spawner names it. Copy Giant's section shape and phrasing, and take [Mobs, Hostile mobs]."
       ]
     },
     {

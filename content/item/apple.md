@@ -10,11 +10,14 @@ An **apple** is a [[Food|food]] and the ingredient of a
 
 ## Obtaining
 
-A player with the username Notch drops one apple on each death, along with the
-inventory. Nothing else in the game gives an apple, except a server operator's
-`give` command.
-<!-- src: EntityPlayer.java:223 onDeath tests username.equals("Notch"), in the
-     server tree too (minecraft_server EntityPlayer.java:203). No block, mob,
+In singleplayer, a player with the username Notch drops one apple on each
+death, along with the inventory. Nothing else in the game gives an apple,
+except a server operator's `give` command.
+<!-- src: EntityPlayer.java:223 onDeath tests username.equals("Notch"). The
+     server tree has the same test (minecraft_server EntityPlayer.java:203),
+     but a server's player is an EntityPlayerMP, whose onDeath
+     (minecraft_server EntityPlayerMP.java:85) only drops the inventory and
+     never calls it, so no apple drops on a server. No block, mob,
      chest or recipe produces Item.appleRed: it appears only there and in the
      golden apple recipe (CraftingManager.java:67). The give command:
      minecraft_server ConsoleCommandHandler.java:133, open to operators through

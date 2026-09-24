@@ -1,18 +1,20 @@
 ---
 title: Feather
-description: Feather in Minecraft Beta 1.7.3.
+description: An item dropped by zombies and chickens, used to make arrows.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Feather** is an item in Minecraft Beta 1.7.3.
+A **feather** is an item dropped by [[Zombie|zombies]] and
+[[Chicken|chickens]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Mob drops
+
+[[Zombie#Drops|Zombies]] and [[Chicken#Drops|chickens]] drop feathers when they
+die.
+<!-- src: EntityZombie.java:34 and EntityChicken.java:74 getDropItemId -->
 
 ## Usage
 
@@ -22,5 +24,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `288`
+- Item ID: {{id|Feather}}
 - Translation key: `item.feather`

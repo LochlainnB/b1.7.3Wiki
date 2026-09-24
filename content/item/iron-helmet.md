@@ -1,14 +1,12 @@
 ---
 title: Iron Helmet
-description: Iron Helmet in Minecraft Beta 1.7.3.
+description: The helmet made from iron ingots.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Armour]
 ---
 
-{{stub|item}}
-
-**Iron Helmet** is an item in Minecraft Beta 1.7.3.
+**Iron Helmet** is the [[Damage#Armour|helmet]] made from
+[[Iron Ingot|iron ingots]].
 
 ## Obtaining
 
@@ -18,9 +16,13 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+An iron helmet is worn in the top armour slot. It gives 3
+[[Damage#Armour|armour points]].
+<!-- src: Item.java:324 armorType 0; ItemArmor.java:4 damageReduceAmountArray
+     {3, 8, 6, 3}; ContainerPlayer.java:28 puts armour slot n at y = 8 + n * 18,
+     and SlotArmor.java:19 accepts only the matching armorType there -->
 
 ## Data values
 
-- Item ID: `306`
+- Item ID: {{id|Iron Helmet}}
 - Translation key: `item.helmetIron`

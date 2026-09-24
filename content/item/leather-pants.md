@@ -1,14 +1,12 @@
 ---
 title: Leather Pants
-description: Leather Pants in Minecraft Beta 1.7.3.
+description: The leggings made from leather.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Armour]
 ---
 
-{{stub|item}}
-
-**Leather Pants** is an item in Minecraft Beta 1.7.3.
+**Leather Pants** are the [[Damage#Armour|leggings]] made from
+[[Leather|leather]].
 
 ## Obtaining
 
@@ -18,9 +16,13 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+Leather pants are worn in the third armour slot. They give 6
+[[Damage#Armour|armour points]].
+<!-- src: Item.java:318 armorType 2; ItemArmor.java:4 damageReduceAmountArray
+     {3, 8, 6, 3}; ContainerPlayer.java:28 puts armour slot n at y = 8 + n * 18,
+     and SlotArmor.java:19 accepts only the matching armorType there -->
 
 ## Data values
 
-- Item ID: `300`
+- Item ID: {{id|Leather Pants}}
 - Translation key: `item.leggingsCloth`

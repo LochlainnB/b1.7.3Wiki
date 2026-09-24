@@ -1,24 +1,28 @@
 ---
 title: Saddle
-description: Saddle in Minecraft Beta 1.7.3.
+description: An item found in dungeon chests, put on a pig so that a player can ride it.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Transportation]
 ---
 
-{{stub|item}}
-
-**Saddle** is an item in Minecraft Beta 1.7.3.
+A **saddle** is an item put on a [[Pig|pig]] so that a player can ride it.
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Dungeon chests
+
+A [[Dungeon#Chest loot|dungeon chest]] draw gives a saddle 1 time in 11. A
+saddle cannot be crafted.
+<!-- src: WorldGenDungeons.java:107 pickCheckLootItem; no recipe in
+     CraftingManager.java produces Item.saddle -->
 
 ## Usage
 
-<!-- What is it for? -->
+Using a saddle on a [[Pig|pig]] saddles it, and uses up the saddle. No other
+mob takes one.
+<!-- src: ItemSaddle.java:9 saddleEntity acts on EntityPig alone -->
 
 ## Data values
 
-- Item ID: `329`
+- Item ID: {{id|Saddle}}
 - Translation key: `item.saddle`

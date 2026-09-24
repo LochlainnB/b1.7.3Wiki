@@ -17,19 +17,6 @@ None yet.
   `src: EntitySheep.java:49` (tools)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **World Generation#Plants**: tall grass and dead bush patches fall from their
-  random y through air and leaves to the ground before placing. Flower, rose,
-  mushroom and cactus patches do not, and place only when their y lands within
-  3 of a surface they grow on. `src: WorldGenTallGrass.java:16,
-  WorldGenDeadBush.java:14, WorldGenFlowers.java:13, WorldGenCactus.java:7`
-  (biomes)
-- **World Generation#Population**: the cactus row's 10 are patches of 10
-  attempts each, within 7 blocks in x and z and 3 in y; Cactus says so.
-  `src: ChunkProviderGenerate.java:567; WorldGenCactus.java:7` (biomes)
-- **World Generation#Population / #Trees**: population reads one biome per
-  chunk, at block (x+16, z+16), and applies its tree and plant counts to the
-  whole populated area, so trees can appear in Plains, Desert or Tundra columns
-  near a border. `src: ChunkProviderGenerate.java:314` (biomes)
 - **Saddle**: hitting a pig with a saddle saddles it, as using it does.
   `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
 - **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
@@ -77,42 +64,6 @@ None yet.
 - **Achievements**: the Monster Hunter "Earned by" column leaves out the
   Monster, which is EntityMob itself, exactly what the kill test checks.
   `src: EntityPlayer.java:797` (entities)
-- **World Generation#The noise fields**: "Rainforest and Swampland carry the
-  most extreme terrain, Tundra and Desert the least" is wrong twice. Relief
-  scales with `1 − (1 − r)^4`, r = rainfall × temperature. Swampland's r is 0.5
-  to 0.7, so 0.94 to 0.99, below Forest (r up to 0.97) and Seasonal Forest (up
-  to 0.9); Rainforest alone is the most. Savanna (r below 0.2) shares the least
-  with Tundra and Desert. The biome pages already say this, so the hub
-  contradicts them until fixed. `src: ChunkProviderGenerate.java:229-:236;
-  BiomeGenBase.java:100` (biomes; checked against source when merging)
-- **World Generation#Biomes**: the lookup rounds temperature and rainfall down
-  to steps of 1/63 before the table applies. Tundra's "temperature < 0.1" is
-  below 7/63, about 0.111, and Taiga and Tundra columns can read up to 0.508;
-  the ice and snow tests use the unrounded value, so a thin band at those
-  biomes' warm edge has no sea ice or low snow. `src: BiomeGenBase.java:94-:97;
-  ChunkProviderGenerate.java:82, :596` (biomes; checked against source when
-  merging)
-- **World Generation#Lakes**: "Dirt directly under the liquid becomes grass" is
-  wrong. The loop runs over the four air layers and turns the dirt under the
-  lake's open part, its banks, to grass; dirt under the liquid is untouched.
-  `src: WorldGenLakes.java:77-:81` (terrain; checked against source when
-  merging)
-- **World Generation#Trees**: says every tree turns the block under its trunk to
-  dirt. The big tree does not; it only tests for grass or dirt below.
-  `src: WorldGenBigTree.java:305 func_519_e`; the other four set it at
-  `WorldGenTrees.java:43, WorldGenForest.java:43, WorldGenTaiga1.java:45,
-  WorldGenTaiga2.java:44` (terrain)
-- **World Generation#The Nether**: "plus 10 more anywhere" for glowstone is
-  wrong. WorldGenGlowStone2 is identical to WorldGenGlowStone1, so the second
-  ten also hang from ceilings; they differ only in starting y, 0–127 against
-  4–123. `src: ChunkProviderHell.java:332, :339` (terrain; checked against
-  source when merging)
-- **World Generation#Population**: "Sand and gravel do not fall while a chunk is
-  being populated" is wrong. `fallInstantly` is on during population, so sand
-  that is updated then drops straight to its landing spot with no entity; only
-  sand nothing notifies stays hanging. Falling Sand already says so.
-  `src: ChunkProviderGenerate.java:311, :602; WorldGenLiquids.java:56;
-  BlockSand.java:27-:39` (terrain; checked against source when merging)
 - **"Map colour" label** (data, not a page): BiomeGenBase's `color` is set but
   never read in either source tree, so "Map colour" in each biome's infobox and
   in `tools/seed.mjs` implies an in-game use it does not have. Each biome page

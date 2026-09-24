@@ -61,6 +61,16 @@ rainfall multiplied by temperature, the first matching row wins:
 <!-- src: BiomeGenBase.java:100 getBiome; the table is built once in
      generateBiomeLookup and read by getBiomeFromLookup -->
 
+Temperature and rainfall are rounded down to a step of 1/63 before the table is
+read, so each boundary above falls at the next step. [[Tundra]]'s temperature
+below 0.1 takes in everything below 7/63, about 0.111, and [[Taiga]] and Tundra
+reach up to 32/63, about 0.508. The ice and snow of generation read the
+unrounded temperature, so a thin band at the warm edge of Taiga and Tundra gets
+no sea ice, and no snow on its lowest ground.
+<!-- src: BiomeGenBase.java:94-:97 getBiomeFromLookup truncates each value x 63
+     to an index; ChunkProviderGenerate.java:82 the ice and :596 the snow test
+     the raw temperature against 0.5 -->
+
 [[Ice Desert]] is never returned by that table and does not generate. [[Hell]]
 is the [[Nether]]'s only biome. [[Sky]] belongs to the [[Sky Dimension|Sky
 dimension]], which the game never creates a world for.
@@ -133,10 +143,14 @@ the centre height rises as far as y=72 and the stretch is left alone.
 The stretch field is the broadest of the five, so whether a region is mountainous
 or gentle holds across more than a thousand blocks. It is then scaled by
 temperature multiplied by rainfall. Cold or dry columns are pulled flat towards
-their centre height, and hot wet ones keep their full relief. Rainforest and
-Swampland carry the most extreme terrain, Tundra and Desert the least.
-<!-- src: ChunkProviderGenerate.java:230, the (1 - t*h)^4 term applied to the
-     vertical scale -->
+their centre height, and hot wet ones keep their full relief. A column keeps
+nearly all of it once `r` passes 0.7, and less than 60% below 0.2. Every
+[[Rainforest]] column keeps its full relief. [[Tundra]], [[Desert]] and
+[[Savanna]], where `r` is below 0.2, keep the least.
+<!-- src: ChunkProviderGenerate.java:229-:236, the 1 - (1 - t*h)^4 factor on the
+     vertical scale: 0.59 at r = 0.2, 0.99 at 0.7, above 0.9999 from 0.9.
+     Forest and Seasonal Forest columns can reach Rainforest's figure; Swampland,
+     r 0.5 to 0.7, does not -->
 
 Above y=112 the finished density is blended towards a large negative value,
 reaching it at y=128. Terrain does not reach the top of the world.
@@ -265,13 +279,24 @@ of them fail most of the time. Attempts are per chunk.
 | Flowers, grass, mushrooms | by biome | 0–127 |
 | [[Sugar cane]] | 10 runs of 20 | 0–127 |
 | [[Pumpkin]] | 1 chunk in 32 | 0–127 |
-| [[Cactus]] | 10 in Desert, else none | 0–127 |
+| [[Cactus]] | 10 patches in Desert, else none | 0–127 |
 | Water spring | 50 | biased low |
 | Lava spring | 20 | strongly biased low |
 
-Sand and gravel do not fall while a chunk is being populated. A feature that
-undercuts them leaves them hanging until something disturbs them.
-<!-- src: ChunkProviderGenerate.java:311, BlockSand.fallInstantly -->
+The biome that sets the counts is read once per chunk, at the centre of the
+populated area, and holds for the whole of it. Near a border, one biome's trees
+and plants can appear in another's columns, even in [[Plains]], [[Desert]] or
+[[Tundra]], which grow no trees of their own.
+<!-- src: ChunkProviderGenerate.java:314 getBiomeGenAt(x + 16, z + 16), the
+     middle of the area from x + 8 to x + 23 -->
+
+Sand and gravel that a feature undercuts are left hanging unless something
+updates them. One updated while a chunk is being populated, as beside a
+[[World Generation#Springs|spring]], drops at once to where it would land, with
+no [[Falling Sand|falling sand]] entity.
+<!-- src: ChunkProviderGenerate.java:311 and :602 set BlockSand.fallInstantly
+     around populate; WorldGenLiquids.java:56 runs the spring's first update at
+     once; BlockSand.java:27-:39 the instant drop -->
 
 ### Lakes
 
@@ -286,10 +311,12 @@ A lake cannot form against open air, and cannot merge into an existing body of
 water.
 <!-- src: WorldGenLakes.java:52 -->
 
-Dirt directly under the liquid becomes [[Grass|grass]] where sky light reaches it.
-A lava lake seals itself in a shell of stone: every solid neighbour of the lower
-half is replaced, and half of those around the upper half.
-<!-- src: WorldGenLakes.java:80, :87 -->
+Dirt under the lake's cleared upper layers, its banks, becomes [[Grass|grass]]
+where sky light reaches it. Dirt under the liquid stays dirt. A lava lake seals
+itself in a shell of stone: every solid neighbour of the lower half is replaced,
+and half of those around the upper half.
+<!-- src: WorldGenLakes.java:77-:81, a loop over the air layers 4 to 7 and the
+     dirt beneath them; :87 the stone shell -->
 
 ### Dungeons
 
@@ -336,11 +363,15 @@ Which tree is built depends on the biome as well:
 <!-- src: BiomeGenBase.java:70 getRandomWorldGenForTrees, overridden in
      BiomeGenForest, BiomeGenRainforest and BiomeGenTaiga -->
 
-Every tree needs grass or dirt beneath it and a clear column, and turns the block
-under its trunk to dirt. Trunk heights are 4 to 6 for the plain tree, 5 to 7 for
-birch, 6 to 9 for spruce, 7 to 11 for pine and 5 to 16 for the big tree.
+Every tree needs grass or dirt beneath it and a clear column. Every tree but the
+big tree turns the block under its trunk to dirt. Trunk heights are 4 to 6 for
+the plain tree, 5 to 7 for birch, 6 to 9 for spruce, 7 to 11 for pine and 5 to
+16 for the big tree.
 <!-- src: WorldGenTrees.java:7, WorldGenForest.java:7, WorldGenTaiga2.java:7,
-     WorldGenTaiga1.java:7, WorldGenBigTree.java:339 -->
+     WorldGenTaiga1.java:7, WorldGenBigTree.java:339; the dirt at
+     WorldGenTrees.java:43, WorldGenForest.java:43, WorldGenTaiga1.java:45 and
+     WorldGenTaiga2.java:44, where WorldGenBigTree.java:305 only tests for
+     grass or dirt and places nothing but wood and leaves (:119, :198) -->
 
 ### Plants
 
@@ -351,6 +382,13 @@ the point in x and z, and up to 3 in y.
      WorldGenDeadBush.java:18, each nextInt(8) - nextInt(8) across and
      nextInt(4) - nextInt(4) up -->
 
+Tall grass and dead bush patches first drop from their point, through air and
+leaves, to the ground. Flower, rose, mushroom and cactus patches do not, so they
+place anything only when their point lands within 3 blocks of ground they can
+grow on.
+<!-- src: WorldGenTallGrass.java:16, WorldGenDeadBush.java:14 descend while the
+     block is air or leaves; WorldGenFlowers.java:13 and WorldGenCactus.java:7
+     start from the point as drawn -->
 
 | Plant | Patches per chunk | Attempts per patch |
 |---|---|---|
@@ -373,8 +411,9 @@ that does take hold is 2 to 4 blocks tall.
 <!-- src: ChunkProviderGenerate.java:548 the ten runs, WorldGenReed.java:7 the
      twenty attempts inside one run -->
 
-[[Cactus|Cacti]] are 1 to 3 blocks tall.
-<!-- src: WorldGenCactus.java:12 -->
+A [[Cactus|cactus]] patch makes 10 attempts, and each cactus is 1 to 3 blocks
+tall.
+<!-- src: WorldGenCactus.java:7 the ten attempts, :12 the height -->
 
 ### Springs
 
@@ -438,7 +477,7 @@ Population is short:
 |---|---|
 | Lava spring | 8 |
 | [[Fire]] patch | 1 to 10 |
-| [[Glowstone]] cluster | 0 to 9 hanging from ceilings, plus 10 more anywhere |
+| [[Glowstone]] cluster | 0 to 9, plus 10 more, all hanging from ceilings |
 | [[Mushroom]] patch | 1 brown and 1 red |
 
 <!-- src: ChunkProviderHell.java:302 populate -->
@@ -446,7 +485,9 @@ Population is short:
 A glowstone cluster starts from one block against a netherrack ceiling and makes
 1500 attempts to grow downwards, adding a block only where exactly one of the six
 neighbours is already glowstone.
-<!-- src: WorldGenGlowStone1.java:14 -->
+<!-- src: WorldGenGlowStone1.java:14. WorldGenGlowStone2 is the same code; the
+     two differ only in the y they start from, 4 to 123 (ChunkProviderHell.java:332)
+     against 0 to 127 (:339) -->
 
 There are no ores, lakes, dungeons or trees in the Nether. Its population step
 does not reseed its random numbers per chunk, so which features a chunk receives

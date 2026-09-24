@@ -1,28 +1,48 @@
 ---
 title: Fern
-description: Fern in Minecraft Beta 1.7.3.
+description: A plant of rainforests that shares its block id with tall grass, and drops seeds one time in eight.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Plants, Naturally generated]
 ---
 
-{{stub|block}}
-
-**Fern** is a block in Minecraft Beta 1.7.3. It shares block ID `31` with
-[[Tall Grass]], which is one id holding three plants: a dead shrub at metadata
-0, tall grass at 1 and the fern at 2.
+**Fern** is a plant of [[Rainforest|rainforests]] that shares its block id with
+[[Tall Grass|tall grass]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Natural generation
 
-## Usage
+Ferns generate only in [[Rainforest]]. Two in three of its 10 tall grass
+[[World Generation#Plants|patches]] per chunk are ferns.
+<!-- src: ChunkProviderGenerate.java:505-:512 populate, metadata 2 instead of 1 -->
 
-<!-- What is it for? -->
+### Breaking
+
+Breaking a fern drops [[Seeds|seeds]] one time in eight, and nothing otherwise,
+whatever breaks it.
+<!-- src: BlockTallGrass.java:39 idDropped, the same for every metadata -->
+
+## Behaviour
+
+A fern stands on [[Grass|grass]], [[Dirt|dirt]] or [[Farmland|farmland]], and
+needs [[Light|light]] 8 or more, or open sky, to stay.
+<!-- src: BlockTallGrass extends BlockFlower; BlockFlower.java:18
+     canThisPlantGrowOnThisBlockID, :39 canBlockStay -->
+
+A fern that cannot stay breaks when a block beside it changes, or on its next
+[[Game Tick#Random ticks|random tick]].
+<!-- src: BlockFlower.java:22 onNeighborBlockChange, :27 updateTick, :31
+     checkFlowerChange -->
+
+A fern [[Fire#Flammable blocks|burns]]. [[Fluid#What stops flow|Flowing water]]
+breaks it, and flowing [[Lava|lava]] destroys it.
+
+A fern is tinted as [[Tall Grass#Behaviour|tall grass]] is.
+<!-- src: BlockTallGrass.java:22 colorMultiplier, the same for metadata 1 and 2 -->
 
 ## Data values
 
-- Block ID: `31`
-- Metadata: `2`
-- Translation key: none. The game never names this block, so it has no entry
-  in `lang/en_US.lang`.
+- Block ID: {{id|Fern}}
+- Translation key: `tile.tallgrass`
+
+The game has no name for the fern.

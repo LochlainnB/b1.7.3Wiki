@@ -61,9 +61,6 @@ None yet.
 - **Obsidian**: its "a piston cannot push it" can link
   [[Piston#Pushing]], which now lists every block that stops a piston.
   `src: BlockPistonBase.java:248 canPushBlock` (redstone)
-- **Dropped Item**: an item that touches a cactus is destroyed: the cactus
-  deals 1 a tick and an item has 5 health. `src: BlockCactus.java:87
-  onEntityCollidedWithBlock; Entity.java:514; EntityItem.java:87, :8` (plants)
 - **Crafting#The grid**: closing either grid, the inventory's 2×2 or the
   table's 3×3, drops whatever is left in it. `src: ContainerWorkbench.java:43
   onCraftGuiClosed; ContainerPlayer.java:48` (utility-blocks)
@@ -71,18 +68,8 @@ None yet.
   wool works; Bed and Painting say so for their own recipes.
   `src: CraftingManager.java:115 new ItemStack(block, 1, -1);
   ShapedRecipes.java:62` (utility-blocks)
-- **No hub yet, perhaps Player**: the chest, furnace and crafting table screens
-  close when the player is more than 8 blocks away or the block is gone.
-  `src: EntityPlayer.java:81; TileEntityChest.java:84, TileEntityFurnace.java:204,
-  ContainerWorkbench.java:56` (utility-blocks)
-- **Fireball** (with Ghast#Fireballs): a fishing bobber sends a fireball off the
-  way the player looks, as a hit or an arrow does. `src: EntityFish.java:225
-  attackEntityFrom(angler, 0); EntityFireball.java:202` (farming-and-food)
 - **Painting**: a fishing bobber breaks a painting, which drops as an item.
   `src: EntityFish.java:225; EntityPainting.java:204` (farming-and-food)
-- **Player**: a player with the username Notch drops an apple on death, in
-  singleplayer and on a server; Apple says so. `src: EntityPlayer.java:223;
-  minecraft_server EntityPlayer.java:203` (farming-and-food)
 - **Nether#Light and weather**: could add that a map's marker spins in the
   Nether, and that a Nether map shows a fixed brown and grey pattern; Map says
   so. `src: MapData.java:92; ItemMap.java:50, :82-:94` (paper-and-instruments)
@@ -98,12 +85,22 @@ None yet.
   EntityLiving.java:517 reset it` (mob-drops)
 - **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
   `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
-- **Ghast#Fireballs**: once Fireball is written, cut the section to one line
-  and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
-  restructure, before the entities group)
-- **Weather#Lightning**: once Lightning Bolt is written, keep when and where
+- **Snowball#Throwing (and its description), Egg, Fishing Rod#Hooking**: a hit
+  that deals 0 damage does nothing to a player: no knockback, and a bobber
+  does not hook one. It still hooks and knocks back mobs. Player says so.
+  `src: EntityPlayer.java:380 returns false on 0 damage, before
+  EntityLiving.attackEntityFrom; EntityFish.java:224 hooks only when that
+  returns true` (entities; checked against source when merging)
+- **Mob Spawning#Hostile mobs, Achievements**: both could name and link
+  [[Monster]] (the Peaceful removal list, the Monster Hunter row). Nothing links
+  Monster yet, so the build lists it as an orphan. `src: EntityMob.java:20;
+  EntityPlayer.java:797` (entities)
+- **Ghast#Fireballs**: Fireball is now written. Cut the section to one line and
+  `{{main|Fireball}}`; Ghast keeps when and how often it fires. (entity
+  restructure; ready since the entities group)
+- **Weather#Lightning**: Lightning Bolt is now written. Keep when and where
   lightning strikes, and cut the strike list and the extra flashes to one line
-  and `{{main|Lightning Bolt}}`. (entity restructure, before the entities
+  and `{{main|Lightning Bolt}}`. (entity restructure; ready since the entities
   group)
 
 ## Hub or data problems
@@ -167,6 +164,25 @@ None yet.
   10-tick window spaces its bites. `src: EntityWolf.java:314, :315 sets an
   attackTime nothing reads; against EntityMob.java:50` (passive-mobs; checked
   against source when merging)
+- **Damage#Catching fire and Weather#Lightning**: "Standing in fire sets the
+  entity alight for 300 ticks, and lightning does the same" and "5 damage and
+  300 ticks alight" are wrong for the player. A player must stand in fire 20
+  ticks before catching alight, and a strike never lights a player: it adds 1
+  to a count that rests at −20. `src: EntityPlayer.java:50 fireResistance 20;
+  Entity.java:525-:531, :1087` (entities; checked against source when merging)
+- **Weather#Lightning and Fire#Starting a fire**: "on Normal and Hard" holds for
+  a bolt's first flash only. Each of its one to three later flashes sets fire
+  to the struck space on any difficulty. `src: EntityLightningBolt.java:16
+  guards the first flash alone; :51-:57 have no difficulty test` (entities;
+  checked against source when merging)
+- **Damage#Mob attacks**: "Snowballs, eggs and a fishing bobber … still knock
+  their target back" is not true for a player (`EntityPlayer.java:380`). Its
+  table also has no row for the Monster, which hits for 2
+  (`EntityMob.java:4`). (entities; the player half checked against source when
+  merging)
+- **Achievements**: the Monster Hunter "Earned by" column leaves out the
+  Monster, which is EntityMob itself, exactly what the kill test checks.
+  `src: EntityPlayer.java:797` (entities)
 - **Explosion#Entities and Damage#Other entities**: both say a painting is
   destroyed by a blast. It drops itself as an item, spawned after the blast has
   chosen the entities it hits, so the item survives. `src: EntityPainting.java:204;

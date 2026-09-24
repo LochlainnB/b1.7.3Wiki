@@ -46,10 +46,15 @@ tick.
 <!-- src: EntityBoat.java:136-:193 measures how much of the boat is under
      water and lifts it toward the surface; :217-:221 onGround -->
 
-<!-- check: the boat's top speed with a rider. Speed is capped at 0.4 blocks
-     per tick along each axis (EntityBoat.java:200-:215), but the rider adds
-     only a fifth of their own motion each tick (:195) against 1% loss (:260),
-     which may settle below the cap -->
+A boat's top speed is 6.3 blocks per second, heading straight or diagonally.
+<!-- src: EntityBoat.java:195 adds a fifth of the rider's motion each tick and
+     :260 keeps 99% of the boat's, so the boat moves 20 times the rider's
+     motion. EntityBoat.java:59 seats the rider 0.3 below the boat, in the
+     water, so the rider's motion is 0.02 x 0.98 x 0.8 = 0.0157 a tick
+     (EntityLiving.java:456-:461, after Entity.java:920 zeroes it), and the
+     boat's 0.314. The 0.4 cap on each axis (:200-:215) is never reached.
+     Measured in game, reported 2026-09-25: 200 blocks in 32 seconds after 200,
+     400 or 600 blocks of run-up, and no faster diagonally -->
 
 A boat breaks [[Snow|snow]] layers it passes over.
 <!-- src: EntityBoat.java:302-:308 -->

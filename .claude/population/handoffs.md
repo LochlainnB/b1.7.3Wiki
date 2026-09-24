@@ -281,27 +281,4 @@ None yet.
 
 ## Unsettled
 
-- **Slime#Behaviour** `<!-- check: -->`: a size-2 slime's reach is 1.2 between
-  positions, and a player's position is 1.62 above its feet, so it may hurt a
-  level player only mid-jump. Needs testing in game. (hostile-mobs) That 1.62
-  is the singleplayer client's; on a server the player's position is at its
-  feet (minecraft_server EntityPlayerMP.java:41 yOffset 0), so the answer
-  likely differs by mode, as it does for Wolf. Giant's src comment ("within
-  1.17 horizontally") is singleplayer-only for the same reason; its prose holds
-  in both. (found merging passive-mobs)
-- **Ice#Behaviour**: a player who stops walking on ice slides about 1.7 blocks,
-  against 0.26 on other ground, worked out from the friction code rather than
-  measured; the working is in the src comment. Worth confirming in game.
-  (fluids-and-cold)
-- **Minecart#Movement** `<!-- check: -->`: do minecarts push each other? The
-  collision code returns early when `(dx·other.motionZ + dz·other.prevPosX)²
-  > 5`, reading a position where a speed belongs, which would stop carts on a
-  north–south track away from x=0 from pushing at all. Both source trees have
-  it, so it is in the shipped game, not the decompile. The same early return
-  may stop a furnace minecart pushing other carts. Needs testing in game.
-  `src: EntityMinecart.java:673-:684; minecraft_server EntityMinecart.java:622`
-  (transport; checked against source when merging)
-- **Boat#Movement** `<!-- check: -->`: the boat's top speed with a rider. It is
-  capped at 0.4 blocks a tick on each axis, but the rider adds only a fifth of
-  their motion a tick against 1% loss, which may settle below the cap.
-  `src: EntityBoat.java:195, :200-:215, :260` (transport)
+None. The four open questions were tested in game and written up on 2026-09-25.

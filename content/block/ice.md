@@ -43,7 +43,8 @@ against a quarter of a block on other ground.
      EntityLiving.java:479-:497 keeps slipperiness x 0.91 of the horizontal
      speed each tick on the ground, 0.892 on ice against 0.546. Walking speed
      is 0.216 blocks a tick on other ground and 0.208 on ice; once the key is
-     let go, speed x f / (1 - f) gives 0.26 and 1.71 blocks -->
+     let go, speed x f / (1 - f) gives 0.26 and 1.71 blocks. Confirmed in game,
+     reported 2026-09-25 -->
 
 On a [[Game Tick#Random ticks|random tick]], ice in
 [[Light#What light affects|block light]] above 8 melts into a still water

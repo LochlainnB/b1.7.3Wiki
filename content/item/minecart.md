@@ -81,11 +81,21 @@ A player or mob walking into a minecart pushes it.
 Off the rails, a minecart on the ground loses half its speed every tick.
 <!-- src: EntityMinecart.java:433-:437 -->
 
-<!-- check: two minecarts meeting on a rail. applyEntityCollision at
-     EntityMinecart.java:673-:680 returns before any push when
-     (dx * other.motionZ + dz * other.prevPosX)^2 > 5. That reads a position
-     where a velocity belongs, and would stop minecarts on a north-south track
-     away from x = 0 from pushing each other at all. Needs testing in game -->
+Two minecarts that meet on an east–west track push each other. On a
+north–south track they push each other only on the rails at x = −2, −1, 0
+and 1. Anywhere else on a north–south track, a minecart that runs into another
+stops against it, and the other does not move.
+<!-- src: EntityMinecart.java:673-:680 applyEntityCollision returns before any
+     push when (dx * other.motionZ + dz * other.prevPosX)^2 > 5, reading the
+     other minecart's x where a speed belongs. The same code is at
+     minecraft_server EntityMinecart.java:622, so it is in the game, not the
+     decompile. On an east-west rail dz and motionZ are both 0, so the test
+     passes. On a north-south rail dx is 0 and dz is 0.98 to 1.18 while the two
+     touch (:34 width 0.98, :471 the 0.2 scan margin), and posX sits at the
+     block's x + 0.5, so only centres within about 2 of x = 0 pass. The carts
+     cannot overlap, because :45 getCollisionBox returns the other's box.
+     Confirmed in game, reported 2026-09-25: north-south carts push only
+     between x = -2 and 2 -->
 
 ### Breaking
 

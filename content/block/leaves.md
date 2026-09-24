@@ -42,8 +42,8 @@ Leaves are marked for a decay check when:
      replaced, however it goes. -->
 
 On a [[Game Tick#Random ticks|random tick]], a marked leaf block stays if a
-chain of touching leaf blocks, at most four long counting itself, joins it to a
-block of wood of any kind. Its mark is then cleared. Otherwise it decays: it is
+chain of leaf blocks joined face to face, at most four long counting itself,
+joins it to a block of wood of any kind. Its mark is then cleared. Otherwise it decays: it is
 removed, and drops as if broken without shears.
 <!-- src: BlockLeaves.java:56 updateTick; :122-:133 map the 9×9×9 cube around
      the leaf, wood 0 and leaves -2; :81-:119 spread 1 to 4 outwards from the

@@ -90,6 +90,8 @@ were 10, by day or night, which puts a space open to the sky at light 5.
 
 ### Lightning
 
+{{main|Lightning Bolt}}
+
 During a thunderstorm, each chunk within 9 chunks of a player has a 1 in
 100,000 chance each tick of a strike. A lone player in a rainy biome sees about
 one strike every 14 seconds.
@@ -101,24 +103,8 @@ highest solid or liquid block, and only if that space is rained on. Nothing
 strikes a snowy biome or a desert.
 <!-- src: World.java:1919-:1924 -->
 
-A strike:
-
-- sets fire to the space it lands in and up to four spaces around it, on Normal
-  and Hard;
-- strikes every entity within 3 blocks horizontally, from 3 blocks below to 9
-  above,
-  for [[Damage#Environmental damage|5 damage]] and 300 ticks alight;
-- turns a [[Pig|pig]] into a [[Pig Zombie|pig zombie]];
-- charges a [[Creeper|creeper]].
-
-<!-- src: EntityLightningBolt.java:16 difficultySetting >= 2, then the struck
-     space and four tries in the 3 x 3 x 3 around it; :62 the entity box;
-     Entity.java:1085 onStruckByLightning; EntityPig.java:62;
-     EntityCreeper.java:141 -->
-
-A bolt flashes one to three more times before it fades. Each flash can light
-the struck space again, and strikes the entities around it again.
-<!-- src: EntityLightningBolt.java:15 boltLivingTime, :45-:58 -->
+A strike sets fires, and damages, burns or transforms the entities around the
+space it lands in.
 
 ## Snow and ice
 

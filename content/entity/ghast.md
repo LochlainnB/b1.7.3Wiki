@@ -68,19 +68,10 @@ Its sounds carry 160 blocks, ten times as far as other mobs'.
 
 ### Fireballs
 
-A fireball flies in a straight line towards the player, with some random
-spread, and speeds up as it goes. It explodes when it hits a block or an entity,
-in an [[Explosion#Sizes|explosion]] of size 1 that starts fires. The entity it
-hits takes no damage from the impact itself.
-<!-- src: EntityFireball.java:44, a gaussian spread added to the aim; :166
-     accelerationX..Z; :122-:131 the hit and the blast -->
+{{main|Fireball}}
 
-A player who hits a fireball, in melee or with an [[Arrow|arrow]], sends it off
-in the direction they are looking. A fireball can hit the ghast that fired it
-once it has flown for 25 ticks.
-<!-- src: EntityFireball.java:202 attackEntityFrom takes the attacker's look
-     vector, and an arrow names its shooter as the attacker
-     (EntityArrow.java:163); :104 ticksInAir >= 25 -->
+A fireball explodes on the first block or entity it hits, and a player can hit
+it back towards the ghast.
 
 ## Data values
 

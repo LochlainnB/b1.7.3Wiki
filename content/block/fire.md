@@ -10,8 +10,12 @@ new spaces.
 
 ## Obtaining
 
-Fire never drops, and cannot be collected.
-<!-- src: BlockFire.java:47 quantityDropped returns 0 -->
+Fire never drops, and cannot be collected. On a server, an operator's `give`
+command is the only way to hold it as an item.
+<!-- src: BlockFire.java:47 quantityDropped returns 0; minecraft_server
+     ConsoleCommandHandler.java:133 give accepts any id in Item.itemsList, and
+     minecraft_server Block.java:646-:647 gives every block, fire included, an
+     ItemBlock -->
 
 ### Starting a fire
 
@@ -19,14 +23,15 @@ Fire never drops, and cannot be collected.
 |---|---|
 | {{sprite\|Flint and Steel}} | the space against the clicked face, if it is air |
 | {{sprite\|Lava}}, still | an air space up to two blocks above it, beside a block of wood, leaves, wool or TNT |
-| [[Weather#Lightning\|Lightning]] | the struck space and up to four around it, on Normal and Hard |
+| [[Lightning Bolt\|Lightning]] | the struck space and up to four around it on Normal and Hard; the struck space again on each later flash, on any difficulty |
 | A [[Ghast\|ghast]] fireball, or a [[Bed\|bed]] used in the [[Nether]] | one in three of the spaces the [[Explosion\|explosion]] clears, where an opaque block is below |
 
 <!-- src: ItemFlintAndSteel.java:35; BlockStationary.java:14 updateTick on a
      random tick, isFlammable reading Material.getBurning, set on wood, leaves,
-     cloth and tnt (Material.java:113-:126); EntityLightningBolt.java:16;
-     EntityFireball.java:127 and BlockBed.java:45 pass true for fire, which
-     Explosion.java:110 applies -->
+     cloth and tnt (Material.java:113-:126); EntityLightningBolt.java:16
+     guards only the first flash, and :51-:57, the later ones, have no
+     difficulty test; EntityFireball.java:127 and BlockBed.java:45 pass true
+     for fire, which Explosion.java:110 applies -->
 
 Fire placed on [[Obsidian|obsidian]] inside a finished frame becomes a
 [[Nether Portal#Building a portal|Nether portal]] instead.

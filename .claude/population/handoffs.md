@@ -41,6 +41,18 @@ None yet.
   slime slimeball `EntitySlime.java:130`, skeleton arrow and bone
   `EntitySkeleton.java:67`, pig zombie cooked porkchop `EntityPigZombie.java:85`
   (hostile-mobs)
+- **Pumpkin**: can be worn in the helmet slot, and gives no armour points; only
+  armour pieces count towards the total. `src: SlotArmor.java:22 isItemValid;
+  InventoryPlayer.java:290 getTotalArmorValue counts only ItemArmor` (armour)
+- **Damage#Armour**: does not say how armour is worn. Each of the four slots
+  takes only its own piece, plus a pumpkin in the top slot; they run helmet,
+  chestplate, leggings, boots from top to bottom. Armour cannot be put on by
+  right-clicking: ItemArmor has no `onItemRightClick`.
+  `src: ContainerPlayer.java:28; SlotArmor.java:19` (armour)
+- **Fire**: Obtaining could say a server operator's `give` is the only way to
+  hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
+  minecraft_server Block.java:646-647` (armour; checked against source when
+  merging)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity

@@ -51,12 +51,15 @@ Charcoal is the same item as coal and burns for exactly as long.
 
 The blocks that count as wood are [[Wooden Planks]], [[Wood]] logs,
 [[Wooden Stairs]], [[Fence]], [[Trapdoor]], [[Crafting Table]], [[Chest]],
-[[Bookshelf]], [[Jukebox]], [[Note Block]] and the wooden [[Pressure Plate]].
+[[Bookshelf]], [[Jukebox]], [[Note Block]], the [[Locked chest|locked chest]] and
+the wooden [[Pressure Plate]].
 Each burns for the same 300 ticks no matter what it cost to make, so what a
 piece of wood is worth as fuel depends entirely on how it is cut. One [[Wood]]
 log crafts into four [[Wooden Planks]], which quadruples its fuel value from 300
 ticks to 1200. Going any further loses: four planks make one
 [[Crafting Table]], turning 1200 ticks of fuel into 300.
+<!-- src: every block of Material.wood, TileEntityFurnace.java:190; the locked
+     chest is Material.wood at BlockLockedChest.java:7 -->
 
 Sticks are worse still. Two planks yield four sticks, trading 600 ticks for 400,
 and the six sticks a [[Fence]] costs would have burned for exactly as long as

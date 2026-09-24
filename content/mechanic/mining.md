@@ -27,6 +27,15 @@ Breaking time in ticks is one divided by that, rounded up: `hardness × 30 ÷
 speed` when the block is harvestable, and a flat `hardness × 100` when it is
 not. There are twenty ticks in a second.
 
+Where that division comes out as a whole number, the block sometimes takes one
+tick more. The running total is kept as a floating-point number, and can land
+just short of 1 on the tick it should reach it.
+<!-- src: PlayerControllerSP.java:9 float curBlockDamage, :72 adds
+     Block.java:331 blockStrength, x / hardness / 30 or 1 / hardness / 100,
+     each tick. Simulated in float arithmetic for every hardness in data/ and
+     every tool speed: a whole-number count took one tick more in 40 of 113
+     cases, and a fractional count was never off -->
+
 The following table shows breaking times for [[Stone]], which has a hardness
 of 1.5:
 
@@ -37,7 +46,7 @@ of 1.5:
 | {{sprite\|Iron Pickaxe}} | 6 | 8 | 0.4 |
 | {{sprite\|Diamond Pickaxe}} | 8 | 6 | 0.3 |
 | {{sprite\|Golden Pickaxe}} | 12 | 4 | 0.2 |
-| Anything else, or nothing | — | 150 | 7.5 |
+| Anything else, or nothing | — | 151 | 7.55 |
 
 The count starts on the tick *after* the block is first targeted: the first
 tick on a new target only records its position. Looking away and back resets
@@ -196,11 +205,20 @@ damage from it.
 
 Because the lists are written out one block at a time, several things are
 missing from them. [[Obsidian]] is not on the pickaxe's list, so even a
-[[Diamond Pickaxe]] takes it at speed 1 — fifteen seconds a block. Neither are
-[[Bricks]], [[Furnace]], [[Dispenser]], [[Monster Spawner]], [[Redstone Ore]],
-[[Glowstone]], [[Iron Door]], the stone [[Pressure Plate]] or [[Stone Stairs]],
-all of which still *need* a pickaxe to drop anything. [[Wooden Stairs]] are
-absent from the axe's list the same way.
+[[Diamond Pickaxe]] takes it at speed 1 — 301 ticks, just over fifteen seconds,
+a block. Neither are [[Bricks]], [[Furnace]], [[Dispenser]],
+[[Monster Spawner]], [[Redstone Ore]], [[Glowstone]], [[Iron Door]], the stone
+[[Pressure Plate]] or [[Stone Stairs]], all of which still *need* a pickaxe to
+drop anything.
+
+The axe's list names only planks, wood, bookshelves and chests. Every other
+wooden block breaks at bare-hand speed whatever it is hit with:
+[[Wooden Stairs]], [[Fence|fences]], [[Crafting Table|crafting tables]],
+[[Wooden Door|doors]], [[Trapdoor|trapdoors]], [[Jukebox|jukeboxes]],
+[[Note Block|note blocks]], [[Sign|signs]], the wooden pressure plate and the
+[[Locked chest|locked chest]].
+<!-- src: ItemAxe.java:11 blocksEffectiveAgainst {planks, bookShelf, wood,
+     chest} -->
 
 ### Tool wear
 
@@ -235,7 +253,7 @@ is only ever asked of five materials — the only ones flagged as needing a tool
 
 | Material | Blocks | Harvested by |
 |---|---|---|
-| Rock | [[Stone]], [[Cobblestone]], every stone ore, [[Obsidian]], [[Bricks]], [[Sandstone]], [[Furnace]], [[Dispenser]], [[Monster Spawner]], [[Glowstone]], [[Netherrack]], the stone slabs and stairs | a pickaxe of sufficient level |
+| Rock | [[Stone]], [[Cobblestone]], every stone ore, [[Lapis Lazuli Block]], [[Obsidian]], [[Bricks]], [[Sandstone]], [[Furnace]], [[Dispenser]], [[Monster Spawner]], [[Glowstone]], [[Netherrack]], the stone [[Pressure Plate\|pressure plate]], [[Stone Stairs]], and every [[Stone Slab\|slab]], the wooden one included | a pickaxe of sufficient level |
 | Iron | [[Block of Iron]], [[Block of Gold]], [[Block of Diamond]], [[Iron Door]] | a pickaxe of sufficient level |
 | Snow, built snow | [[Snow]], as a layer and as a block | a shovel, of any material |
 | Web | [[Cobweb]] | a sword or [[Shears]] |
@@ -285,17 +303,21 @@ Mining does not always return the block. The substitutions:
 | {{sprite\|Snow}}, as a block | four {{sprite\|Snowball\|text=snowballs}} |
 | {{sprite\|Gravel}} | {{sprite\|Flint}} one time in ten, gravel otherwise |
 | {{sprite\|Leaves}} | a {{sprite\|Sapling}} one time in twenty |
+| {{sprite\|Tall Grass}}, {{sprite\|Fern}} | {{sprite\|Seeds}} one time in eight, nothing otherwise, shears included |
 | {{sprite\|Iron Ore}}, {{sprite\|Gold Ore}} | the ore block itself, for [[Smelting\|smelting]] |
 
 <!-- src: BlockOre.java:10; BlockRedstoneOre.java:56; BlockGlowStone.java:10;
      BlockClay.java:14; BlockWeb.java:32; BlockSnow.java:50;
-     BlockSnowBlock.java:15; BlockGravel.java:10; BlockLeaves.java:155 -->
+     BlockSnowBlock.java:15; BlockGravel.java:10; BlockLeaves.java:155;
+     BlockTallGrass.java:39, with no harvestBlock override for shears -->
 
-Three blocks give nothing at all, however they are broken: [[Glass]],
-[[Bookshelf]] and [[Monster Spawner]]. [[Ice]] gives nothing either, and turns
-into flowing [[Water]] on the spot if the block beneath it is solid or liquid.
+Four blocks give nothing at all, however they are broken: [[Glass]],
+[[Bookshelf]], [[Monster Spawner]] and [[Dead Bush]]. [[Ice]] gives nothing
+either, and turns into a [[Water]] source on the spot if the block beneath it
+is solid or liquid.
 <!-- src: BlockGlass.java:10; BlockBookshelf.java:14; BlockMobSpawner.java:14;
-     BlockIce.java:20 harvestBlock -->
+     BlockDeadBush.java:20 idDropped -1; BlockIce.java:20 harvestBlock places
+     waterMoving at level 0 -->
 
 [[Shears]] change what [[Leaves]] give: cut with shears, a leaf block returns
 itself, of the right wood, instead of rolling for a [[Sapling]].
@@ -367,6 +389,7 @@ button comes up.
 
 Every block in the game, sortable by hardness. Multiply by 30 and divide by the
 tool's speed for the tick count with a working tool, or by 100 for the count
-without one.
+without one. A whole-number result is sometimes one tick short; see
+[[Mining#Breaking a block|Breaking a block]].
 
 {{list|blocks}}

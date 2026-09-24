@@ -1,26 +1,31 @@
 ---
 title: Raw Fish
-description: Raw Fish in Minecraft Beta 1.7.3.
+description: The fish caught with a fishing rod, eaten raw or cooked in a furnace.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Food]
 ---
 
-{{stub|item}}
-
-**Raw Fish** is an item in Minecraft Beta 1.7.3.
+**Raw fish** is a [[Food|food]] caught with a [[Fishing Rod|fishing rod]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+Reeling in a [[Fishing Rod#Fishing|fishing rod]] during a bite catches one raw
+fish.
+<!-- src: EntityFish.java:361-:362 catchFish; nothing else creates
+     Item.fishRaw -->
 
 ## Usage
 
-### Crafting ingredient
+### Eating
+
+Raw fish is [[Food#Eating|eaten]] to restore 2 health.
+<!-- src: Item.java:367 ItemFood(93, 2, false) -->
+
+### Smelting
 
 {{used in|Raw Fish}}
 
 ## Data values
 
-- Item ID: `349`
+- Item ID: {{id|Raw Fish}}
 - Translation key: `item.fishRaw`

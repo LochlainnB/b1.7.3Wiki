@@ -1,14 +1,12 @@
 ---
 title: Cookie
-description: Cookie in Minecraft Beta 1.7.3.
+description: A food crafted eight at a time from wheat and cocoa beans, and the only food that stacks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Food]
 ---
 
-{{stub|item}}
-
-**Cookie** is an item in Minecraft Beta 1.7.3.
+A **cookie** is a [[Food|food]] crafted from [[Wheat|wheat]] and
+[[Cocoa Beans|cocoa beans]].
 
 ## Obtaining
 
@@ -18,9 +16,14 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+A cookie is [[Food#Eating|eaten]] to restore 1 health.
+<!-- src: Item.java:375 ItemCookie(101, 1, false, 8) -->
+
+Cookies stack to 8. No other food stacks.
+<!-- src: ItemCookie.java:5 sets maxStackSize from the fourth argument;
+     ItemFood.java:11 sets 1 for every other food -->
 
 ## Data values
 
-- Item ID: `357`
+- Item ID: {{id|Cookie}}
 - Translation key: `item.cookie`

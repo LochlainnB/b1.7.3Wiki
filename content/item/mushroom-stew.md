@@ -1,14 +1,12 @@
 ---
 title: Mushroom Stew
-description: Mushroom Stew in Minecraft Beta 1.7.3.
+description: A food crafted from a brown and a red mushroom in a bowl, which restores 10 health and leaves the bowl behind.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Food]
 ---
 
-{{stub|item}}
-
-**Mushroom Stew** is an item in Minecraft Beta 1.7.3.
+**Mushroom stew** is a [[Food|food]] crafted from a brown and a red
+[[Mushroom|mushroom]] in a [[Bowl|bowl]].
 
 ## Obtaining
 
@@ -18,9 +16,12 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+Mushroom stew is [[Food#Eating|eaten]] to restore 10 health. It leaves an
+empty [[Bowl|bowl]] in its place.
+<!-- src: Item.java:300 ItemSoup(26, 10); ItemSoup.java:8 onItemRightClick
+     returns Item.bowlEmpty -->
 
 ## Data values
 
-- Item ID: `282`
+- Item ID: {{id|Mushroom Stew}}
 - Translation key: `item.mushroomStew`

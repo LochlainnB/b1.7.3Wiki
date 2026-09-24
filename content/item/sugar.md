@@ -1,14 +1,11 @@
 ---
 title: Sugar
-description: Sugar in Minecraft Beta 1.7.3.
+description: An ingredient crafted from sugar cane, used to make cake.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Sugar** is an item in Minecraft Beta 1.7.3.
+**Sugar** is an ingredient crafted from [[Sugar cane|sugar cane]].
 
 ## Obtaining
 
@@ -24,5 +21,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `353`
+- Item ID: {{id|Sugar}}
 - Translation key: `item.sugar`

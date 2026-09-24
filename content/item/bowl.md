@@ -1,20 +1,22 @@
 ---
 title: Bowl
-description: Bowl in Minecraft Beta 1.7.3.
+description: A wooden bowl crafted from planks, which holds mushroom stew and is left over when the stew is eaten.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Bowl** is an item in Minecraft Beta 1.7.3.
+A **bowl** is a wooden container for [[Mushroom Stew|mushroom stew]].
 
 ## Obtaining
 
 ### Crafting
 
 {{crafting|Bowl}}
+
+### Eating mushroom stew
+
+Eating [[Mushroom Stew|mushroom stew]] leaves an empty bowl.
+<!-- src: ItemSoup.java:8 onItemRightClick returns Item.bowlEmpty -->
 
 ## Usage
 
@@ -24,5 +26,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `281`
+- Item ID: {{id|Bowl}}
 - Translation key: `item.bowl`

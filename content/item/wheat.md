@@ -1,18 +1,24 @@
 ---
 title: Wheat
-description: Wheat in Minecraft Beta 1.7.3.
+description: The grain harvested from fully grown crops, crafted into bread, cake and cookies.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Wheat** is an item in Minecraft Beta 1.7.3.
+**Wheat** is the grain harvested from fully grown [[Crops|crops]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Crops
+
+Breaking fully grown [[Crops#Breaking|crops]] drops one wheat.
+<!-- src: BlockCrops.java:107 idDropped, wheat at metadata 7 only; :111
+     quantityDropped -->
+
+### Dungeon chests
+
+A [[Dungeon#Chest loot|dungeon chest]] draw gives 1–4 wheat 1 time in 11.
+<!-- src: WorldGenDungeons.java:116 pickCheckLootItem -->
 
 ## Usage
 
@@ -22,5 +28,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `296`
+- Item ID: {{id|Wheat}}
 - Translation key: `item.wheat`

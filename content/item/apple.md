@@ -1,20 +1,31 @@
 ---
 title: Apple
-description: Apple in Minecraft Beta 1.7.3.
+description: A food that only a player named Notch drops, and the ingredient of the golden apple.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Food]
 ---
 
-{{stub|item}}
-
-**Apple** is an item in Minecraft Beta 1.7.3.
+An **apple** is a [[Food|food]] and the ingredient of a
+[[Golden Apple|golden apple]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+A player named Notch drops one apple each time he dies, along with his
+inventory. Nothing else in the game gives an apple, except a server operator's
+`give` command.
+<!-- src: EntityPlayer.java:223 onDeath tests username.equals("Notch"), in the
+     server tree too (minecraft_server EntityPlayer.java:203). No block, mob,
+     chest or recipe produces Item.appleRed: it appears only there and in the
+     golden apple recipe (CraftingManager.java:67). The give command:
+     minecraft_server ConsoleCommandHandler.java:133, open to operators through
+     minecraft_server NetServerHandler.java:428 -->
 
 ## Usage
+
+### Eating
+
+An apple is [[Food#Eating|eaten]] to restore 4 health.
+<!-- src: Item.java:278 ItemFood(4, 4, false) -->
 
 ### Crafting ingredient
 
@@ -22,5 +33,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `260`
+- Item ID: {{id|Apple}}
 - Translation key: `item.apple`

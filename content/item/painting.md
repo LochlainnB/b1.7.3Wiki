@@ -54,7 +54,8 @@ the game shows them.
 
 A hung painting drops as an item when:
 
-- it takes any damage, from a punch to an [[Explosion|explosion]];
+- it takes any damage, from a punch or a
+  [[Fishing Rod#Hooking|fishing bobber]] to an [[Explosion|explosion]];
 - anything moves it, such as a [[Piston|piston]];
 - a block behind it stops being solid, or a block is placed in front of it.
 

@@ -25,9 +25,11 @@ On Peaceful no pig zombie spawns, and any in the world is removed.
 
 ## Drops
 
-A pig zombie drops 0–2 [[Cooked Porkchop|cooked porkchops]] when it dies.
+A pig zombie drops 0–2 [[Cooked Porkchop|cooked porkchops]] when it dies. It
+holds a [[Golden Sword|golden sword]], which it never drops.
 <!-- src: EntityPigZombie.java:85 getDropItemId; EntityLiving.java:424
-     dropFewItems, nextInt(3) of the item -->
+     dropFewItems, nextInt(3) of the item; :89 getHeldItem returns the sword
+     set at :94, which nothing drops -->
 
 Killing one earns the *Monster Hunter* [[Achievements|achievement]].
 <!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->

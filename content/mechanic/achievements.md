@@ -45,7 +45,7 @@ Achievements are earned in multiplayer too, and saved to the same file.
 | Delicious Fish | Catch and cook fish! | Taking [[Cooked Fish\|cooked fish]] out of a furnace | Hot Topic |
 | On A Rail | Travel by minecart at least 1 km from where you started | Riding a [[Minecart\|minecart]] 1000 blocks, in a straight line, from where the player got in | Acquire Hardware |
 | Time to Strike! | Use planks and sticks to make a sword | Crafting a [[Wooden Sword\|wooden sword]] | Benchmarking |
-| Monster Hunter | Attack and destroy a monster | Killing a [[Zombie\|zombie]], [[Skeleton\|skeleton]], [[Spider\|spider]], [[Creeper\|creeper]], [[Pig Zombie\|pig zombie]] or [[Giant\|giant]] | Time to Strike! |
+| Monster Hunter | Attack and destroy a monster | Killing a [[Zombie\|zombie]], [[Skeleton\|skeleton]], [[Spider\|spider]], [[Creeper\|creeper]], [[Pig Zombie\|pig zombie]], [[Giant\|giant]] or [[Monster\|monster]] | Time to Strike! |
 | Cow Tipper | Harvest some leather | Picking up [[Leather\|leather]] from the ground | Time to Strike! |
 | When Pigs Fly | Fly a pig off a cliff | Falling more than 5 blocks while riding a [[Pig\|pig]] | Cow Tipper |
 

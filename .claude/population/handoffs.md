@@ -10,60 +10,10 @@ None yet.
 
 ## For other pages
 
-- **Pig Zombie**: holds a golden sword and never drops it; drops cooked
-  porkchops. `src: EntityPigZombie.java:89 getHeldItem, :94, :85 getDropItemId`
-  (tools)
-- **Sheep**: each shearing costs the shears 1 durability.
-  `src: EntitySheep.java:49` (tools)
-- **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
-  even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **Saddle**: hitting a pig with a saddle saddles it, as using it does.
-  `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
-- **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
-  stairs, leaves and TNT are not; a torch can also stand on a fence.
-  `src: BlockTorch.java:27-:41; BlockRedstoneWire.java:42; World.java:1644
-  isBlockNormalCube` (building-blocks)
-- **Note Block**: glass under a note block gives instrument 3, rock 1, wood 4.
-  `src: TileEntityNote.java:31-:48` (building-blocks)
-- **Crafting#The grid**: closing either grid, the inventory's 2×2 or the
-  table's 3×3, drops whatever is left in it. `src: ContainerWorkbench.java:43
-  onCraftGuiClosed; ContainerPlayer.java:48` (utility-blocks)
-- **Crafting**: a block ingredient matches any of its subtypes, so any colour of
-  wool works; Bed and Painting say so for their own recipes.
-  `src: CraftingManager.java:115 new ItemStack(block, 1, -1);
-  ShapedRecipes.java:62` (utility-blocks)
-- **Painting**: a fishing bobber breaks a painting, which drops as an item.
-  `src: EntityFish.java:225; EntityPainting.java:204` (farming-and-food)
-- **Nether#Light and weather**: could add that a map's marker spins in the
-  Nether, and that a Nether map shows a fixed brown and grey pattern; Map says
-  so. `src: MapData.java:92; ItemMap.java:50, :82-:94` (paper-and-instruments)
-- **Bed#Spawn point** (optional): a compass keeps pointing to the world spawn,
-  not the bed. `src: TextureCompassFX.java:53; World.java:2286 getSpawnPoint`
-  (paper-and-instruments)
-- **Skeleton**: holds a bow and never drops it; Bow says so.
-  `src: EntitySkeleton.java:88 defaultHeldItem; :67 dropFewItems drops only
-  arrows and bones` (mob-drops)
-- **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
-  `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
-- **Snowball#Throwing (and its description), Egg, Fishing Rod#Hooking**: a hit
-  that deals 0 damage does nothing to a player: no knockback, and a bobber
-  does not hook one. It still hooks and knocks back mobs. Player says so.
-  `src: EntityPlayer.java:380 returns false on 0 damage, before
-  EntityLiving.attackEntityFrom; EntityFish.java:224 hooks only when that
-  returns true` (entities; checked against source when merging)
-- **Achievements**: the Monster Hunter row could name and link [[Monster]]; Mob
-  Spawning now links it. `src: EntityMob.java:20;
-  EntityPlayer.java:797` (entities)
+None left.
 
 ## Hub or data problems
 
-- **Monster Spawner**: with six of its mob nearby, the spawner does not just end
-  the round; it also resets its delay to 200–799 ticks.
-  `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source
-  when merging)
-- **Achievements**: the Monster Hunter "Earned by" column leaves out the
-  Monster, which is EntityMob itself, exactly what the kill test checks.
-  `src: EntityPlayer.java:797` (entities)
 - **"Map colour" label** (data, not a page): BiomeGenBase's `color` is set but
   never read in either source tree, so "Map colour" in each biome's infobox and
   in `tools/seed.mjs` implies an in-game use it does not have. Each biome page

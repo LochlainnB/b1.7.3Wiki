@@ -37,9 +37,11 @@ delay, and at zero makes four attempts to spawn its mob. Each attempt:
      :25 updateEntity; the 8, 4, 8 expansion and the >= 6 test at :57; x and z are
      (nextDouble() - nextDouble()) * 4, a triangular spread; getCanSpawnHere -->
 
-A successful attempt sets the delay to 200 to 799 ticks. A round with no success
-leaves it at zero, and the spawner tries again on the next tick.
-<!-- src: TileEntityMobSpawner.java:89 updateDelay, 200 + nextInt(600) -->
+A successful attempt sets the delay to 200 to 799 ticks, and so does a round
+ended by six of the mob nearby. A round with no success leaves it at zero, and
+the spawner tries again on the next tick.
+<!-- src: TileEntityMobSpawner.java:89 updateDelay, 200 + nextInt(600), which
+     :57-:58 also calls before ending a crowded round -->
 
 Zombies, skeletons and spiders need light 7 or less to spawn, so a spawner whose
 surroundings are lit to 8 or more spawns nothing.

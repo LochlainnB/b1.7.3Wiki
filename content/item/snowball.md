@@ -1,6 +1,6 @@
 ---
 title: Snowball
-description: A throwable item broken out of snow, which deals no damage but knocks back what it hits, and crafts into snow blocks.
+description: A throwable item broken out of snow, which deals no damage but knocks back a mob it hits, and crafts into snow blocks.
 type: item
 categories: [Items]
 ---
@@ -26,11 +26,12 @@ flies through water and lava.
      ignores liquids (World.java:704), :160 setEntityDead on any hit -->
 
 A hit deals no [[Damage|damage]], but counts as an attack by the thrower. It
-knocks the target back, and angers a [[Pig Zombie|pig zombie]] or wild
-[[Wolf|wolf]] as any attack would.
+knocks a mob back, and angers a [[Pig Zombie|pig zombie]] or wild
+[[Wolf|wolf]] as any attack would. It does nothing to a [[Player|player]].
 <!-- src: EntitySnowball.java:153 attackEntityFrom(thrower, 0);
      EntityLiving.java:337 knocks back from the attacker;
-     EntityPigZombie.java:49; EntityWolf.java:254 -->
+     EntityPigZombie.java:49; EntityWolf.java:254; EntityPlayer.java:380
+     returns before any of it when the damage is 0 -->
 
 A [[Dispenser|dispenser]] fires snowballs. A dispensed snowball has no thrower,
 and knocks nothing back.

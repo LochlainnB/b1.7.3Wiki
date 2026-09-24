@@ -27,11 +27,14 @@ Redstone is found in [[Dungeon|dungeon]] chests.
 
 ### Placing
 
-Redstone is placed as dust on top of a full, solid block. It can take the place
-of a [[Snow|snow]] layer. Dust drops as an item when the block beneath it goes.
+Redstone is placed as dust on top of a full, opaque block, which rules out
+[[Glass|glass]], [[Ice|ice]], [[Leaves|leaves]], [[TNT]], slabs and stairs. It
+can take the place of a [[Snow|snow]] layer. Dust drops as an item when the
+block beneath it goes.
 <!-- src: ItemRedstone.java onItemUse, which skips the air test on snow;
-     BlockRedstoneWire.java:41 canPlaceBlockAt; onNeighborBlockChange drops
-     the dust when canPlaceBlockAt fails -->
+     BlockRedstoneWire.java:41 canPlaceBlockAt needs World.java:1644
+     isBlockNormalCube; onNeighborBlockChange drops the dust when
+     canPlaceBlockAt fails -->
 
 ### Crafting ingredient
 

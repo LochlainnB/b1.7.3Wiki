@@ -53,6 +53,14 @@ None yet.
   hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
   minecraft_server Block.java:646-647` (armour; checked against source when
   merging)
+- **Minecart with Furnace**: each coal or charcoal adds 1200 fuel. While
+  pushing, fuel falls by 1 one tick in four, so one coal lasts about 4800 ticks
+  on average. `src: EntityMinecart.java:778-783 interact (tests the item id
+  only, so charcoal works); :485-486 onUpdate` (ores)
+- **Wool / Dye**: the dye-and-wool recipe takes white wool only (damage 0), so
+  coloured wool cannot be re-dyed by crafting. `src: RecipesDyes.java:6` (ores)
+- **Dye**: dyeing a sheep that is sheared, or already that colour, does nothing
+  and uses no dye. `src: ItemDye.java:84 saddleEntity` (ores)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
@@ -85,6 +93,9 @@ None yet.
   the round; it also resets its delay to 200–799 ticks.
   `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source
   when merging)
+- **Mining#Drops**: the Rock row of the material table leaves out Lapis Lazuli
+  Block, which is `Material.rock` and needs a pickaxe like the rest.
+  `src: Block.java:614` (ores; checked against source when merging)
 
 ## Unsettled
 

@@ -1,24 +1,30 @@
 ---
 title: Moss Stone
-description: Moss Stone in Minecraft Beta 1.7.3.
+description: A mossy cobblestone block found only on dungeon floors.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Building blocks, Naturally generated]
 ---
 
-{{stub|block}}
-
-**Moss Stone** is a block in Minecraft Beta 1.7.3.
+**Moss Stone** is a mossy form of [[Cobblestone|cobblestone]] found in
+[[Dungeon|dungeons]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Breaking
 
-## Usage
+Moss stone drops itself when [[Mining|mined]] with any pickaxe, and nothing
+otherwise. A pickaxe breaks it fastest.
+<!-- src: Block.java:640 Material.rock; Material.java:114 rock setNoHarvest;
+     ItemPickaxe.java:18 canHarvestBlock; ItemPickaxe.java:41
+     blocksEffectiveAgainst lists Block.cobblestoneMossy -->
 
-<!-- What is it for? -->
+### Natural generation
+
+Moss stone generates only on the floor of a [[Dungeon|dungeon]], where it is 3
+blocks in 4.
+<!-- src: WorldGenDungeons.java:43-:44, nextInt(4) != 0 on the floor layer -->
 
 ## Data values
 
-- Block ID: `48`
+- Block ID: {{id|Moss Stone}}
 - Translation key: `tile.stoneMoss`

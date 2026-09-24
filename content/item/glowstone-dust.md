@@ -1,18 +1,20 @@
 ---
 title: Glowstone Dust
-description: Glowstone Dust in Minecraft Beta 1.7.3.
+description: The item glowstone drops when mined with a pickaxe, and crafts back into glowstone.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Glowstone Dust** is an item in Minecraft Beta 1.7.3.
+**Glowstone Dust** is the item [[Glowstone|glowstone]] drops when mined.
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Breaking
+
+Mining [[Glowstone|glowstone]] with any pickaxe drops two to four glowstone
+dust. Mined with anything else, glowstone drops nothing.
+<!-- src: BlockGlowStone.java:10 quantityDropped 2 + nextInt(3), :14 idDropped;
+     Block.java:681 Material.rock, which needs a pickaxe -->
 
 ## Usage
 
@@ -22,5 +24,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `348`
+- Item ID: {{id|Glowstone Dust}}
 - Translation key: `item.yellowDust`

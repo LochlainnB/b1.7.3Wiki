@@ -42,6 +42,9 @@ A spider drops 0–2 [[String|string]] when it dies.
 <!-- src: EntitySpider.java:70 getDropItemId; EntityLiving.java:424
      dropFewItems, nextInt(3) of the item -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 In [[Light#What light affects|light 11 or less]], a spider targets the nearest

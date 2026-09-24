@@ -29,6 +29,9 @@ A pig zombie drops 0–2 [[Cooked Porkchop|cooked porkchops]] when it dies.
 <!-- src: EntityPigZombie.java:85 getDropItemId; EntityLiving.java:424
      dropFewItems, nextInt(3) of the item -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 A pig zombie attacks no player until a player hurts a pig zombie. The one hurt,

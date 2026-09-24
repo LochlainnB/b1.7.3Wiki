@@ -29,6 +29,9 @@ A zombie drops 0–2 [[Feather|feathers]] when it dies.
 <!-- src: EntityZombie.java:34 getDropItemId; EntityLiving.java:424
      dropFewItems, nextInt(3) of the item -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 A zombie targets the nearest player within 16 blocks, if it can see them, and

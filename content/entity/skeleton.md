@@ -31,6 +31,9 @@ On Peaceful no skeleton spawns, and any in the world is removed.
 A skeleton drops 0–2 [[Arrow|arrows]] and 0–2 [[Bone|bones]] when it dies.
 <!-- src: EntitySkeleton.java:67 dropFewItems, nextInt(3) of each -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 A skeleton targets the nearest player within 16 blocks, if it can see them, and

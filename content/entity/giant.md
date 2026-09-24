@@ -26,6 +26,9 @@ A giant drops nothing.
 <!-- src: EntityGiantZombie extends EntityMob and does not override
      getDropItemId, which returns 0 (EntityLiving.java:436) -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 A giant is 3.6 blocks wide and 10.8 tall, and wears the zombie's skin.

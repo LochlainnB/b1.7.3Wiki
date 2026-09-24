@@ -31,6 +31,9 @@ A creeper killed by a [[Skeleton|skeleton's]] arrow also drops a
      attacker (EntityArrow.java:163); Item.java:378 record13 and recordCat,
      items 2256 and 2257 -->
 
+Killing one earns the *Monster Hunter* [[Achievements|achievement]].
+<!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->
+
 ## Behaviour
 
 A creeper targets the nearest player within 16 blocks, if it can see them, and

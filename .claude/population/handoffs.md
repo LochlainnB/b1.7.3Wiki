@@ -83,6 +83,16 @@ None yet.
   biome; it is not the biome's own temperature. `src: World.java:1030-:1031;
   WorldChunkManager.java:31 getTemperature; BiomeGenBase.java:123
   getSkyColorByTemp` (biomes)
+- **Egg**: a chicken lays an egg every 6000 to 11999 ticks (5 to 10 minutes).
+  `src: EntityChicken.java:43 onLivingUpdate; :17 and :46` (passive-mobs)
+- **Cooked Porkchop**: a pig that dies on fire drops 0–2 cooked porkchops
+  instead of raw. `src: EntityPig.java:45 getDropItemId tests fire > 0`
+  (passive-mobs)
+- **Bone Meal / Dye**: a dye used on an unsheared sheep dyes its fleece and is
+  used up; bone meal dyes it white. `src: ItemDye.java:80 saddleEntity;
+  BlockCloth.java:21 getBlockFromDye` (passive-mobs)
+- **Saddle**: hitting a pig with a saddle saddles it, as using it does.
+  `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
@@ -138,9 +148,23 @@ None yet.
   in `tools/seed.mjs` implies an in-game use it does not have. Each biome page
   carries a src comment saying so. `src: BiomeGenBase.java:89 setColor`
   (biomes; checked against source when merging)
+- **Mob Spawning#Passive mobs**: never says animals spawn on every difficulty,
+  Peaceful included. `src: Minecraft.java:1164
+  setAllowedMobSpawns(difficulty > 0, true)` (passive-mobs)
+- **Damage#Mob attacks**: "A melee mob strikes once every 20 ticks and only
+  within 2 blocks" sits under a table that lists the wolf, and is wrong for it:
+  a wolf bites within 1.5 blocks, with no cooldown, so only the target's
+  10-tick window spaces its bites. `src: EntityWolf.java:314, :315 sets an
+  attackTime nothing reads; against EntityMob.java:50` (passive-mobs; checked
+  against source when merging)
 
 ## Unsettled
 
 - **Slime#Behaviour** `<!-- check: -->`: a size-2 slime's reach is 1.2 between
   positions, and a player's position is 1.62 above its feet, so it may hurt a
-  level player only mid-jump. Needs testing in game. (hostile-mobs)
+  level player only mid-jump. Needs testing in game. (hostile-mobs) That 1.62
+  is the singleplayer client's; on a server the player's position is at its
+  feet (minecraft_server EntityPlayerMP.java:41 yOffset 0), so the answer
+  likely differs by mode, as it does for Wolf. Giant's src comment ("within
+  1.17 horizontally") is singleplayer-only for the same reason; its prose holds
+  in both. (found merging passive-mobs)

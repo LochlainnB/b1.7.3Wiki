@@ -270,7 +270,7 @@ define(['id', 'dv'], ({ args, ctx }) => {
     return '<code>?</code>';
   }
   const id = rec.id != null ? rec.id : rec.networkId;
-  return `<code>${rec.damage ? `${id}:${rec.damage}` : id}</code>`;
+  return `<code>${rec.damage != null ? `${id}:${rec.damage}` : id}</code>`;
 });
 
 /**

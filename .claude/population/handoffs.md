@@ -17,11 +17,6 @@ None yet.
   `src: EntitySheep.java:49` (tools)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **Damage#Armour**: does not say how armour is worn. Each of the four slots
-  takes only its own piece, plus a pumpkin in the top slot; they run helmet,
-  chestplate, leggings, boots from top to bottom. Armour cannot be put on by
-  right-clicking: ItemArmor has no `onItemRightClick`.
-  `src: ContainerPlayer.java:28; SlotArmor.java:19` (armour)
 - **Fire**: Obtaining could say a server operator's `give` is the only way to
   hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
   minecraft_server Block.java:646-647` (armour; checked against source when
@@ -68,10 +63,6 @@ None yet.
 - **Skeleton**: holds a bow and never drops it; Bow says so.
   `src: EntitySkeleton.java:88 defaultHeldItem; :67 dropFewItems drops only
   arrows and bones` (mob-drops)
-- **Damage#Environmental damage**: a cobweb does not reset fall distance, as
-  water and ladders do; Cobweb says so. `src: Entity.java:303-:310 leaves
-  fallDistance alone, :553 keeps adding to it; only :231 and
-  EntityLiving.java:517 reset it` (mob-drops)
 - **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
   `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
 - **Snowball#Throwing (and its description), Egg, Fishing Rod#Hooking**: a hit
@@ -97,12 +88,6 @@ None yet.
   the round; it also resets its delay to 200–799 ticks.
   `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source
   when merging)
-- **Damage#Mob attacks**: "A melee mob strikes once every 20 ticks and only
-  within 2 blocks" sits under a table that lists the wolf, and is wrong for it:
-  a wolf bites within 1.5 blocks, with no cooldown, so only the target's
-  10-tick window spaces its bites. `src: EntityWolf.java:314, :315 sets an
-  attackTime nothing reads; against EntityMob.java:50` (passive-mobs; checked
-  against source when merging)
 - **Damage#Catching fire and Weather#Lightning**: "Standing in fire sets the
   entity alight for 300 ticks, and lightning does the same" and "5 damage and
   300 ticks alight" are wrong for the player. A player must stand in fire 20
@@ -114,18 +99,9 @@ None yet.
   to the struck space on any difficulty. `src: EntityLightningBolt.java:16
   guards the first flash alone; :51-:57 have no difficulty test` (entities;
   checked against source when merging)
-- **Damage#Mob attacks**: "Snowballs, eggs and a fishing bobber … still knock
-  their target back" is not true for a player (`EntityPlayer.java:380`). Its
-  table also has no row for the Monster, which hits for 2
-  (`EntityMob.java:4`). (entities; the player half checked against source when
-  merging)
 - **Achievements**: the Monster Hunter "Earned by" column leaves out the
   Monster, which is EntityMob itself, exactly what the kill test checks.
   `src: EntityPlayer.java:797` (entities)
-- **Explosion#Entities and Damage#Other entities**: both say a painting is
-  destroyed by a blast. It drops itself as an item, spawned after the blast has
-  chosen the entities it hits, so the item survives. `src: EntityPainting.java:204;
-  Explosion.java:84` (utility-blocks; checked against source when merging)
 - **Mining#Drops**: the Rock row of the material table leaves out Lapis Lazuli
   Block and the stone Pressure Plate, both `Material.rock`, and its "the stone
   slabs and stairs" should say every slab, the wooden one included.

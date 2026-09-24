@@ -44,14 +44,14 @@ function autoRows(rec, ctx) {
         : rec.lightOpacity >= 255 ? 'Opaque' : `Filters light (${rec.lightOpacity})`]);
     }
     rows.push(['Block ID', `<code>${rec.id}</code>`]);
-    if (rec.damage) rows.push(['Metadata', `<code>${rec.damage}</code>`]);
+    if (rec.damage != null) rows.push(['Metadata', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'item') {
     push('Stackable', stackable(rec.stackSize));
     push('Durability', rec.durability);
     push('Attack damage', rec.attackDamage);
     push('Heals', rec.heal);
     rows.push(['Item ID', `<code>${rec.id}</code>`]);
-    if (rec.damage) rows.push(['Damage value', `<code>${rec.damage}</code>`]);
+    if (rec.damage != null) rows.push(['Damage value', `<code>${rec.damage}</code>`]);
   } else if (rec.kind === 'entity') {
     push('Health', rec.health);
     rows.push(['Entity ID', `<code>${rec.networkId}</code>`]);

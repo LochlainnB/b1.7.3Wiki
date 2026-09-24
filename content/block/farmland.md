@@ -12,7 +12,11 @@ stub: true
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+Using any hoe on [[Grass|grass]] or [[Dirt|dirt]] turns it into farmland. Grass
+must have air above it, and cannot be tilled from below. Dirt can be tilled from
+any side, even with a block on top.
+<!-- src: ItemHoe.java:13 onItemUse; var7 is the face used, 0 the underside,
+     and var9 the block above. The grass tests do not apply to dirt. -->
 
 ## Usage
 

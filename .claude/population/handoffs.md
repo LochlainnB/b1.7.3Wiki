@@ -21,19 +21,8 @@ None yet.
 - **Light**: a pig zombie runs the same burning check and takes no damage from
   it. `src: EntityPigZombie extends EntityZombie; EntityPigZombie.java:15`
   (hostile-mobs)
-- **Arrow**: an arrow a player shot, or a dispenser fired, can be picked up; a
-  skeleton's cannot. `src: EntityArrow.java:33, :259; BlockDispenser.java:109
-  doesArrowBelongToPlayer = true` (hostile-mobs; the dispenser half corrected by
-  redstone and checked against source when merging)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **Feather, String, Gunpowder, Slimeball, Arrow, Bone, Cooked Porkchop**: each
-  mob that drops one drops 0–2. `src: EntityLiving.java:424`, plus zombie
-  feather `EntityZombie.java:34`, spider string `EntitySpider.java:70`, creeper
-  and ghast gunpowder `EntityCreeper.java:129, EntityGhast.java:143`, size-1
-  slime slimeball `EntitySlime.java:130`, skeleton arrow and bone
-  `EntitySkeleton.java:67`, pig zombie cooked porkchop `EntityPigZombie.java:85`
-  (hostile-mobs)
 - **Damage#Armour**: does not say how armour is worn. Each of the four slots
   takes only its own piece, plus a pumpkin in the top slot; they run helmet,
   chestplate, leggings, boots from top to bottom. Armour cannot be put on by
@@ -43,10 +32,6 @@ None yet.
   hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
   minecraft_server Block.java:646-647` (armour; checked against source when
   merging)
-- **Wool / Dye**: the dye-and-wool recipe takes white wool only (damage 0), so
-  coloured wool cannot be re-dyed by crafting. `src: RecipesDyes.java:6` (ores)
-- **Dye**: dyeing a sheep that is sheared, or already that colour, does nothing
-  and uses no dye. `src: ItemDye.java:84 saddleEntity` (ores)
 - **World Generation#Plants**: tall grass and dead bush patches fall from their
   random y through air and leaves to the ground before placing. Flower, rose,
   mushroom and cactus patches do not, and place only when their y lands within
@@ -65,19 +50,8 @@ None yet.
   biome; it is not the biome's own temperature. `src: World.java:1030-:1031;
   WorldChunkManager.java:31 getTemperature; BiomeGenBase.java:123
   getSkyColorByTemp` (biomes)
-- **Egg**: a chicken lays an egg every 6000 to 11999 ticks (5 to 10 minutes).
-  `src: EntityChicken.java:43 onLivingUpdate; :17 and :46` (passive-mobs)
-- **Bone Meal / Dye**: a dye used on an unsheared sheep dyes its fleece and is
-  used up; bone meal dyes it white. `src: ItemDye.java:80 saddleEntity;
-  BlockCloth.java:21 getBlockFromDye` (passive-mobs)
 - **Saddle**: hitting a pig with a saddle saddles it, as using it does.
   `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
-- **Bone Meal**: used on grass, spends one and makes 128 tries nearby; each
-  plant is tall grass 9 in 10, otherwise a flower 2 in 3 or a rose 1 in 3.
-  `src: ItemDye.java:42-:70` (terrain)
-- **Bone Meal**: used on a sapling, it is spent even when the tree has no room,
-  and the sapling stays. `src: ItemDye.java:24-:28; BlockSapling.java:51-:53`
-  (plants)
 - **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
   stairs, leaves and TNT are not; a torch can also stand on a fence.
   `src: BlockTorch.java:27-:41; BlockRedstoneWire.java:42; World.java:1644
@@ -101,8 +75,6 @@ None yet.
   close when the player is more than 8 blocks away or the block is gone.
   `src: EntityPlayer.java:81; TileEntityChest.java:84, TileEntityFurnace.java:204,
   ContainerWorkbench.java:56` (utility-blocks)
-- **Bone Meal**: used on crops, it is spent even when they are fully grown.
-  `src: ItemDye.java:33-:38, no stage test` (farming-and-food)
 - **Fireball** (with Ghast#Fireballs): a fishing bobber sends a fireball off the
   way the player looks, as a hit or an arrow does. `src: EntityFish.java:225
   attackEntityFrom(angler, 0); EntityFireball.java:202` (farming-and-food)
@@ -117,6 +89,13 @@ None yet.
 - **Bed#Spawn point** (optional): a compass keeps pointing to the world spawn,
   not the bed. `src: TextureCompassFX.java:53; World.java:2286 getSpawnPoint`
   (paper-and-instruments)
+- **Skeleton**: holds a bow and never drops it; Bow says so.
+  `src: EntitySkeleton.java:88 defaultHeldItem; :67 dropFewItems drops only
+  arrows and bones` (mob-drops)
+- **Damage#Environmental damage**: a cobweb does not reset fall distance, as
+  water and ladders do; Cobweb says so. `src: Entity.java:303-:310 leaves
+  fallDistance alone, :553 keeps adding to it; only :231 and
+  EntityLiving.java:517 reset it` (mob-drops)
 - **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
   `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
@@ -204,6 +183,14 @@ None yet.
   Mining also says broken ice "turns into flowing Water"; it is a water source,
   block 8 at level 0. `src: BlockDeadBush.java:20; BlockTallGrass.java:39;
   BlockReed.java:70; BlockIce.java:24` (plants and fluids-and-cold)
+- **Mining#Breaking a block**: "one divided by that, rounded up" is a tick short
+  wherever the per-tick strength is not an exact binary fraction, because the
+  running total is a float. Stone by hand takes 151 ticks, not the table's 150;
+  obsidian 301, not 300 (Obsidian and Diamond Pickaxe's "15 seconds" is off by
+  the same tick); cobweb by hand 401. Tool times on stone (23, 12, 8, 6, 4) and
+  a sword on cobweb (8) are exact. `src: PlayerControllerSP.java:9 float
+  curBlockDamage, :72 adds Block.java:331 blockStrength each tick`
+  (mob-drops; simulated in float arithmetic when merging, and it agrees)
 - **Mining#What each tool is effective against**: gives Wooden Stairs as the
   axe's gap, but Fence and every other wooden block but planks, wood,
   bookshelf and chest are missing too: crafting table, doors, trapdoor,
@@ -264,6 +251,17 @@ None yet.
   because both ids share the name Music Disc. The Dungeon loot table and the
   Music Disc infobox both show the cat disc. `src: Item.java:378-:379`
   (utility-blocks; checked against source when merging)
+
+- **data/recipes.json, dye and wool** (data, not a page): the dye-and-wool
+  recipes write their wool as `{"block":35}`, the same form as the bed's and
+  painting's any-colour wool, but the dye recipe takes white wool only. Nothing
+  renders wrong today; data/ just cannot say the difference.
+  `src: RecipesDyes.java:6 (damage 0); CraftingManager.java:115 (-1);
+  ShapelessRecipes.java:32` (mob-drops)
+- **Ink Sac `{{id}}` and infobox** (tools, not a page): `{{id|Ink Sac}}`
+  renders `351` and its infobox has no damage-value row, because its damage is
+  0, so its id looks the same as the whole Dye item's. Bone Meal and Cocoa
+  Beans show `351:15` and `351:3`. (mob-drops)
 
 ## Unsettled
 

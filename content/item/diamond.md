@@ -1,24 +1,28 @@
 ---
 title: Diamond
-description: Diamond in Minecraft Beta 1.7.3.
+description: The gem dropped by diamond ore, used for diamond tools, armour and the jukebox.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Diamond** is an item in Minecraft Beta 1.7.3.
+**Diamond** is the gem dropped by [[Diamond Ore|diamond ore]].
 
 ## Obtaining
 
-### Crafting
+### Breaking
 
-{{crafting|Diamond}}
+[[Diamond Ore|Diamond ore]] drops one diamond when
+[[Mining#Harvest levels|mined]] with an iron or diamond pickaxe.
+<!-- src: BlockOre.java:10-22 idDropped, quantityDropped; ItemPickaxe.java:13
+     canHarvestBlock -->
 
 ### Smelting
 
 {{smelting|Diamond}}
+
+### Crafting
+
+{{crafting|Diamond}}
 
 ## Usage
 
@@ -28,5 +32,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `264`
+- Item ID: {{id|Diamond}}
 - Translation key: `item.emerald`

@@ -111,6 +111,12 @@ None yet.
 - **Player**: a player with the username Notch drops an apple on death, in
   singleplayer and on a server; Apple says so. `src: EntityPlayer.java:223;
   minecraft_server EntityPlayer.java:203` (farming-and-food)
+- **Nether#Light and weather**: could add that a map's marker spins in the
+  Nether, and that a Nether map shows a fixed brown and grey pattern; Map says
+  so. `src: MapData.java:92; ItemMap.java:50, :82-:94` (paper-and-instruments)
+- **Bed#Spawn point** (optional): a compass keeps pointing to the world spawn,
+  not the bed. `src: TextureCompassFX.java:53; World.java:2286 getSpawnPoint`
+  (paper-and-instruments)
 - **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
   `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line

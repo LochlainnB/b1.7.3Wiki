@@ -1,20 +1,32 @@
 ---
 title: Sandstone
-description: Sandstone in Minecraft Beta 1.7.3.
+description: A block found under the sand of deserts and beaches, and crafted from four sand.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Building blocks, Naturally generated]
 ---
 
-{{stub|block}}
-
-**Sandstone** is a block in Minecraft Beta 1.7.3.
+**Sandstone** is a block found under [[Sand|sand]], and crafted from it.
 
 ## Obtaining
+
+### Breaking
+
+Sandstone drops itself when [[Mining|mined]] with any pickaxe, and nothing
+otherwise. A pickaxe breaks it fastest.
+<!-- src: Block.java:616 Material.rock via BlockSandStone.java:5;
+     Material.java:114 rock setNoHarvest; ItemPickaxe.java:18 canHarvestBlock;
+     ItemPickaxe.java:41 blocksEffectiveAgainst lists Block.sandStone -->
 
 ### Crafting
 
 {{crafting|Sandstone}}
+
+### Natural generation
+
+Wherever the [[World Generation#Surface|surface pass]] lays sand as filler, in
+the [[Desert]] and on beaches, 0 to 3 blocks of sandstone lie under the sand.
+<!-- src: ChunkProviderGenerate.java:175-:178, nextInt(4) blocks once the sand
+     filler runs out -->
 
 ## Usage
 
@@ -24,5 +36,5 @@ stub: true
 
 ## Data values
 
-- Block ID: `24`
+- Block ID: {{id|Sandstone}}
 - Translation key: `tile.sandStone`

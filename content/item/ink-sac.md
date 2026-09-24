@@ -1,20 +1,26 @@
 ---
 title: Ink Sac
-description: Ink Sac in Minecraft Beta 1.7.3.
+description: The black dye dropped by squid.
 type: item
 categories: [Items]
-stub: true
 ---
 
-{{stub|item}}
-
-**Ink Sac** is an item in Minecraft Beta 1.7.3.
+An **ink sac** is the black [[Dye|dye]] dropped by [[Squid|squid]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Mob drops
+
+[[Squid#Drops|Squid]] drop ink sacs when they die.
+<!-- src: EntitySquid.java:54 dropFewItems, dye 0 -->
 
 ## Usage
+
+### Dyeing
+
+Used on a [[Sheep|sheep]], an ink sac [[Dye|dyes]] its wool black.
+<!-- src: ItemDye.java:80 saddleEntity; ItemDye.java:4 dyeColorNames[0] is
+     "black" -->
 
 ### Crafting ingredient
 

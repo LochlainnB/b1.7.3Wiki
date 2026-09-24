@@ -1,20 +1,26 @@
 ---
 title: Bone
-description: Bone in Minecraft Beta 1.7.3.
+description: An item dropped by skeletons, used to tame wolves and crafted into bone meal.
 type: item
 categories: [Items]
-stub: true
 ---
 
-{{stub|item}}
-
-**Bone** is an item in Minecraft Beta 1.7.3.
+A **bone** is an item dropped by [[Skeleton|skeletons]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Mob drops
+
+[[Skeleton#Drops|Skeletons]] drop bones when they die.
+<!-- src: EntitySkeleton.java:67 dropFewItems -->
 
 ## Usage
+
+### Taming wolves
+
+Using a bone on a wild [[Wolf|wolf]] that is not angry uses up the bone, and
+[[Wolf#Taming|tames]] the wolf one time in three.
+<!-- src: EntityWolf.java:326-:345 interact -->
 
 ### Crafting ingredient
 
@@ -22,5 +28,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `352`
+- Item ID: {{id|Bone}}
 - Translation key: `item.bone`

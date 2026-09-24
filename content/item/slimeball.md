@@ -1,18 +1,18 @@
 ---
 title: Slimeball
-description: Slimeball in Minecraft Beta 1.7.3.
+description: An item dropped by the smallest slimes, used to make sticky pistons.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Slimeball** is an item in Minecraft Beta 1.7.3.
+A **slimeball** is an item dropped by the smallest [[Slime|slimes]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Mob drops
+
+[[Slime#Drops|Slimes]] of the smallest size drop slimeballs when they die.
+<!-- src: EntitySlime.java:130 getDropItemId, slimeBall at size 1 only -->
 
 ## Usage
 
@@ -22,5 +22,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `341`
+- Item ID: {{id|Slimeball}}
 - Translation key: `item.slimeball`

@@ -1,14 +1,12 @@
 ---
 title: Iron Boots
-description: Iron Boots in Minecraft Beta 1.7.3.
+description: The boots made from iron ingots.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Armour]
 ---
 
-{{stub|item}}
-
-**Iron Boots** is an item in Minecraft Beta 1.7.3.
+**Iron Boots** are the [[Damage#Armour|boots]] made from
+[[Iron Ingot|iron ingots]].
 
 ## Obtaining
 
@@ -18,9 +16,13 @@ stub: true
 
 ## Usage
 
-<!-- What is it for? -->
+Iron boots are worn in the bottom armour slot. They give 3
+[[Damage#Armour|armour points]].
+<!-- src: Item.java:327 armorType 3; ItemArmor.java:4 damageReduceAmountArray
+     {3, 8, 6, 3}; ContainerPlayer.java:28 puts armour slot n at y = 8 + n * 18,
+     and SlotArmor.java:19 accepts only the matching armorType there -->
 
 ## Data values
 
-- Item ID: `309`
+- Item ID: {{id|Iron Boots}}
 - Translation key: `item.bootsIron`

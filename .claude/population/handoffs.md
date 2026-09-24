@@ -18,9 +18,9 @@ None yet.
   (tools)
 - **Sheep**: each shearing costs the shears 1 durability.
   `src: EntitySheep.java:49` (tools)
-- **Seeds / Grass**: hoeing grass drops nothing. Seeds come only from tall grass
-  (1 in 8) and crops. `src: ItemHoe.java:10-26; BlockTallGrass.java:40;
-  BlockCrops.java:98` (tools)
+- **Seeds**: hoeing grass drops nothing; seeds come only from tall grass (1 in
+  8) and crops. `src: ItemHoe.java:10-26; BlockTallGrass.java:40;
+  BlockCrops.java:98` (tools; the Grass half is on Grass, from terrain)
 - **Light** (the burning row): by day a zombie or skeleton catches fire with
   chance `(brightness − 0.4) × 2 / 30` a tick, 1 in 25 in full daylight.
   `src: EntityZombie.java:14, EntitySkeleton.java:26` (hostile-mobs)
@@ -93,6 +93,17 @@ None yet.
   BlockCloth.java:21 getBlockFromDye` (passive-mobs)
 - **Saddle**: hitting a pig with a saddle saddles it, as using it does.
   `src: ItemSaddle.java:20 hitEntity` (passive-mobs)
+- **TNT**: lights when hit while holding flint and steel, which costs no
+  durability; broken any other way it drops itself. `src: BlockTNT.java:58
+  onBlockClicked, :45-:56 onBlockDestroyedByPlayer; Item.java:201
+  onBlockDestroyed` (terrain)
+- **Sugar cane**: stands only on grass or dirt with water beside that block,
+  never on sand. `src: BlockReed.java:33-:47 canPlaceBlockAt` (terrain)
+- **Pumpkin**: generates only on grass. `src: WorldGenPumpkin.java:11`
+  (terrain)
+- **Bone Meal**: used on grass, spends one and makes 128 tries nearby; each
+  plant is tall grass 9 in 10, otherwise a flower 2 in 3 or a rose 1 in 3.
+  `src: ItemDye.java:42-:70` (terrain)
 
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
   and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
@@ -157,6 +168,31 @@ None yet.
   10-tick window spaces its bites. `src: EntityWolf.java:314, :315 sets an
   attackTime nothing reads; against EntityMob.java:50` (passive-mobs; checked
   against source when merging)
+- **World Generation#Lakes**: "Dirt directly under the liquid becomes grass" is
+  wrong. The loop runs over the four air layers and turns the dirt under the
+  lake's open part, its banks, to grass; dirt under the liquid is untouched.
+  `src: WorldGenLakes.java:77-:81` (terrain; checked against source when
+  merging)
+- **World Generation#Trees**: says every tree turns the block under its trunk to
+  dirt. The big tree does not; it only tests for grass or dirt below.
+  `src: WorldGenBigTree.java:305 func_519_e`; the other four set it at
+  `WorldGenTrees.java:43, WorldGenForest.java:43, WorldGenTaiga1.java:45,
+  WorldGenTaiga2.java:44` (terrain)
+- **World Generation#The Nether**: "plus 10 more anywhere" for glowstone is
+  wrong. WorldGenGlowStone2 is identical to WorldGenGlowStone1, so the second
+  ten also hang from ceilings; they differ only in starting y, 0–127 against
+  4–123. `src: ChunkProviderHell.java:332, :339` (terrain; checked against
+  source when merging)
+- **Light#What light affects**: the "Grass dying" row names only "water, ice or
+  an opaque block above". The test is light opacity above 2, which also covers
+  slabs, stairs, farmland and lava. `src: BlockGrass.java:32; BlockStep.java:16,
+  BlockStairs.java:15, BlockFarmland.java:11` (terrain)
+- **World Generation#Population**: "Sand and gravel do not fall while a chunk is
+  being populated" is wrong. `fallInstantly` is on during population, so sand
+  that is updated then drops straight to its landing spot with no entity; only
+  sand nothing notifies stays hanging. Falling Sand already says so.
+  `src: ChunkProviderGenerate.java:311, :602; WorldGenLiquids.java:56;
+  BlockSand.java:27-:39` (terrain; checked against source when merging)
 
 ## Unsettled
 

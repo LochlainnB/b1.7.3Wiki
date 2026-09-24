@@ -1,16 +1,21 @@
 ---
 title: Block of Diamond
-description: Block of Diamond in Minecraft Beta 1.7.3.
+description: The block crafted from nine diamonds, and crafted back into them.
 type: block
-categories: [Blocks]
-stub: true
+categories: [Blocks, Building blocks]
 ---
 
-{{stub|block}}
-
-**Block of Diamond** is a block in Minecraft Beta 1.7.3.
+**Block of Diamond** is a block crafted from nine [[Diamond|diamonds]].
 
 ## Obtaining
+
+### Breaking
+
+A block of diamond drops itself when [[Mining#Harvest levels|mined]] with an
+iron or diamond pickaxe. Mined with anything else, it drops nothing.
+<!-- src: Block.java:323 idDropped returns the block's own id; Block.java:649
+     BlockOreStorage, Material.iron; Material.java:115; ItemPickaxe.java:13
+     canHarvestBlock, harvest level 2 or more -->
 
 ### Crafting
 
@@ -24,5 +29,5 @@ stub: true
 
 ## Data values
 
-- Block ID: `57`
+- Block ID: {{id|Block of Diamond}}
 - Translation key: `tile.blockDiamond`

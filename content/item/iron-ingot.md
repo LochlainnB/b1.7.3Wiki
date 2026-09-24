@@ -1,24 +1,31 @@
 ---
 title: Iron Ingot
-description: Iron Ingot in Minecraft Beta 1.7.3.
+description: The metal smelted from iron ore, and the material of iron tools, armour, rails and buckets.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Iron Ingot** is an item in Minecraft Beta 1.7.3.
+**Iron Ingot** is the metal smelted from [[Iron Ore|iron ore]].
 
 ## Obtaining
+
+### Smelting
+
+{{smelting|Iron Ingot}}
+
+The *Acquire Hardware* [[Achievements|achievement]] is for taking an iron ingot
+out of a furnace.
+<!-- src: SlotFurnace.java:17-18 onPickupFromSlot; AchievementList.java:38
+     acquireIron -->
 
 ### Crafting
 
 {{crafting|Iron Ingot}}
 
-### Smelting
+### Dungeon loot
 
-{{smelting|Iron Ingot}}
+Iron ingots are found in [[Dungeon|dungeon]] chests.
+<!-- src: WorldGenDungeons.java:112 pickCheckLootItem -->
 
 ## Usage
 
@@ -28,5 +35,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `265`
+- Item ID: {{id|Iron Ingot}}
 - Translation key: `item.ingotIron`

@@ -10,7 +10,7 @@ An **apple** is a [[Food|food]] and the ingredient of a
 
 ## Obtaining
 
-A player named Notch drops one apple each time he dies, along with his
+A player with the username Notch drops one apple on each death, along with the
 inventory. Nothing else in the game gives an apple, except a server operator's
 `give` command.
 <!-- src: EntityPlayer.java:223 onDeath tests username.equals("Notch"), in the

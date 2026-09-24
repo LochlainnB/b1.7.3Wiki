@@ -52,8 +52,11 @@ at the player rather than a quarter of the way to the horizon.
 <!-- src: RenderGlobal.java:600 renderSky, :725 renderClouds; World.java:1793
      updateWeather; WorldProviderHell.java:12; EntityRenderer.java:911 -->
 
-A [[Compass|compass]] and a [[Clock|clock]] both spin at random.
-<!-- src: TextureCompassFX.java:57, TextureWatchFX.java:38 -->
+A [[Compass|compass]] and a [[Clock|clock]] both spin at random, and so does a
+[[Map|map]]'s marker. A map made in the Nether shows a fixed pattern rather than
+the terrain.
+<!-- src: TextureCompassFX.java:57, TextureWatchFX.java:38; MapData.java:92 the
+     marker; ItemMap.java:50, :82-:94 the pattern -->
 
 ## Mobs
 

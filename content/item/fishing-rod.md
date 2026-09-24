@@ -46,16 +46,18 @@ towards the player.
 
 ### Hooking
 
-A bobber that hits a mob, a player or a vehicle hooks it, and stays on it.
-Reeling in pulls a hooked entity towards the player.
+A bobber that hits a mob or a vehicle hooks it, and stays on it. Reeling in
+pulls a hooked entity towards the player. A bobber never hooks a
+[[Player|player]].
 <!-- src: EntityFish.java:225-:226 sets bobber when attackEntityFrom succeeds;
      :152-:157 rides along on it; :348-:360 catchFish adds motion towards the
      angler. A mob inside its invulnerability window refuses a 0 hit
-     (EntityLiving.java:317), so the bobber passes on without hooking it -->
+     (EntityLiving.java:317), so the bobber passes on without hooking it, and
+     a player always refuses one (EntityPlayer.java:380) -->
 
 The hit deals no [[Damage|damage]], but counts as an attack by the player. It:
 
-- knocks a mob or player back;
+- knocks a mob back;
 - angers a [[Pig Zombie|pig zombie]] or a wild [[Wolf|wolf]];
 - breaks a [[Painting|painting]], which drops;
 - sends a [[Ghast|ghast]]'s [[Fireball|fireball]] off the way the player is

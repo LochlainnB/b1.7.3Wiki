@@ -114,8 +114,8 @@ blocks from its owner.
      of a 5 x 5 square around the owner for a solid block with two non-solid
      spaces above -->
 
-Its owner makes it sit or stand by using it. Being hurt or entering water makes
-it stand. A tamed wolf whose owner is not in its world sits.
+Its owner makes it sit or stand by using it. Any hit makes it stand, even a
+[[Snowball|snowball]] that deals no damage, and so does entering water. A tamed wolf whose owner is not in its world sits.
 <!-- src: EntityWolf.java:366 interact; :250 isMovementCeased; :255 and :115
      stand it up; :105 sits it when getPlayerEntityByName finds no owner -->
 

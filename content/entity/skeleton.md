@@ -28,8 +28,10 @@ On Peaceful no skeleton spawns, and any in the world is removed.
 
 ## Drops
 
-A skeleton drops 0–2 [[Arrow|arrows]] and 0–2 [[Bone|bones]] when it dies.
-<!-- src: EntitySkeleton.java:67 dropFewItems, nextInt(3) of each -->
+A skeleton drops 0–2 [[Arrow|arrows]] and 0–2 [[Bone|bones]] when it dies. It
+holds a [[Bow|bow]], which it never drops.
+<!-- src: EntitySkeleton.java:67 dropFewItems, nextInt(3) of each; :88
+     defaultHeldItem is the bow, which dropFewItems leaves out -->
 
 Killing one earns the *Monster Hunter* [[Achievements|achievement]].
 <!-- src: EntityPlayer.java:797 onKillEntity, for any EntityMob -->

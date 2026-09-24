@@ -18,9 +18,10 @@ saddle cannot be crafted.
 
 ## Usage
 
-Using a saddle on a [[Pig|pig]] saddles it, and uses up the saddle. No other
-mob takes one.
-<!-- src: ItemSaddle.java:9 saddleEntity acts on EntityPig alone -->
+Using a saddle on a [[Pig|pig]], or hitting the pig with it, saddles it and uses
+up the saddle. No other mob takes one.
+<!-- src: ItemSaddle.java:9 saddleEntity acts on EntityPig alone; :20 hitEntity
+     calls it too -->
 
 ## Data values
 

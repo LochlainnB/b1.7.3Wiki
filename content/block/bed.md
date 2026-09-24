@@ -67,12 +67,14 @@ multiplayer only, a button on the sleeping screen gets the player up.
 ### Spawn point
 
 Waking in the morning sets the player's spawn point at the bed. In multiplayer,
-getting up with the button sets it too.
+getting up with the button sets it too. A [[Compass|compass]] still points to the
+world spawn point.
 <!-- src: EntityPlayer.java:617 wakeUpPlayer sets it at :644 only when its third
      argument is true: World.java:2402 wakeUpAllPlayers and EntityPlayer.java:70,
      day arriving, pass true, as does minecraft_server NetServerHandler.java:453
      for the button; EntityPlayer.java:68, :363 and SpawnerAnimals.java:241 pass
-     false -->
+     false. TextureCompassFX.java:53 points at World.getSpawnPoint, the world's,
+     never the player's bed -->
 
 A player who dies respawns in a free space beside the bed: a full, opaque block
 with two empty spaces above it. If the bed is gone, or no space around it is

@@ -86,8 +86,10 @@ An entity in range takes at least 1 damage, however well it is covered.
 For a player, [[Damage#Armour|armour]] reduces explosion damage and
 [[Damage#Difficulty|difficulty]] scales a creeper's.
 
-A dropped item has 5 health and a [[Painting|painting]] breaks at any damage,
-so both are destroyed by almost any blast. Lit [[Primed TNT|TNT]] takes no
-damage, and is only thrown.
-<!-- src: EntityItem.java:8, :87; EntityPainting.java:204; EntityTNTPrimed
-     does not override Entity.java:746 attackEntityFrom -->
+A dropped item has 5 health, so almost any blast destroys it. A
+[[Painting|painting]] breaks at any damage and drops as an item, which survives
+the blast that knocked it off. Lit [[Primed TNT|TNT]] takes no damage, and is
+only thrown.
+<!-- src: EntityItem.java:8, :87; EntityPainting.java:204 spawns the item,
+     after Explosion.java:84 has already listed the entities the blast reaches;
+     EntityTNTPrimed does not override Entity.java:746 attackEntityFrom -->

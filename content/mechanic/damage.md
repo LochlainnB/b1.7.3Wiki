@@ -43,8 +43,11 @@ Repeating sources land far less often than they are attempted, because the
 invulnerability window discards most of the attempts.
 
 Fall distance is reset by entering [[Water|water]] and by holding a
-[[Ladder|ladder]], so neither leads to fall damage.
-<!-- src: Entity.java:231 water; EntityLiving.java:517 the isOnLadder branch -->
+[[Ladder|ladder]], so neither leads to fall damage. A [[Cobweb|cobweb]] slows a
+fall but does not reset it.
+<!-- src: Entity.java:231 water; EntityLiving.java:517 the isOnLadder branch;
+     Entity.java:303-:310 slows movement in a web and leaves fallDistance
+     alone, and :553 keeps adding the distance fallen -->
 
 A player riding a [[Minecart|minecart]], [[Boat|boat]] or [[Pig|pig]] takes the
 vehicle's fall damage, because a vehicle passes its fall on to its rider.
@@ -52,11 +55,14 @@ vehicle's fall damage, because a vehicle passes its fall on to its rider.
 
 ## Catching fire
 
-Standing in fire sets the entity alight for 300 ticks, and lightning does the
-same. Lava sets it alight for 600.
+Standing in fire sets a mob alight for 300 ticks, and lightning does the same.
+A [[Player|player]] catches alight only after 20 ticks in fire, and lightning
+never sets a player alight. Lava sets any entity alight for 600.
 <!-- src: Entity.java:525 the tick after contact begins takes fire from the
-     -fireResistance it was pinned at up to 0, and 0 is then set to 300;
-     :274 lava; :1089 lightning -->
+     -fireResistance it was pinned at up to 0, and 0 is then set to 300; :274
+     lava; :1089 lightning adds 1 the same way. fireResistance is 1
+     (Entity.java:98) but 20 for a player (EntityPlayer.java:50), so a player
+     needs 20 ticks of contact, and a strike's single step never reaches 0 -->
 
 The count holds while the entity stands in the flame, and starts falling only
 once it leaves.
@@ -104,17 +110,20 @@ loses none.
 | [[Giant]] | 50 |
 | [[Zombie]], [[Pig Zombie\|pig zombie]] | 5 |
 | [[Slime]] | its size, 2 or 4 |
-| [[Spider]] | 2 |
+| [[Spider]], [[Monster\|monster]] | 2 |
 | [[Wolf]] | 2, or 4 when tamed |
 <!-- src: EntityMob.java:4 attackStrength 2, EntityZombie.java:8 and
      EntityPigZombie.java:14 set 5, EntityGiantZombie.java:8 sets 50;
      EntitySlime.java:116; EntityWolf.java:316 -->
 
-A melee mob strikes once every 20 ticks and only within 2 blocks. A slime has
-no such cooldown: it damages on contact, limited only by the invulnerability
-window, and the smallest slime deals nothing at all.
+A melee mob strikes once every 20 ticks and only within 2 blocks. A
+[[Wolf|wolf]] bites within 1.5 blocks and a slime damages on contact, and
+neither has a cooldown: only the invulnerability window spaces their hits. The
+smallest slime deals nothing at all.
 <!-- src: EntityMob.java:49 attackEntity sets attackTime = 20;
-     EntitySlime.java:116 onCollideWithPlayer, gated on size > 1 -->
+     EntityWolf.java:314 bites within 1.5 and never reads the attackTime it
+     sets at :315; EntitySlime.java:116 onCollideWithPlayer, gated on
+     size > 1 -->
 
 A [[Skeleton|skeleton]] shoots an [[Arrow|arrow]] every 30 ticks instead of
 striking. Arrows deal a flat 4 whether shot by a skeleton, a [[Bow|bow]] or a
@@ -127,8 +136,10 @@ A ghast's fireball hits for 0 and leaves the damage to its blast.
 <!-- src: EntityCreeper.java:101; EntityFireball.java:124 -->
 
 [[Snowball|Snowballs]], [[Egg|eggs]] and a fishing bobber deal 0 damage. They
-still knock their target back.
-<!-- src: EntitySnowball.java:153, EntityEgg.java:153, EntityFish.java:225 -->
+still knock a mob back, but do nothing to a player.
+<!-- src: EntitySnowball.java:153, EntityEgg.java:153, EntityFish.java:225;
+     EntityPlayer.java:380 returns before EntityLiving.attackEntityFrom when the
+     damage is 0 -->
 
 ## Explosions
 
@@ -167,6 +178,14 @@ Armour points depend on the slot alone, never on the material.
 | Boots | 3 |
 <!-- src: ItemArmor.java:4 damageReduceAmountArray {3, 8, 6, 3} indexed by
      armorType 0 helmet, 1 chestplate, 2 leggings, 3 boots -->
+
+Armour is worn by placing it in the inventory's four armour slots, helmet at
+the top and boots at the bottom. Each slot takes only its own piece, and the
+top slot also takes a [[Pumpkin|pumpkin]], which gives no points. Using a piece
+of armour does not put it on.
+<!-- src: ContainerPlayer.java:28 the four slots; SlotArmor.java:19
+     isItemValid; InventoryPlayer.java:290 getTotalArmorValue counts ItemArmor
+     alone; ItemArmor overrides neither onItemRightClick nor onItemUse -->
 
 Each point removes 4% of the damage, so a full set of any material removes 80%.
 The reduced figure is rounded down, and the remainder is carried into the next
@@ -244,6 +263,9 @@ times the damage and the counter falls by 1 per tick; the vehicle breaks above
 40.
 <!-- src: EntityMinecart.java:78 and :169, EntityBoat.java:67 and :126 -->
 
-A dropped item has 5 health and is destroyed by fire and explosions. A
-[[Painting|painting]] is destroyed by any damage at all.
-<!-- src: EntityItem.java:8 and :87, EntityPainting.java:204 -->
+A dropped item has 5 health and is destroyed by fire and explosions. Any damage
+breaks a [[Painting|painting]], which drops as an item. The item a blast knocks
+off survives that blast.
+<!-- src: EntityItem.java:8 and :87; EntityPainting.java:204 attackEntityFrom
+     spawns the item, after Explosion.java:84 has already listed the entities
+     the blast reaches -->

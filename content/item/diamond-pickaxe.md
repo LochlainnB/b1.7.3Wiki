@@ -25,9 +25,11 @@ the only pickaxe that harvests [[Obsidian|obsidian]].
 <!-- src: ItemPickaxe.java:11 canHarvestBlock, harvestLevel == 3 for obsidian -->
 
 Obsidian is not among the blocks a pickaxe is effective against. A diamond
-pickaxe mines it at speed 1, in 15 seconds.
+pickaxe mines it at speed 1, in 301 ticks, just over 15 seconds.
 <!-- src: ItemPickaxe.java:41 blocksEffectiveAgainst has no Block.obsidian;
-     Block.java:327 blockStrength, 1 / (10 * 30) per tick at hardness 10 -->
+     Block.java:327 blockStrength, 1 / (10 * 30) per tick at hardness 10,
+     which a float total of 300 steps leaves just short of 1
+     (PlayerControllerSP.java:9) -->
 
 ## Data values
 

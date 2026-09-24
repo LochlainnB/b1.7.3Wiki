@@ -38,9 +38,6 @@ None yet.
   isBlockNormalCube` (building-blocks)
 - **Note Block**: glass under a note block gives instrument 3, rock 1, wood 4.
   `src: TileEntityNote.java:31-:48` (building-blocks)
-- **Obsidian**: its "a piston cannot push it" can link
-  [[Piston#Pushing]], which now lists every block that stops a piston.
-  `src: BlockPistonBase.java:248 canPushBlock` (redstone)
 - **Crafting#The grid**: closing either grid, the inventory's 2×2 or the
   table's 3×3, drops whatever is left in it. `src: ContainerWorkbench.java:43
   onCraftGuiClosed; ContainerPlayer.java:48` (utility-blocks)
@@ -80,34 +77,6 @@ None yet.
 - **Achievements**: the Monster Hunter "Earned by" column leaves out the
   Monster, which is EntityMob itself, exactly what the kill test checks.
   `src: EntityPlayer.java:797` (entities)
-- **Mining#Drops**: the Rock row of the material table leaves out Lapis Lazuli
-  Block and the stone Pressure Plate, both `Material.rock`, and its "the stone
-  slabs and stairs" should say every slab, the wooden one included.
-  `src: Block.java:614, :662; BlockStep.java:10; Material.java:114;
-  ItemPickaxe.java:18` (ores, redstone and building-blocks; lapis checked
-  against source when merging)
-- **Mining#What blocks actually give**: "Three blocks give nothing at all" leaves
-  out the Dead Bush. The table also has no row for tall grass and ferns (seeds 1
-  in 8, otherwise nothing, shears included) or for sugar cane (the item, 338).
-  Mining also says broken ice "turns into flowing Water"; it is a water source,
-  block 8 at level 0. `src: BlockDeadBush.java:20; BlockTallGrass.java:39;
-  BlockReed.java:70; BlockIce.java:24` (plants and fluids-and-cold)
-- **Mining#Breaking a block**: "one divided by that, rounded up" is a tick short
-  wherever the per-tick strength is not an exact binary fraction, because the
-  running total is a float. Stone by hand takes 151 ticks, not the table's 150;
-  obsidian 301, not 300 (Obsidian and Diamond Pickaxe's "15 seconds" is off by
-  the same tick); cobweb by hand 401. Tool times on stone (23, 12, 8, 6, 4) and
-  a sword on cobweb (8) are exact. `src: PlayerControllerSP.java:9 float
-  curBlockDamage, :72 adds Block.java:331 blockStrength each tick`
-  (mob-drops; simulated in float arithmetic when merging, and it agrees)
-- **Mining#What each tool is effective against**: gives Wooden Stairs as the
-  axe's gap, but Fence and every other wooden block but planks, wood,
-  bookshelf and chest are missing too: crafting table, doors, trapdoor,
-  jukebox, note block, sign, wooden pressure plate, locked chest.
-  `src: ItemAxe.java:11` (building-blocks)
-- **Smelting#Fuel**: the wooden block list leaves out the Locked Chest, which is
-  `Material.wood` and burns for 300 ticks. `src: BlockLockedChest.java:7;
-  TileEntityFurnace.java:190` (building-blocks and utility-blocks)
 - **World Generation#The noise fields**: "Rainforest and Swampland carry the
   most extreme terrain, Tundra and Desert the least" is wrong twice. Relief
   scales with `1 − (1 − r)^4`, r = rainfall × temperature. Swampland's r is 0.5

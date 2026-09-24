@@ -18,9 +18,11 @@ Obsidian drops itself only when [[Mining|mined]] with a
      harvestLevel == 3 -->
 
 A pickaxe is not [[Mining#What each tool is effective against|effective
-against]] obsidian, so even a diamond pickaxe takes 15 seconds to mine it.
+against]] obsidian, so even a diamond pickaxe takes 301 ticks, just over 15
+seconds, to mine it.
 <!-- src: ItemPickaxe.java:41 has no Block.obsidian; Block.java:327
-     blockStrength, 10 * 30 = 300 ticks at speed 1 -->
+     blockStrength, 1 / (10 * 30) a tick at speed 1, which a float total of
+     300 steps leaves just short of 1 (PlayerControllerSP.java:9) -->
 
 ### Lava and water
 
@@ -41,8 +43,8 @@ Obsidian is the frame of a [[Nether Portal#Building a portal|Nether portal]].
 
 ## Behaviour
 
-No [[Explosion|explosion]] breaks obsidian, and a [[Piston|piston]] cannot push
-it.
+No [[Explosion|explosion]] breaks obsidian, and a [[Piston#Pushing|piston]]
+cannot push it.
 <!-- src: Block.java:641 setResistance(2000.0F); BlockPistonBase.java:249
      canPushBlock refuses obsidian by id -->
 

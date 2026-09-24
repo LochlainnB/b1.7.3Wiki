@@ -32,16 +32,20 @@ A wolf walks at 4.4 blocks per second, 102% of a player's walking speed.
      tick against a walking player's 0.098; see Zombie for the rest -->
 
 Between 2 and 6 blocks from its target, it leaps at it 1 tick in 10. Within 1.5
-blocks it bites, for [[Damage#Mob attacks|2 damage]], or 4 when tamed. It can
-bite a player on level ground only while airborne, as in a leap. Bites land at
-most every 10 ticks, as often as the target's
+blocks it bites, for [[Damage#Mob attacks|2 damage]], or 4 when tamed. In
+singleplayer it can bite a player on level ground only while airborne, as in a
+leap. On a server it bites a player level with it. Bites land at most every 10
+ticks, as often as the target's
 [[Damage#The invulnerability window|invulnerability window]] allows.
 <!-- src: EntityWolf.java:304 attackEntity, given the distance between
-     positions (EntityCreature.java:27, Entity.java:678). A player's position
-     is 1.62 above its feet (EntityPlayer.java:44) and a wolf's is at its feet,
-     so on level ground the two are never within 1.5. The leap at :305 needs
-     onGround; the bite at :314 tests no attackTime, unlike EntityMob.java:50,
-     so only the target's window (EntityLiving.java:317) spaces the bites -->
+     positions (EntityCreature.java:27, Entity.java:678). In singleplayer a
+     player's position is 1.62 above its feet (EntityPlayer.java:44) and a
+     wolf's is at its feet, so on level ground the two are never within 1.5.
+     A server player's position is at its feet (minecraft_server
+     EntityPlayerMP.java:41 yOffset 0). The leap at :305 needs onGround; the
+     bite at :314 tests no attackTime, unlike EntityMob.java:50, and the
+     attackTime it sets at :315 is read nowhere else, so only the target's
+     window (EntityLiving.java:317) spaces the bites -->
 
 Its bite is not scaled by [[Damage#Difficulty|difficulty]], and it bites on
 Peaceful too.

@@ -6,16 +6,10 @@ after the last group. Tick an entry off by deleting it once it is on its page.
 
 ## Red links left
 
-- `[[Achievements]]` — Wooden Pickaxe, Stone Pickaxe, Wooden Hoe, Wooden Sword
-  (tools).
+None yet.
 
 ## For other pages
 
-- **Achievements** (new page): an achievement is awarded only once its parent
-  is unlocked. Crafting awards the crafting table, wooden pickaxe, furnace,
-  wooden hoe, bread, cake, stone pickaxe and wooden sword achievements.
-  `src: EntityPlayerSP.java:180 addStat; AchievementList.java:33-48;
-  SlotCrafting.java:19-35` (tools)
 - **Farmland**: farmland tilled under a solid block reverts to dirt only when a
   neighbouring block changes. `src: BlockFarmland.java:85 onNeighborBlockChange`
   (tools)
@@ -50,12 +44,6 @@ after the last group. Tick an entry off by deleting it once it is on its page.
 
 ## Hub or data problems
 
-- **Mining#Tool wear** says a sword's two points per block halve its blocks.
-  The counts are 30, 66, 126, 781 and 17 for wood, stone, iron, diamond and
-  gold; iron and gold are not exact halves. `src: ItemSword.java:22;
-  ItemStack.java:127` (tools)
-- **Mining#Tool wear** says shears "last 239 blocks". Shearing a sheep draws on
-  the same 239 uses. `src: EntitySheep.java:49` (tools)
 - **Mob Spawning#Despawning**: slimes and ghasts never age, so the 1-in-800
   check past 600 ticks never removes them; only the 128-block rule does. Their
   despawn check also runs every tick, not only when they have no path.

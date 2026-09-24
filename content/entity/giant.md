@@ -48,9 +48,11 @@ It hits for [[Damage#Mob attacks|50 damage]], but only within 2 blocks of its
 centre. That is inside its own body, so a player has to walk into it to be hit.
 <!-- src: EntityMob.java:50 attackEntity needs getDistanceToEntity below 2,
      measured between positions. The giant's is at its feet, in the middle of a
-     body 1.8 wide on each side; a player's is 1.62 above its feet
-     (EntityPlayer.java:44), so on level ground the two must be within 1.17
-     horizontally -->
+     body 1.8 wide on each side. In singleplayer a player's is 1.62 above its
+     feet (EntityPlayer.java:44), so on level ground the two must be within 1.17
+     horizontally; on a server it is at the feet (minecraft_server
+     EntityPlayerMP.java:41 yOffset 0), and they must be within 2. Either way
+     that is inside the giant's body -->
 
 Unlike a zombie, it does not burn in daylight. With no target it wanders,
 choosing brighter spaces.

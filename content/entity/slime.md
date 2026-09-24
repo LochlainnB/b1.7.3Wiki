@@ -59,10 +59,17 @@ close.
 
 It [[Damage#Mob attacks|damages]] only players, by touching one it can see.
 <!-- src: EntitySlime.java:114 onCollideWithPlayer -->
-<!-- check: the touch must bring the two positions within 0.6 x size of each
-     other. A player's position is 1.62 above its feet (EntityPlayer.java:44)
-     and a slime's is at its feet, so a size 2 slime (reach 1.2) may reach a
-     player standing level with it only in mid-jump. Needs testing in game. -->
+
+In singleplayer, a size 2 slime hurts a player level with it only while it is
+in the air, near the top of a jump. A size 4 slime hurts a player on contact.
+On a server, both hurt a player on contact.
+<!-- src: EntitySlime.java:116 needs the two positions within 0.6 x size, 1.2
+     for size 2. A slime's position is at its feet. A singleplayer player's is
+     1.62 above its feet (EntityPlayer.java:44 yOffset), out of reach of a size
+     2 slime on the ground; a server player's is at its feet (minecraft_server
+     EntityPlayerMP.java:41 yOffset 0). Confirmed in game, reported 2026-09-25: in
+     singleplayer a size 2 slime under a 2-block ceiling, which caps its jump
+     at 0.8, never hurt a player in a 1-wide doorway. -->
 
 When a slime of size 2 or 4 dies, it splits into four slimes of half its size.
 It splits only if the damage that kills it brings its health to exactly 0. More

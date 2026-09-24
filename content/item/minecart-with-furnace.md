@@ -50,9 +50,13 @@ fuel, it loses 13.6% of its speed every tick, against a minecart's 4%.
 <!-- src: EntityMinecart.java:336-:357: speed × 0.8 + 0.04, then × 0.96,
      which settles at 0.1655 blocks per tick; × 0.9 × 0.96 with no push -->
 
-<!-- check: whether it pushes other minecarts along. EntityMinecart.java:684
-     gives the other minecart its speed and keeps 70% of its own, but
-     :673-:680 can return before that; see the check on Minecart -->
+It pushes a minecart in front of it wherever two minecarts
+[[Minecart#Movement|push each other]]. On a north–south track away from the
+rails at x = −2 to 1, it stops behind the minecart instead.
+<!-- src: EntityMinecart.java:684 gives the other minecart its speed and keeps
+     70% of its own, but only after :673-:680 lets the collision through; see
+     the src on Minecart. The in-game test reported 2026-09-25 confirmed the
+     rule for plain minecarts; the furnace minecart runs the same code -->
 
 When it [[Damage#Other entities|breaks]], it drops a minecart and a
 [[Furnace|furnace]].

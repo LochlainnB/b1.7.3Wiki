@@ -42,6 +42,14 @@ None yet.
   `EntitySkeleton.java:67`, pig zombie cooked porkchop `EntityPigZombie.java:85`
   (hostile-mobs)
 
+- **Ghast#Fireballs**: once Fireball is written, cut the section to one line
+  and `{{main|Fireball}}`. Ghast keeps when and how often it fires. (entity
+  restructure, before the entities group)
+- **Weather#Lightning**: once Lightning Bolt is written, keep when and where
+  lightning strikes, and cut the strike list and the extra flashes to one line
+  and `{{main|Lightning Bolt}}`. (entity restructure, before the entities
+  group)
+
 ## Hub or data problems
 
 - **Mob Spawning#Despawning**: slimes and ghasts never age, so the 1-in-800

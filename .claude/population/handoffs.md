@@ -17,10 +17,6 @@ None yet.
   `src: EntitySheep.java:49` (tools)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **Fire**: Obtaining could say a server operator's `give` is the only way to
-  hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
-  minecraft_server Block.java:646-647` (armour; checked against source when
-  merging)
 - **World Generation#Plants**: tall grass and dead bush patches fall from their
   random y through air and leaves to the ground before placing. Flower, rose,
   mushroom and cactus patches do not, and place only when their y lands within
@@ -74,13 +70,6 @@ None yet.
 - **Achievements**: the Monster Hunter row could name and link [[Monster]]; Mob
   Spawning now links it. `src: EntityMob.java:20;
   EntityPlayer.java:797` (entities)
-- **Ghast#Fireballs**: Fireball is now written. Cut the section to one line and
-  `{{main|Fireball}}`; Ghast keeps when and how often it fires. (entity
-  restructure; ready since the entities group)
-- **Weather#Lightning**: Lightning Bolt is now written. Keep when and where
-  lightning strikes, and cut the strike list and the extra flashes to one line
-  and `{{main|Lightning Bolt}}`. (entity restructure; ready since the entities
-  group)
 
 ## Hub or data problems
 
@@ -88,17 +77,6 @@ None yet.
   the round; it also resets its delay to 200–799 ticks.
   `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source
   when merging)
-- **Damage#Catching fire and Weather#Lightning**: "Standing in fire sets the
-  entity alight for 300 ticks, and lightning does the same" and "5 damage and
-  300 ticks alight" are wrong for the player. A player must stand in fire 20
-  ticks before catching alight, and a strike never lights a player: it adds 1
-  to a count that rests at −20. `src: EntityPlayer.java:50 fireResistance 20;
-  Entity.java:525-:531, :1087` (entities; checked against source when merging)
-- **Weather#Lightning and Fire#Starting a fire**: "on Normal and Hard" holds for
-  a bolt's first flash only. Each of its one to three later flashes sets fire
-  to the struck space on any difficulty. `src: EntityLightningBolt.java:16
-  guards the first flash alone; :51-:57 have no difficulty test` (entities;
-  checked against source when merging)
 - **Achievements**: the Monster Hunter "Earned by" column leaves out the
   Monster, which is EntityMob itself, exactly what the kill test checks.
   `src: EntityPlayer.java:797` (entities)

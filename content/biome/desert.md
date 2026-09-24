@@ -1,28 +1,49 @@
 ---
 title: Desert
-description: The Desert biome in Minecraft Beta 1.7.3.
+description: A hot, dry biome of sand, cacti and dead bushes, where no rain falls.
 type: biome
 categories: [Biomes]
 infobox: {Map colour: '#FA9418'}
-stub: true
 ---
 
-{{stub|biome}}
-
-**Desert** is one of the thirteen biomes in Minecraft Beta 1.7.3.
+**Desert** is a hot, dry [[Overworld]] biome covered in [[Sand|sand]].
 
 ## Terrain
 
-<!-- Height, surface blocks, notable formations. -->
+Desert [[World Generation#Biomes|generates]] where temperature is 0.95 or more
+and rainfall × temperature is below 0.2.
+<!-- src: BiomeGenBase.java:100 getBiome -->
+
+The surface is [[Sand|sand]] over sand, with [[Sandstone|sandstone]] below it.
+Desert, [[Savanna]] and [[Tundra]] have the
+[[World Generation#The noise fields|least relief]] of any biome.
+<!-- src: BiomeGenBase.java:66 generateBiomeLookup sets both surface blocks to
+     sand; ChunkProviderGenerate.java:176 the sandstone under sand filler;
+     :229-:236 the 1 - (1 - t*h)^4 factor on the stretch, lowest where
+     rainfall × temperature is below 0.2 -->
+
+No [[Weather#Biomes|rain or snow]] falls, so there is no lightning.
+<!-- src: BiomeGenBase.java:16 setDisableRain; :150 canSpawnLightningBolt -->
 
 ## Vegetation
 
-<!-- Which trees, grass and flowers generate here. -->
+No [[World Generation#Trees|trees]] generate. Each chunk gets 2
+[[World Generation#Plants|patches]] of [[Dead Bush|dead bushes]] and 10 of
+[[Cactus|cacti]].
+<!-- src: ChunkProviderGenerate.java:433 the -20 tree term; :516 dead bushes;
+     :563 cacti -->
 
 ## Mobs
 
-<!-- Which mobs spawn, and anything unusual about spawn rates. -->
+Desert uses the shared [[Mob Spawning#What spawns where|Overworld spawn lists]].
+[[Mob Spawning#Passive mobs|Animals]] spawn only on [[Grass|grass]], so none
+spawn on Desert's sand.
+<!-- src: BiomeGenDesert.java adds nothing to BiomeGenBase.java:42-:51;
+     EntityAnimal.java:19 getCanSpawnHere -->
 
 ## Data values
 
 - Map colour: `#FA9418`
+
+<!-- src: BiomeGenBase.java:16 setColor(16421912). The game stores the colour
+     but never reads it. -->

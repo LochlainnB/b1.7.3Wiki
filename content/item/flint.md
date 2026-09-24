@@ -1,18 +1,20 @@
 ---
 title: Flint
-description: Flint in Minecraft Beta 1.7.3.
+description: An item that gravel drops one time in ten, used to make arrows and flint and steel.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Flint** is an item in Minecraft Beta 1.7.3.
+**Flint** is an item that [[Gravel|gravel]] sometimes drops.
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Breaking
+
+Breaking [[Gravel|gravel]] drops one flint one time in ten, whatever breaks it.
+Nothing else drops flint.
+<!-- src: BlockGravel.java:10 idDropped; Item.flint appears in no other
+     idDropped, dropFewItems or loot table -->
 
 ## Usage
 
@@ -22,5 +24,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `318`
+- Item ID: {{id|Flint}}
 - Translation key: `item.flint`

@@ -1,20 +1,41 @@
 ---
 title: Snowball
-description: Snowball in Minecraft Beta 1.7.3.
+description: A throwable item broken out of snow, which deals no damage but knocks back what it hits, and crafts into snow blocks.
 type: item
 categories: [Items]
-stub: true
 ---
 
-{{stub|item}}
-
-**Snowball** is an item in Minecraft Beta 1.7.3.
+A **snowball** is a throwable item broken out of [[Snow|snow]].
 
 ## Obtaining
 
-<!-- How is it obtained? Mining, crafting, mob drops, generation. -->
+### Breaking snow
+
+[[Snow]] broken with a [[Mining#Drops|shovel]] drops snowballs: one from a
+layer, four from a block.
+<!-- src: BlockSnow.java:50 harvestBlock; BlockSnowBlock.java:15
+     quantityDropped 4; ItemSpade.java:10 canHarvestBlock -->
 
 ## Usage
+
+### Throwing
+
+Using a snowball throws it. It breaks on the first block or entity it hits, and
+flies through water and lava.
+<!-- src: ItemSnowball.java:10; EntitySnowball.java:119 rayTraceBlocks, which
+     ignores liquids (World.java:704), :160 setEntityDead on any hit -->
+
+A hit deals no [[Damage|damage]], but counts as an attack by the thrower. It
+knocks the target back, and angers a [[Pig Zombie|pig zombie]] or wild
+[[Wolf|wolf]] as any attack would.
+<!-- src: EntitySnowball.java:153 attackEntityFrom(thrower, 0);
+     EntityLiving.java:337 knocks back from the attacker;
+     EntityPigZombie.java:49; EntityWolf.java:254 -->
+
+A [[Dispenser|dispenser]] fires snowballs. A dispensed snowball has no thrower,
+and knocks nothing back.
+<!-- src: BlockDispenser.java:117-:121; EntitySnowball.java:47 leaves the
+     thrower null; EntityLiving.java:337 knocks back only from an attacker -->
 
 ### Crafting ingredient
 
@@ -22,6 +43,6 @@ stub: true
 
 ## Data values
 
-- Item ID: `332`
-- Entity network ID: `11`
+- Item ID: {{id|Snowball}}
+- Entity network ID: {{id|entity 11}}
 - Translation key: `item.snowball`

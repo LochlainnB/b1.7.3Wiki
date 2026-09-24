@@ -10,17 +10,11 @@ None yet.
 
 ## For other pages
 
-- **Farmland**: farmland tilled under a solid block reverts to dirt only when a
-  neighbouring block changes. `src: BlockFarmland.java:85 onNeighborBlockChange`
-  (tools)
 - **Pig Zombie**: holds a golden sword and never drops it; drops cooked
   porkchops. `src: EntityPigZombie.java:89 getHeldItem, :94, :85 getDropItemId`
   (tools)
 - **Sheep**: each shearing costs the shears 1 durability.
   `src: EntitySheep.java:49` (tools)
-- **Seeds**: hoeing grass drops nothing; seeds come only from tall grass (1 in
-  8) and crops. `src: ItemHoe.java:10-26; BlockTallGrass.java:40;
-  BlockCrops.java:98` (tools; the Grass half is on Grass, from terrain)
 - **Light** (the burning row): by day a zombie or skeleton catches fire with
   chance `(brightness − 0.4) × 2 / 30` a tick, 1 in 25 in full daylight.
   `src: EntityZombie.java:14, EntitySkeleton.java:26` (hostile-mobs)
@@ -33,9 +27,6 @@ None yet.
   redstone and checked against source when merging)
 - **Music Disc**: a creeper killed by a skeleton's arrow drops "13" or "cat" at
   even odds. `src: EntityCreeper.java:81; Item.java:378` (hostile-mobs)
-- **Farmland**: each step an entity takes on it turns it to dirt 1 time in 4.
-  Spiders never trample it. `src: BlockFarmland.java:50; Entity.java:478;
-  EntitySpider.java:15` (hostile-mobs)
 - **Feather, String, Gunpowder, Slimeball, Arrow, Bone, Cooked Porkchop**: each
   mob that drops one drops 0–2. `src: EntityLiving.java:424`, plus zombie
   feather `EntityZombie.java:34`, spider string `EntitySpider.java:70`, creeper
@@ -52,10 +43,6 @@ None yet.
   hold fire as an item. `src: minecraft_server ConsoleCommandHandler.java:133;
   minecraft_server Block.java:646-647` (armour; checked against source when
   merging)
-- **Minecart with Furnace**: each coal or charcoal adds 1200 fuel. While
-  pushing, fuel falls by 1 one tick in four, so one coal lasts about 4800 ticks
-  on average. `src: EntityMinecart.java:778-783 interact (tests the item id
-  only, so charcoal works); :485-486 onUpdate` (ores)
 - **Wool / Dye**: the dye-and-wool recipe takes white wool only (damage 0), so
   coloured wool cannot be re-dyed by crafting. `src: RecipesDyes.java:6` (ores)
 - **Dye**: dyeing a sheep that is sheared, or already that colour, does nothing
@@ -80,9 +67,6 @@ None yet.
   getSkyColorByTemp` (biomes)
 - **Egg**: a chicken lays an egg every 6000 to 11999 ticks (5 to 10 minutes).
   `src: EntityChicken.java:43 onLivingUpdate; :17 and :46` (passive-mobs)
-- **Cooked Porkchop**: a pig that dies on fire drops 0–2 cooked porkchops
-  instead of raw. `src: EntityPig.java:45 getDropItemId tests fire > 0`
-  (passive-mobs)
 - **Bone Meal / Dye**: a dye used on an unsheared sheep dyes its fleece and is
   used up; bone meal dyes it white. `src: ItemDye.java:80 saddleEntity;
   BlockCloth.java:21 getBlockFromDye` (passive-mobs)
@@ -94,9 +78,6 @@ None yet.
 - **Bone Meal**: used on a sapling, it is spent even when the tree has no room,
   and the sapling stays. `src: ItemDye.java:24-:28; BlockSapling.java:51-:53`
   (plants)
-- **Boat**: a boat that breaks, hit past 40 damage or crashing faster than
-  0.15, drops 3 wooden planks and 2 sticks. `src: EntityBoat.java:69-:81
-  attackEntityFrom, :246-:257 onUpdate` (building-blocks)
 - **Torch, Redstone Dust**: both need a full cube beneath, which glass, slabs,
   stairs, leaves and TNT are not; a torch can also stand on a fence.
   `src: BlockTorch.java:27-:41; BlockRedstoneWire.java:42; World.java:1644
@@ -120,13 +101,16 @@ None yet.
   close when the player is more than 8 blocks away or the block is gone.
   `src: EntityPlayer.java:81; TileEntityChest.java:84, TileEntityFurnace.java:204,
   ContainerWorkbench.java:56` (utility-blocks)
-- **Milk**: using a milk bucket on a block within 5 pours the milk away and
-  returns an empty bucket; nothing is placed, and milk cannot be drunk. Bucket
-  says the first half. `src: ItemBucket.java:51, isFull -1 at Item.java:353`
-  (fluids-and-cold)
-- **Cake, Milk**: crafting a cake leaves the empty milk buckets in the grid;
-  Bucket says so. `src: SlotCrafting.java:41; Item.java:353
-  setContainerItem(bucketEmpty)` (fluids-and-cold)
+- **Bone Meal**: used on crops, it is spent even when they are fully grown.
+  `src: ItemDye.java:33-:38, no stage test` (farming-and-food)
+- **Fireball** (with Ghast#Fireballs): a fishing bobber sends a fireball off the
+  way the player looks, as a hit or an arrow does. `src: EntityFish.java:225
+  attackEntityFrom(angler, 0); EntityFireball.java:202` (farming-and-food)
+- **Painting**: a fishing bobber breaks a painting, which drops as an item.
+  `src: EntityFish.java:225; EntityPainting.java:204` (farming-and-food)
+- **Player**: a player with the username Notch drops an apple on death, in
+  singleplayer and on a server; Apple says so. `src: EntityPlayer.java:223;
+  minecraft_server EntityPlayer.java:203` (farming-and-food)
 - **Wolf**: any hit makes a sitting wolf stand, even a 0-damage snowball.
   `src: EntityWolf.java:255 setWolfSitting(false)` (fluids-and-cold)
 - **Ghast#Fireballs**: once Fireball is written, cut the section to one line
@@ -183,6 +167,11 @@ None yet.
   `src: BlockLeaves.java:81-:144 updateTick; ItemLeaves.java:10
   getPlacedBlockMetadata returns var1 | 8` (plants; face-to-face checked
   against source when merging)
+- **Game Tick#Random ticks**, Farmland row: "turns to dirt when dry" is wrong
+  for farmland with crops on it, which never does. Only crops in the space
+  directly above count. Farmland has it right. `src: BlockFarmland.java:41,
+  :57 isCropsNearby, radius 0` (farming-and-food; checked against source when
+  merging)
 - **Monster Spawner**: with six of its mob nearby, the spawner does not just end
   the round; it also resets its delay to 200–799 ticks.
   `src: TileEntityMobSpawner.java:57-58` (hostile-mobs; checked against source
@@ -284,3 +273,15 @@ None yet.
   against 0.26 on other ground, worked out from the friction code rather than
   measured; the working is in the src comment. Worth confirming in game.
   (fluids-and-cold)
+- **Minecart#Movement** `<!-- check: -->`: do minecarts push each other? The
+  collision code returns early when `(dx·other.motionZ + dz·other.prevPosX)²
+  > 5`, reading a position where a speed belongs, which would stop carts on a
+  north–south track away from x=0 from pushing at all. Both source trees have
+  it, so it is in the shipped game, not the decompile. The same early return
+  may stop a furnace minecart pushing other carts. Needs testing in game.
+  `src: EntityMinecart.java:673-:684; minecraft_server EntityMinecart.java:622`
+  (transport; checked against source when merging)
+- **Boat#Movement** `<!-- check: -->`: the boat's top speed with a rider. It is
+  capped at 0.4 blocks a tick on each axis, but the rider adds only a fifth of
+  their motion a tick against 1% loss, which may settle below the cap.
+  `src: EntityBoat.java:195, :200-:215, :260` (transport)

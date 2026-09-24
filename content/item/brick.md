@@ -1,14 +1,11 @@
 ---
 title: Brick
-description: Brick in Minecraft Beta 1.7.3.
+description: The item smelted from a clay ball, four of which craft a block of bricks.
 type: item
-categories: [Items]
-stub: true
+categories: [Items, Materials]
 ---
 
-{{stub|item}}
-
-**Brick** is an item in Minecraft Beta 1.7.3.
+**Brick** is an item smelted from a [[Clay Ball|clay ball]].
 
 ## Obtaining
 
@@ -24,5 +21,5 @@ stub: true
 
 ## Data values
 
-- Item ID: `336`
+- Item ID: {{id|Brick}}
 - Translation key: `item.brick`

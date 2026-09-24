@@ -130,7 +130,7 @@ The directory a page sits in is its namespace, and decides what belongs on it:
 |---|---|---|
 | Block | `content/block/` | Anything placeable in the world |
 | Item | `content/item/` | Anything that exists only in an inventory |
-| Entity | `content/entity/` | Mobs, projectiles, vehicles |
+| Entity | `content/entity/` | Mobs, the player, and anything else with no block or item of its own |
 | Biome | `content/biome/` | The thirteen biomes |
 | Dimension | `content/dimension/` | Separate worlds: the Overworld, the Nether |
 | Structure | `content/structure/` | What the terrain generator builds: dungeons |
@@ -553,6 +553,14 @@ miniature:
   attacks), **Data values** (the entity network id) instead.
   `tools/lib/mobs.mjs` holds the list of which entities count, and both
   generators read it.
+- Any other entity gets a page only when it has no block or item of its own:
+  the player, a dropped item, a fireball, falling sand, lightning. Those pages
+  run **Spawning** (what creates it, and where), **Behaviour** (how it moves,
+  what it does, what ends it), **Data values** (the entity network id, or a
+  sentence saying it has none). An item or block in motion, such as an arrow in
+  flight, lit TNT or a minecart, has no page of its own: the item's or block's
+  page covers it, answers to its name through `aliases`, and lists its entity
+  network id under Data values.
 - A place is not obtained either. A dimension page runs **Reaching it** (how a
   player travels there and back, and what the trip costs), **Terrain**,
   **Mobs**, **Data values** (the dimension id). A structure page runs

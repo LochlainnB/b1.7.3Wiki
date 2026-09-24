@@ -14,7 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadPages, buildIndex } from './lib/content.mjs';
 import { loadData } from './lib/data.mjs';
 import { slug } from './lib/slug.mjs';
-import { isMob, MOB_SECTIONS } from './lib/mobs.mjs';
+import { ENTITY_SECTIONS, isMob, MOB_SECTIONS } from './lib/mobs.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const force = process.argv.includes('--force');
@@ -57,8 +57,13 @@ function mergeByName() {
   return [...byName.values()];
 }
 
-/** Abstract or purely technical entities that should not get their own page. */
-const SKIP_ENTITIES = new Set(['Mob', 'Monster', 'Item']);
+/**
+ * Entities never stubbed under their own name. Mob is EntityLiving, which is
+ * abstract and cannot exist. Item is the dropped item, whose page is Dropped
+ * Item with `subject: Item`: the covered check reads titles and aliases, and
+ * aliasing the bare word "Item" would take [[Item]] away from the items.
+ */
+const SKIP_ENTITIES = new Set(['Mob', 'Item']);
 
 function namespaceFor(entry) {
   if (entry.blockIds.length) return 'block';
@@ -80,7 +85,7 @@ function leadSentence(entry) {
   if (r.kind === 'block') return `**${name}** is a block in Minecraft Beta 1.7.3.`;
   if (r.kind === 'item') return `**${name}** is an item in Minecraft Beta 1.7.3.`;
   const kind = isMob(entry.name) ? 'mob' : 'entity';
-  return `**${name}** is a ${kind} in Minecraft Beta 1.7.3.`;
+  return `**${name}** is ${kind === 'mob' ? 'a' : 'an'} ${kind} in Minecraft Beta 1.7.3.`;
 }
 
 function categoriesFor(entry) {
@@ -133,8 +138,8 @@ function buildPage(entry) {
 
   const body = ['', '{{stub|' + ns + '}}', '', leadSentence(entry), ''];
 
-  if (ns === 'entity' && isMob(entry.name)) {
-    body.push(...MOB_SECTIONS);
+  if (ns === 'entity') {
+    body.push(...(isMob(entry.name) ? MOB_SECTIONS : ENTITY_SECTIONS));
   } else {
     body.push('## Obtaining', '');
     if (recipes.length) {

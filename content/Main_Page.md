@@ -15,7 +15,7 @@ a hardness of 2, that is what the 1.7.3 jar does.
 
 - [[Blocks]] — every placeable block, with hardness, blast resistance and IDs
 - [[Items]] — tools, food, materials and everything else in the inventory
-- [[Mobs]] — the creatures that spawn in the world
+- [[Entities]] — mobs, the player, and everything else in the world that is not a block
 - [[Mining]] — how blocks break, what tools change, and what drops
 - [[Crafting]] — how the crafting grid works, and every recipe
 - [[Smelting]] — the furnace, fuels and smelting recipes

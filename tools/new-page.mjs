@@ -11,7 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadData } from './lib/data.mjs';
 import { slug } from './lib/slug.mjs';
-import { isMob, MOB_SECTIONS } from './lib/mobs.mjs';
+import { ENTITY_SECTIONS, isMob, MOB_SECTIONS } from './lib/mobs.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const [, , nsArg, ...titleParts] = process.argv;
@@ -36,7 +36,7 @@ const recipes = data.recipesFor(title);
 const uses = data.recipesUsing(title);
 
 const categoryFor = {
-  block: 'Blocks', item: 'Items', entity: 'Entities', biome: 'Biomes',
+  block: 'Blocks', item: 'Items', entity: isMob(title) ? 'Mobs' : 'Entities', biome: 'Biomes',
   dimension: 'Dimensions', structure: 'Structures',
   mechanic: 'Game mechanics', guide: 'Guides', wiki: 'Wiki',
 }[nsArg];
@@ -86,8 +86,8 @@ if (PROSE_SECTIONS[nsArg]) {
   lines.push(...PROSE_SECTIONS[nsArg]);
 } else {
   // Match the shape tools/seed.mjs gives the same subject.
-  if (nsArg === 'entity' && isMob(title)) {
-    lines.push(...MOB_SECTIONS);
+  if (nsArg === 'entity') {
+    lines.push(...(isMob(title) ? MOB_SECTIONS : ENTITY_SECTIONS));
   } else {
     lines.push('## Obtaining', '');
     if (recipes.some((r) => r.type !== 'smelting')) {

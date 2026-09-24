@@ -16,7 +16,7 @@ export default {
   namespaces: {
     block: { label: 'Block', plural: 'Blocks', index: 'Blocks' },
     item: { label: 'Item', plural: 'Items', index: 'Items' },
-    entity: { label: 'Entity', plural: 'Entities', index: 'Mobs' },
+    entity: { label: 'Entity', plural: 'Entities', index: 'Entities' },
     biome: { label: 'Biome', plural: 'Biomes', index: 'Biomes' },
     dimension: { label: 'Dimension', plural: 'Dimensions', index: 'Dimensions' },
     structure: { label: 'Structure', plural: 'Structures', index: 'Structures' },
@@ -33,8 +33,8 @@ export default {
     // One per page, by what the page is about.
     'Blocks': 'Every page in content/block/.',
     'Items': 'Every page in content/item/.',
-    'Mobs': 'Entity pages for living creatures.',
-    'Entities': 'Entity pages that are not mobs: projectiles, vehicles, falling blocks, primed TNT.',
+    'Mobs': 'Entity pages for living creatures other than the player.',
+    'Entities': 'Entity pages that are not mobs: the player, dropped items, fireballs, falling sand and lightning.',
     'Biomes': 'Every biome page.',
     'Dimensions': 'Every dimension page.',
     'Structures': 'Every structure page.',
@@ -55,7 +55,7 @@ export default {
     'Armour': 'The twenty armour pieces.',
     'Food': 'Everything eaten to heal.',
     'Materials': 'Items whose only use is as a crafting ingredient, a smelting input or fuel.',
-    'Hostile mobs': 'Mobs the game counts as monsters: zombie, skeleton, spider, creeper, slime, ghast, pig zombie, giant.',
+    'Hostile mobs': 'Mobs the game counts as monsters: zombie, skeleton, spider, creeper, slime, ghast, pig zombie, giant, monster.',
     'Passive mobs': 'Mobs the game counts as creatures or water creatures: pig, sheep, cow, chicken, wolf, squid.',
   },
 
@@ -78,7 +78,7 @@ export default {
       links: [
         { text: 'Blocks', href: '/block/' },
         { text: 'Items', href: '/item/' },
-        { text: 'Mobs', href: '/entity/' },
+        { text: 'Entities', href: '/entity/' },
         { text: 'Biomes', href: '/biome/' },
         { text: 'Dimensions', href: '/dimension/' },
         { text: 'Structures', href: '/structure/' },

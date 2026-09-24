@@ -42,10 +42,15 @@ Lighting TNT costs the flint and steel no durability.
 <!-- src: ItemFlintAndSteel does not override Item.java:201 onBlockDestroyed -->
 
 TNT lights when it is [[Redstone Power#Blocks that respond|powered]]. It checks
-when it is placed, and whenever a power source beside it changes, so a
-[[Redstone Repeater|repeater]] switching beside it goes unnoticed.
-<!-- src: BlockTNT.java:18 onBlockAdded, :27 onNeighborBlockChange with the
-     canProvidePower test -->
+when it is placed, and when a [[Lever|lever]], [[Button|button]],
+[[Pressure Plate|pressure plate]], [[Redstone Torch|redstone torch]],
+[[Redstone Dust|redstone dust]] or [[Detector Rail|detector rail]] beside it
+changes. A [[Redstone Repeater|repeater]] switching beside it goes unnoticed.
+<!-- src: BlockTNT.java:18 onBlockAdded, :27 onNeighborBlockChange, which
+     tests canProvidePower on the changed block. That returns true only for
+     BlockLever, BlockButton, BlockPressurePlate, BlockRedstoneTorch,
+     BlockRedstoneWire and BlockDetectorRail; BlockRedstoneRepeater.java:127
+     returns false -->
 
 ## Behaviour
 

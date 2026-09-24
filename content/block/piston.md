@@ -83,13 +83,18 @@ These blocks break instead of moving, and drop their items:
 - [[Torch|torches]], [[Redstone Torch|redstone torches]],
   [[Redstone Dust|redstone dust]], [[Redstone Repeater|repeaters]],
   [[Lever|levers]], [[Button|buttons]], [[Pressure Plate|pressure plates]],
-  [[Wooden Door|doors]], [[Ladder|ladders]] and every kind of [[Rail|rail]]
+  [[Wooden Door|doors]] and [[Ladder|ladders]]
+- [[Bed|beds]]
 - [[Water|water]], [[Lava|lava]] and [[Fire|fire]]
+
+[[Rail|Rails]] of every kind are pushed like other blocks.
 
 <!-- src: BlockPistonBase.java:336 dropBlockAsItem on mobility 1; Material.java
      setNoPushMobility on water, lava, leaves, plants, fire, circuits, cactus,
-     pumpkin, cakeMaterial, web, snow; BlockDoor.java:200 and
-     BlockPressurePlate.java:156 getMobilityFlag -->
+     pumpkin, cakeMaterial, web, snow; BlockDoor.java:200,
+     BlockPressurePlate.java:156 and BlockBed.java:201 getMobilityFlag return 1.
+     Rails are circuits, but BlockRail.java:247 getMobilityFlag returns 0, and
+     BlockDetectorRail extends BlockRail, so all three kinds are pushed. -->
 
 ## Data values
 

@@ -15,9 +15,6 @@ plus tables of every [block and item ID](https://lochlainnb.github.io/b1.7.3Wiki
 every [crafting recipe](https://lochlainnb.github.io/b1.7.3Wiki/mechanic/crafting/)
 and every [sprite](https://lochlainnb.github.io/b1.7.3Wiki/wiki/sprites/).
 
-The game-mechanic pages are the most complete. Many block and item pages are
-still stubs: the infobox and recipes are there, the prose is not.
-[Stubs](https://lochlainnb.github.io/b1.7.3Wiki/wiki/stubs/) lists them.
 
 ## Where the facts come from
 

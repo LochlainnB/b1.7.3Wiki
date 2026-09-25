@@ -3,7 +3,7 @@ title: Taiga
 description: A cold, snow-covered biome of spruce and pine, and one of two biomes where wolves spawn.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#2EB153'}
+infobox: {Colour: '#2EB153'}
 ---
 
 **Taiga** is a cold, snow-covered [[Overworld]] biome of spruce forest.
@@ -59,7 +59,7 @@ with the [[Wolf|wolf]] added to the creature list at weight 2. Taiga and
 
 ## Data values
 
-- Map colour: `#2EB153`
+- Colour: `#2EB153`
 
 <!-- src: BiomeGenBase.java:15 setColor(3060051). The game stores the colour but
      never reads it. -->

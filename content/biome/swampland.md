@@ -3,7 +3,7 @@ title: Swampland
 description: A warm, wet biome of bare grass with almost no trees.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#07F9B2'}
+infobox: {Colour: '#07F9B2'}
 ---
 
 **Swampland** is a warm, wet [[Overworld]] biome of bare, almost treeless
@@ -44,7 +44,7 @@ Swampland uses the shared
 
 ## Data values
 
-- Map colour: `#07F9B2`
+- Colour: `#07F9B2`
 
 <!-- src: BiomeGenBase.java:10 setColor(522674). The game stores the colour but
      never reads it. -->

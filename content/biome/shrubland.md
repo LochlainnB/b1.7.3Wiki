@@ -3,7 +3,7 @@ title: Shrubland
 description: A warm biome of bare grass with almost no trees.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#A1AD20'}
+infobox: {Colour: '#A1AD20'}
 ---
 
 **Shrubland** is a warm [[Overworld]] biome of bare, almost treeless grassland.
@@ -39,7 +39,7 @@ Shrubland uses the shared
 
 ## Data values
 
-- Map colour: `#A1AD20`
+- Colour: `#A1AD20`
 
 <!-- src: BiomeGenBase.java:14 setColor(10595616). The game stores the colour
      but never reads it. -->

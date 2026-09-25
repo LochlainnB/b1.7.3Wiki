@@ -3,7 +3,7 @@ title: Savanna
 description: A warm, dry biome of bare grass with almost no trees.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#D9E023'}
+infobox: {Colour: '#D9E023'}
 ---
 
 **Savanna** is a warm, dry [[Overworld]] biome of bare, almost treeless
@@ -44,7 +44,7 @@ Savanna uses the shared [[Mob Spawning#What spawns where|Overworld spawn lists]]
 
 ## Data values
 
-- Map colour: `#D9E023`
+- Colour: `#D9E023`
 
 <!-- src: BiomeGenBase.java:13 setColor(14278691). The game stores the colour
      but never reads it. -->

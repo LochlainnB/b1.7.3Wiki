@@ -82,6 +82,11 @@ Every biome uses [[Grass|grass]] over [[Dirt|dirt]] except Desert and Ice Desert
 which use [[Sand|sand]] over sand.
 <!-- src: BiomeGenBase.java:34, :66 -->
 
+Each biome also stores a colour, given on its page, which nothing in the game
+reads.
+<!-- src: BiomeGenBase.java:89 setColor; the color field is read nowhere in
+     either source tree -->
+
 ## Terrain
 
 Terrain is a density field. Stone is placed wherever the density is above zero.

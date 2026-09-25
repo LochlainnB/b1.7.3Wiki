@@ -3,7 +3,7 @@ title: Hell
 description: The only biome of the Nether.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#FF0000'}
+infobox: {Colour: '#FF0000'}
 ---
 
 {{hatnote|This page is about the biome. For the dimension it belongs to, see [[Nether]].}}
@@ -43,7 +43,7 @@ water creature lists are empty.
 
 ## Data values
 
-- Map colour: `#FF0000`
+- Colour: `#FF0000`
 
 <!-- src: BiomeGenBase.java:20 setColor(16711680). The game stores the colour
      but never reads it. -->

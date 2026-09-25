@@ -3,7 +3,7 @@ title: Sky
 description: The only biome of the Sky dimension.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#8080FF'}
+infobox: {Colour: '#8080FF'}
 ---
 
 {{hatnote|This page is about the biome. For the dimension it belongs to, see [[Sky Dimension]].}}
@@ -41,4 +41,4 @@ The monster and water creature lists are empty.
 
 ## Data values
 
-- Map colour: `#8080FF`
+- Colour: `#8080FF`

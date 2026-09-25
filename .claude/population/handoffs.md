@@ -6,13 +6,15 @@ after the last group. Tick an entry off by deleting it once it is on its page.
 
 ## Red links left
 
-None yet.
+None.
 
 ## For other pages
 
 None left.
 
 ## Hub or data problems
+
+None left.
 
 ## Unsettled
 

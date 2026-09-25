@@ -3,7 +3,7 @@ title: Desert
 description: A hot, dry biome of sand, cacti and dead bushes, where no rain falls.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#FA9418'}
+infobox: {Colour: '#FA9418'}
 ---
 
 **Desert** is a hot, dry [[Overworld]] biome covered in [[Sand|sand]].
@@ -43,7 +43,7 @@ spawn on Desert's sand.
 
 ## Data values
 
-- Map colour: `#FA9418`
+- Colour: `#FA9418`
 
 <!-- src: BiomeGenBase.java:16 setColor(16421912). The game stores the colour
      but never reads it. -->

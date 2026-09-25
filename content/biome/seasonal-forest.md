@@ -3,7 +3,7 @@ title: Seasonal Forest
 description: A hot, lightly wooded biome of trees, yellow flowers and tall grass.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#9BE023'}
+infobox: {Colour: '#9BE023'}
 ---
 
 **Seasonal Forest** is a hot, lightly wooded [[Overworld]] biome.
@@ -43,7 +43,7 @@ Seasonal Forest uses the shared
 
 ## Data values
 
-- Map colour: `#9BE023`
+- Colour: `#9BE023`
 
 <!-- src: BiomeGenBase.java:11 setColor(10215459). The game stores the colour
      but never reads it. -->

@@ -3,7 +3,7 @@ title: Plains
 description: A hot, treeless biome of grass, tall grass and yellow flowers.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#FFD910'}
+infobox: {Colour: '#FFD910'}
 ---
 
 **Plains** is a hot, treeless [[Overworld]] biome of grassland.
@@ -36,7 +36,7 @@ Plains uses the shared [[Mob Spawning#What spawns where|Overworld spawn lists]].
 
 ## Data values
 
-- Map colour: `#FFD910`
+- Colour: `#FFD910`
 
 <!-- src: BiomeGenBase.java:17 setColor(16767248). The game stores the colour
      but never reads it. -->

@@ -3,7 +3,7 @@ title: Rainforest
 description: A hot, wet biome dense with trees, tall grass and ferns, with the most relief of any biome.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#08FA36'}
+infobox: {Colour: '#08FA36'}
 ---
 
 **Rainforest** is a hot, wet [[Overworld]] biome of dense forest.
@@ -45,7 +45,7 @@ Rainforest uses the shared
 
 ## Data values
 
-- Map colour: `#08FA36`
+- Colour: `#08FA36`
 
 <!-- src: BiomeGenBase.java:9 setColor(588342). The game stores the colour but
      never reads it. -->

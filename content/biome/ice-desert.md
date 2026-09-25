@@ -3,7 +3,7 @@ title: Ice Desert
 description: A snowy sand biome the game defines but never generates.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#FFED93'}
+infobox: {Colour: '#FFED93'}
 ---
 
 **Ice Desert** is a biome the game defines but never generates.
@@ -27,7 +27,7 @@ Its [[Weather#Biomes|weather]] is set to snow, with no rain and no lightning.
 
 ## Data values
 
-- Map colour: `#FFED93`
+- Colour: `#FFED93`
 
 <!-- src: BiomeGenBase.java:18 setColor(16772499). The game stores the colour
      but never reads it. -->

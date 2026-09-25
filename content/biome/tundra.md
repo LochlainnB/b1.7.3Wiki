@@ -3,7 +3,7 @@ title: Tundra
 description: A cold, flat, snow-covered biome with no trees.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#57EBF9'}
+infobox: {Colour: '#57EBF9'}
 ---
 
 **Tundra** is a cold, snow-covered [[Overworld]] biome with no trees.
@@ -51,7 +51,7 @@ Tundra uses the shared [[Mob Spawning#What spawns where|Overworld spawn lists]].
 
 ## Data values
 
-- Map colour: `#57EBF9`
+- Colour: `#57EBF9`
 
 <!-- src: BiomeGenBase.java:19 setColor(5762041). The game stores the colour but
      never reads it. -->

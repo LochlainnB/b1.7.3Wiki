@@ -3,7 +3,7 @@ title: Forest
 description: A warm, wooded biome with birch among its trees, and one of two biomes where wolves spawn.
 type: biome
 categories: [Biomes]
-infobox: {Map colour: '#056621'}
+infobox: {Colour: '#056621'}
 ---
 
 **Forest** is a warm, wooded [[Overworld]] biome.
@@ -46,7 +46,7 @@ with the [[Wolf|wolf]] added to the creature list at weight 2. Forest and
 
 ## Data values
 
-- Map colour: `#056621`
+- Colour: `#056621`
 
 <!-- src: BiomeGenBase.java:12 setColor(353825). The game stores the colour but
      never reads it. -->

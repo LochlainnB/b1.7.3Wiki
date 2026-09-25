@@ -178,7 +178,7 @@ function buildBiomePage(b) {
     `description: The ${b.name} biome in Minecraft Beta 1.7.3.`,
     'type: biome',
     'categories: [Biomes]',
-    `infobox: {Map colour: '${b.color}'}`,
+    `infobox: {Colour: '${b.color}'}`,
     'stub: true',
     '---',
   ].join('\n');
@@ -202,7 +202,7 @@ function buildBiomePage(b) {
     '',
     '## Data values',
     '',
-    `- Map colour: \`${b.color}\``,
+    `- Colour: \`${b.color}\``,
     '',
   ].join('\n');
   return `${fm}\n${body}`;

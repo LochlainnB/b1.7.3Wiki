@@ -639,7 +639,8 @@
     "variants": {
       "0": "Stone Slab",
       "1": "Sandstone Slab",
-      "2": "Wooden Slab"
+      "2": "Wooden Slab",
+      "3": "Cobblestone Slab"
     }
   },
   {

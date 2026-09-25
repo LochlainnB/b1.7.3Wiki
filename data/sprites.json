@@ -215,6 +215,9 @@
     "cobblestone": {
       "file": "assets/sprites/icon/cobblestone.png"
     },
+    "cobblestone-slab": {
+      "file": "assets/sprites/icon/cobblestone-slab.png"
+    },
     "cobweb": {
       "sheet": "terrain",
       "index": 11,
@@ -547,6 +550,11 @@
       "index": 66,
       "file": "assets/sprites/items/66.png"
     },
+    "item-2257": {
+      "sheet": "items",
+      "index": 241,
+      "file": "assets/sprites/items/241.png"
+    },
     "jack-o-lantern": {
       "file": "assets/sprites/icon/jack-o-lantern.png"
     },
@@ -685,8 +693,8 @@
     },
     "music-disc": {
       "sheet": "items",
-      "index": 241,
-      "file": "assets/sprites/items/241.png"
+      "index": 240,
+      "file": "assets/sprites/items/240.png"
     },
     "netherrack": {
       "file": "assets/sprites/icon/netherrack.png"

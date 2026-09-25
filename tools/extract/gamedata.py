@@ -586,7 +586,10 @@ def extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf):
         RecipesIngots' `new ItemStack(Item.ingotGold, 9)` is the *output* of
         the reverse recipe leaking into the forward one's ingredient slot --
         a grid cell still only ever takes one item. Damage -1 is the game's
-        "any metadata" wildcard, which is the absence of a constraint.
+        "any metadata" wildcard, which is the absence of a constraint. An
+        ingredient named at damage 0 is a constraint, and is kept: the dye
+        recipes take white wool alone, where a bed takes any colour, and the
+        two would otherwise read the same.
         """
         if isinstance(v, Obj) and v.cls == stack_obf:
             ident = v.fields.get(F_ID)
@@ -596,7 +599,7 @@ def extract_recipes(jar, mp, bfield, ifield, block_obf, item_obf):
             if not ingredient:
                 out['count'] = v.fields.get(F_COUNT, 1)
             damage = v.fields.get(F_DAMAGE, 0)
-            if damage and damage != -1:
+            if damage != -1 and (damage or ingredient):
                 out['damage'] = damage
             return out
         if isinstance(v, Ref):

@@ -228,6 +228,9 @@ from the client jar into `data/`. They reach pages automatically:
 - Where an item and a block share a name, the item's icon is the picture of
   both. The block keeps its own under its id, `block 83`, for a page that wants
   to show it as it stands in the world; Sugar cane does, through `sprite`.
+  Two items of one name are kept apart the same way: the first holds the name
+  and the next is `item 2257`, so the 13 and cat discs each have their own
+  icon, and Music Disc shows both through `sprite`.
 - One page may answer to several names, and cover several ids. `aliases` make a
   page the target for each name, and `tools/seed.mjs` reads them before it stubs
   anything, so the two mushrooms stay one article across a reseed. `subject` may

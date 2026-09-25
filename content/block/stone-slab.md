@@ -60,12 +60,9 @@ The wooden slab does not [[Fire#Flammable blocks|burn]], and is not
 ## Data values
 
 - Block ID: {{id|Stone Slab}} stone, {{id|Sandstone Slab}} sandstone,
-  {{id|Wooden Slab}} wooden, `44:3` cobblestone
+  {{id|Wooden Slab}} wooden, {{id|Cobblestone Slab}} cobblestone
 - Translation key: `tile.stoneSlab.stone`, `tile.stoneSlab.sand`,
   `tile.stoneSlab.wood`, `tile.stoneSlab.cobble`
-
-<!-- 44:3 is typed: data/ has no variant name for it, since en_US.lang names it
-     Stone Slab like damage 0, so no {{id}} resolves to it. -->
 
 The game names the cobblestone slab *Stone Slab*, the same as the stone one.
 <!-- src: en_US.lang tile.stoneSlab.cobble.name=Stone Slab; ItemSlab.java:18

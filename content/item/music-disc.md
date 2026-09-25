@@ -3,6 +3,7 @@ title: Music Disc
 description: The two discs a jukebox plays, "13" and "cat", found in dungeon chests and dropped by creepers that skeletons kill.
 type: item
 subject: {13: Music Disc, cat: item 2257}
+sprite: {13: Music Disc, cat: item 2257}
 categories: [Items]
 ---
 

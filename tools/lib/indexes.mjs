@@ -226,8 +226,11 @@ function renderTable(ctx, which) {
       `<th>Key</th><th>Hardness</th><th>Blast res.</th><th>Light</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
   if (which === 'items') {
+    // An item that shares its name with another keeps its own picture under its
+    // id, "item 2257": the cat disc, where the name draws the 13 disc.
+    const picture = (i) => (ctx.data.sprite(`item ${i.id}`) ? `item ${i.id}` : i.name);
     const rows = ctx.data.items.map((i) =>
-      `<tr><td>${ctx.data.sprite(i.name) ? ctx.sprite(i.name) : ''}</td>` +
+      `<tr><td>${ctx.data.sprite(picture(i)) ? ctx.sprite(picture(i)) : ''}</td>` +
       `<td>${ctx.linkWrap(i.name, escapeHtml(i.name))}</td><td>${i.id}</td>` +
       `<td><code>${escapeHtml(i.key || '')}</code></td></tr>`).join('');
     return `<table class="wikitable sortable"><thead><tr><th></th><th>Name</th><th>ID</th>` +

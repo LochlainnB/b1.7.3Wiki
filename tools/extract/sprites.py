@@ -141,11 +141,19 @@ def cube_look(game, record, icon, tint, world_tint):
             tuple(world_tint if side == TOP else WHITE for side in range(6)))
 
 
-def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint, by_id=None):
+def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint, by_id=None,
+                shared_by_id=None):
     """Render one file per named stack, and return its manifest entries.
 
     `by_id`, when given, also collects each record's own picture by id, which
     outlives the name if something else takes that name later.
+
+    `shared_by_id`, when given, is the word for this kind of id ('item'). Two
+    ids of the same name then no longer overwrite each other: the first keeps
+    the name, and each later one is filed under its id, "item 2257", for a
+    page that shows both. Without it the last one wins, as it does in the
+    block pass, where the later of two twins is the lit torch or the still
+    water.
     """
     entries, missing = {}, []
     by_id = {} if by_id is None else by_id
@@ -155,6 +163,8 @@ def build_icons(game, sheets, records, out_dir, taken, kinds, world_tint, by_id=
             key = slug(name)
             if key in taken and kinds.get(key) != 'flat':
                 continue                     # a block already owns this name
+            if shared_by_id and damage == 0 and key in entries:
+                key = slug('%s %d' % (shared_by_id, record['id']))
             try:
                 icon = game.icon(record['id'], damage)
             except Exception as err:
@@ -272,7 +282,8 @@ def main():
     # as a flat tile: a door, a sign, a bed and a repeater are all placed from
     # an item, and that item's icon is the picture a player would know.
     item_sprites, item_missing = build_icons(
-        game, sheets, itemdefs, icon_dir, set(sprites), kinds, world_tint)
+        game, sheets, itemdefs, icon_dir, set(sprites), kinds, world_tint,
+        shared_by_id='item')
     # The block keeps its own picture under its id, "block 83", for a page that
     # wants to show the thing as it stands in the world: sugar cane planted
     # rather than carried. An untinted tile is a slice of the sheet, which

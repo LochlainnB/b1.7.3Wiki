@@ -62,3 +62,9 @@ Wood [[Fire#Flammable blocks|burns]].
 - Translation key: `tile.log`
 
 The game names all three *Wood*.
+
+[[Block Transmutation]] can give wood metadata 3 to 15. It looks like oak, and
+drops wood with that damage value, which stacks only with wood of the same
+value.
+<!-- src: BlockLog.java:56 damageDropped returns the metadata; the textures fall
+     through to oak. Tested: see Block Data Corruption. -->

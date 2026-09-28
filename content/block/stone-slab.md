@@ -67,3 +67,12 @@ The wooden slab does not [[Fire#Flammable blocks|burn]], and is not
 The game names the cobblestone slab *Stone Slab*, the same as the stone one.
 <!-- src: en_US.lang tile.stoneSlab.cobble.name=Stone Slab; ItemSlab.java:18
      getItemNameIS -->
+
+[[Block Transmutation]] can give a slab metadata 4 to 15. Such a slab shows the
+smooth stone top on every face, and drops a slab item with that damage value.
+Holding the pointer over that item in an inventory screen crashes the game,
+because the game has no name for it.
+<!-- src: BlockStep.java:19 texture 6 on every side above metadata 3, :68
+     damageDropped; ItemSlab.java:18 indexes a 4-entry array, and
+     GuiContainer.java:66 asks for the name on hover. The exception was
+     reproduced against client.jar; see Block Data Corruption. -->

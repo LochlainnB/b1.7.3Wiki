@@ -45,3 +45,8 @@ The game gives this block no display name.
      and the rest, and has no tile.stoneSlab.name; StringTranslate.java:33
      translateNamedKey returns "" for a missing key. The wiki's name comes
      from data/name-overrides.json. -->
+
+Two slabs given metadata 4 to 15 by [[Block Transmutation]] stack into a double
+slab of that value, which drops two of them.
+<!-- src: BlockStep.java:43 onBlockAdded compares metadata only. Tested: two
+     44:9 slabs made 43:9, which dropped two 44:9. -->

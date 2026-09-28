@@ -15,6 +15,15 @@ hand it out with the `give` command.
      recipe for block 19; minecraft_server ConsoleCommandHandler.java:133 give
      accepts any id with an item, and Block.java:699 gives every block one -->
 
+No glitch creates sponge either: nothing in the game ever writes its block ID
+into the world or gives out its item.
+<!-- src: every block id the game writes and every item it creates traces to a
+     constant or to a block already in the world; Session.java:36 lists sponge
+     only for PlayerControllerTest, which is never constructed. The audit is on
+     Block Data Corruption. -->
+
+{{see also|Block Data Corruption}}
+
 ### Breaking
 
 Sponge drops itself, whatever breaks it.

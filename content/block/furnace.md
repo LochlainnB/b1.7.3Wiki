@@ -51,9 +51,23 @@ Breaking a furnace drops its contents.
 
 ## Behaviour
 
-A [[Piston|piston]] cannot push a furnace.
+A [[Piston|piston]] cannot push a furnace, except in the tick the furnace
+lights or goes out. A piston that answers the neighbour update the furnace sends
+then can. The pushed furnace loses its contents and stays lit for good, and
+the piston's head takes its old place.
 <!-- src: BlockPistonBase.java:268 canPushBlock refuses any block with a tile
-     entity -->
+     entity. BlockFurnace.java:112 updateFurnaceBlockState swaps the block from
+     inside the block entity pass, where World.java:1624 only marks the old
+     block entity removed, so Chunk.java:415 reports none; the new block's
+     onBlockAdded updates the neighbours at BlockFurnace.java:48. Tested: see
+     Block Data Corruption. -->
+
+Each time a furnace lights or goes out, one spare block entity is left ticking
+with nothing in the world pointing at it.
+<!-- src: the new block's onBlockAdded adds a fresh TileEntityFurnace, which
+     BlockFurnace.java:125 then replaces in the chunk with the old one; the
+     fresh one stays in World.loadedTileEntityList. Tested: one orphan per
+     change, see Block Data Corruption. -->
 
 ## Data values
 

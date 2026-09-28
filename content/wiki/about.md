@@ -18,6 +18,12 @@ playing and modding that version today, so:
 - Statements about behaviour should be checkable against the 1.7.3 client or
   server, not against a later version or a memory of one.
 
+[[Research]] pages are the exception to the brevity of the rest. Each is a
+long-form record of one investigation: the question, the method, the evidence
+for every claim, the dead ends and what is still open. They may describe
+techniques from later versions, as the prior work that suggested a line of
+inquiry.
+
 ## Where the data comes from
 
 Block and item IDs, hardness, blast resistance, light levels, sprites, biome

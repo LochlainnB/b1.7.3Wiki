@@ -22,6 +22,7 @@ export default {
     structure: { label: 'Structure', plural: 'Structures', index: 'Structures' },
     mechanic: { label: 'Mechanic', plural: 'Mechanics', index: 'Game mechanics' },
     guide: { label: 'Guide', plural: 'Guides', index: 'Guides' },
+    research: { label: 'Research', plural: 'Research', index: 'Research' },
     wiki: { label: 'Wiki', plural: 'Wiki', index: 'Wiki pages' },
   },
 
@@ -40,6 +41,7 @@ export default {
     'Structures': 'Every structure page.',
     'Game mechanics': 'Every page in content/mechanic/.',
     'Guides': 'Every page in content/guide/.',
+    'Research': 'Every page in content/research/: long-form write-ups of an investigation, with its method, evidence and open questions.',
     'Wiki': 'Pages about the wiki itself.',
 
     // Topics, as many as apply.
@@ -84,6 +86,7 @@ export default {
         { text: 'Structures', href: '/structure/' },
         { text: 'Game mechanics', href: '/mechanic/' },
         { text: 'Guides', href: '/guide/' },
+        { text: 'Research', href: '/research/' },
       ],
     },
     {

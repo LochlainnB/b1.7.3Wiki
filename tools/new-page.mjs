@@ -38,7 +38,7 @@ const uses = data.recipesUsing(title);
 const categoryFor = {
   block: 'Blocks', item: 'Items', entity: isMob(title) ? 'Mobs' : 'Entities', biome: 'Biomes',
   dimension: 'Dimensions', structure: 'Structures',
-  mechanic: 'Game mechanics', guide: 'Guides', wiki: 'Wiki',
+  mechanic: 'Game mechanics', guide: 'Guides', research: 'Research', wiki: 'Wiki',
 }[nsArg];
 
 // Namespaces whose pages describe a place or a system rather than a thing in
@@ -47,6 +47,26 @@ const categoryFor = {
 const PROSE_SECTIONS = {
   guide: ['## Overview', '', '## Steps', '', '## See also', ''],
   mechanic: ['## How it works', '', '## See also', ''],
+  // A research page is the one long-form shape: AGENTS.md "Research pages".
+  research: [
+    '## Summary', '',
+    '<!-- The question, and the answer as it stands, in a few paragraphs. -->', '',
+    '## Status', '',
+    '<!-- What is settled, what is open, and when the last experiment ran. -->', '',
+    '## Background', '',
+    '<!-- Prior work, including other versions, and what it suggested. -->', '',
+    '## Method', '',
+    '<!-- Sources read, tools built, how experiments were run. -->', '',
+    '## Findings', '',
+    '<!-- One subsection per finding, each with its evidence level. -->', '',
+    '## Dead ends', '',
+    '<!-- Leads that were followed and ruled out, and why. -->', '',
+    '## Open questions', '',
+    '<!-- What a newcomer could pick up next. -->', '',
+    '## Reproducing', '',
+    '<!-- Enough to rerun every experiment from scratch. -->', '',
+    '## References', '',
+  ],
   dimension: [
     '## Reaching it', '',
     '<!-- How a player travels there and back, and what the trip costs. -->', '',

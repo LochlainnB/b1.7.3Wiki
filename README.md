@@ -10,7 +10,8 @@ checked and tweaked by me.
 
 ## What's in it
 
-Blocks, items, mobs, biomes, dimensions, structures, game mechanics and guides,
+Blocks, items, mobs, biomes, dimensions, structures, game mechanics, guides and
+long-form [research](https://lochlainnb.github.io/b1.7.3Wiki/research/) write-ups,
 plus tables of every [block and item ID](https://lochlainnb.github.io/b1.7.3Wiki/wiki/data-values/),
 every [crafting recipe](https://lochlainnb.github.io/b1.7.3Wiki/mechanic/crafting/)
 and every [sprite](https://lochlainnb.github.io/b1.7.3Wiki/wiki/sprites/).

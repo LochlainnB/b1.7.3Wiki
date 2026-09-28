@@ -136,6 +136,7 @@ The directory a page sits in is its namespace, and decides what belongs on it:
 | Structure | `content/structure/` | What the terrain generator builds: dungeons |
 | Mechanic | `content/mechanic/` | Systems: crafting, redstone, mob spawning |
 | Guide | `content/guide/` | Task-oriented how-tos |
+| Research | `content/research/` | Long-form records of an investigation: the question, the method, the evidence, what is still open |
 | Wiki | `content/wiki/` | Pages about the wiki itself |
 
 A file's path is its URL: `content/block/mossy-cobblestone.md` serves at
@@ -362,7 +363,8 @@ has it.
 
 **A page is a reference, not an essay.** The reader arrived from a search box,
 wants one fact, and leaves once they have it. Everything below follows from
-that.
+that. Research pages are the one exception, with rules of their own under
+**Research pages**.
 
 Concise is not the same as thin. Cut words, not facts. A page that leaves out
 what a block actually does is worse than one that takes too long to say it, and
@@ -598,6 +600,46 @@ miniature:
 - Stage by path, `git add content/item/iron-sword.md`, never `git add -A`,
   `git add .` or `git commit -a`. Other agents and people may have work in the
   same tree. Do not push unless asked: pushing to `main` publishes the site.
+
+## Research pages
+
+A research page records an investigation: a question about the game that took
+more than reading one class to answer, such as whether an unobtainable item can
+be obtained. It is written for the next researcher, who should be able to pick
+the work up from the page alone.
+
+It is the wiki's one long-form page. The rules under **Writing style** that
+keep reference pages short do not apply: there is no length signal, the
+mechanism is the subject rather than something to drop, and class names, method
+names and line numbers belong in the prose, cited where the reader can see them.
+The rest still does: plain declarative sentences, no hedging, no enthusiasm,
+nothing guessed.
+
+- **Describe Beta 1.7.3.** Other versions appear only as prior work that
+  suggested a line of inquiry, labelled as such. Their behaviour is never
+  presented as 1.7.3's.
+- **Give every claim its evidence**, and keep the kinds apart:
+  - *tested*: seen in the running game, with the experiment that shows it;
+  - *read*: traced in the decompiled source, with the class and line;
+  - *reported*: stated by an outside source, with a link;
+  - *hypothesis*: expected, not yet checked.
+- **Keep negative results.** A lead that was followed and ruled out goes under
+  Dead ends, with the reason. It saves the next person the same work.
+- **Make it reproducible.** Name every tool, script and command an experiment
+  used, with enough code to rebuild it. Code the wiki does not host is quoted in
+  an appendix. Mojang's code is quoted a line or two at a time, never more.
+- **Quote measurements as measured.** An experiment's results are given as the
+  game reported them, such as `17:5` for block 17 with metadata 5. A value a
+  template can produce is still produced by the template.
+- **Keep the reference pages in step.** A settled finding also goes on its hub
+  and subject pages, in the ordinary style, and those pages link the research
+  page for the evidence. The research page argues a claim; the reference page
+  states it.
+
+`npm run new -- research "Title"` scaffolds the sections, in order: Summary,
+Status, Background, Method, Findings, Dead ends, Open questions, Reproducing,
+References. Appendices follow References. A research page carries the
+Research category and no infobox.
 
 ## Several agents at once
 

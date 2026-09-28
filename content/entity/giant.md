@@ -54,8 +54,8 @@ centre. That is inside its own body, so a player has to walk into it to be hit.
      EntityPlayerMP.java:41 yOffset 0), and they must be within 2. Either way
      that is inside the giant's body -->
 
-Unlike a zombie, it does not burn in daylight. With no target it wanders,
-choosing brighter spaces.
+Unlike a zombie, it does not burn in daylight. With no target it
+[[Wandering|wanders]], choosing brighter spaces.
 <!-- src: EntityGiantZombie extends EntityMob, not EntityZombie, so has no
      EntityZombie.java:11 onLivingUpdate; EntityGiantZombie.java:14
      getBlockPathWeight is brightness - 0.5, the reverse of EntityMob.java:57 -->

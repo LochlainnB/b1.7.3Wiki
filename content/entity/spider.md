@@ -78,7 +78,7 @@ It makes no footstep sounds, and does not trample [[Farmland|farmland]] or light
      onEntityWalking at Entity.java:478; BlockFarmland.java:50,
      BlockRedstoneOre.java:26 -->
 
-With no target it wanders, choosing darker spaces.
+With no target it [[Wandering|wanders]], choosing darker spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityMob.java:57 getBlockPathWeight, 0.5 - brightness -->
 

@@ -65,7 +65,7 @@ light [[Redstone Ore|redstone ore]] by walking on it.
      onEntityWalking at Entity.java:478; BlockFarmland.java:50,
      BlockRedstoneOre.java:26 -->
 
-With no target it wanders, choosing [[Grass|grass]] and then brighter spaces.
+With no target it [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->

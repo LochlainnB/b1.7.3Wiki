@@ -46,7 +46,7 @@ It falls no faster than 2.3 blocks per second, and takes no
      a steady fall of 0.114 blocks per tick. EntityChicken.java:51 fall is
      empty -->
 
-It wanders, choosing [[Grass|grass]] and then brighter spaces.
+It [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->

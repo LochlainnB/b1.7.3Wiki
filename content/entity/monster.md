@@ -51,7 +51,7 @@ It hits for [[Damage#Mob attacks|2 damage]].
 <!-- src: EntityMob.java:4 attackStrength 2, :49 attackEntity -->
 
 Unlike a [[Zombie|zombie]], it does not burn in daylight. With no target it
-wanders, choosing darker spaces.
+[[Wandering|wanders]], choosing darker spaces.
 <!-- src: only EntityZombie.java:11 and EntitySkeleton.java:24 add the
      daylight burning; EntityCreature.java:118 updateWanderPath takes the best
      of ten random spots by EntityMob.java:57 getBlockPathWeight,

@@ -65,7 +65,7 @@ harm from it.
 <!-- src: EntityPigZombie.java:15 isImmuneToFire; it extends EntityZombie and
      so runs EntityZombie.java:11 onLivingUpdate -->
 
-With no target it wanders, choosing darker spaces.
+With no target it [[Wandering|wanders]], choosing darker spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityMob.java:57 getBlockPathWeight, 0.5 - brightness -->
 

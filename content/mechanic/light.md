@@ -117,9 +117,9 @@ A day is 24,000 ticks, kept by the [[Game Tick#The world clock|world clock]].
 | [[Zombie\|Zombies]], [[Skeleton\|skeletons]] and [[Pig Zombie\|pig zombies]] catching fire | 12 or more, open to the sky, by day: a chance each tick, from 1 in 120 at 12 to 1 in 25 at 15 | light level |
 | [[Spider\|Spiders]] seeking a player | 11 or less | light level |
 | Hostile mobs except slimes and ghasts ageing towards [[Mob Spawning#Despawning\|despawning]] | 12 or more, at three times the rate | light level |
-| Hostile mobs except slimes, ghasts and giants wandering | prefer darker spaces | light level |
-| [[Giant\|Giants]] wandering | prefer brighter spaces | light level |
-| Animals wandering | prefer [[Grass\|grass]], then brighter spaces | light level |
+| Hostile mobs except slimes, ghasts and giants [[Wandering\|wandering]] | prefer darker spaces | light level |
+| [[Giant\|Giants]] [[Wandering\|wandering]] | prefer brighter spaces | light level |
+| Animals [[Wandering\|wandering]] | prefer [[Grass\|grass]], then brighter spaces | light level |
 
 <!-- src: EntityMob.java:69 getCanSpawnHere; EntityAnimal.java:24
      getCanSpawnHere; BlockCrops.java:20, BlockSapling.java:15, BlockGrass.java:32

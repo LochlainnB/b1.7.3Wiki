@@ -65,7 +65,7 @@ one dye. [[Bone Meal|Bone meal]] turns it white. A sheared sheep cannot be dyed.
 Wild [[Wolf|wolves]] attack sheep.
 <!-- src: EntityWolf.java:108 updatePlayerActionState -->
 
-It wanders, choosing [[Grass|grass]] and then brighter spaces.
+It [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->

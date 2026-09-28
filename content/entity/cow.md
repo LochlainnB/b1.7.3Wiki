@@ -34,7 +34,7 @@ Using an empty [[Bucket|bucket]] on a cow fills it with [[Milk|milk]]. A cow
 can be milked any number of times.
 <!-- src: EntityCow.java:38 interact, which keeps no count -->
 
-It wanders, choosing [[Grass|grass]] and then brighter spaces.
+It [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->

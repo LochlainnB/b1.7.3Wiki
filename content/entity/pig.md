@@ -55,7 +55,7 @@ blocks while riding a pig.
 [[Weather#Lightning|Lightning]] turns a pig into a [[Pig Zombie|pig zombie]].
 <!-- src: EntityPig.java:62 onStruckByLightning -->
 
-It wanders, choosing [[Grass|grass]] and then brighter spaces.
+It [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->

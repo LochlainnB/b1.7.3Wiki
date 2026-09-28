@@ -54,7 +54,7 @@ to the sky, catches fire. It does not burn during a
 <!-- src: EntityZombie.java:11 onLivingUpdate; isDaytime is false in a
      thunderstorm (World.java:700) -->
 
-With no target it wanders, choosing darker spaces.
+With no target it [[Wandering|wanders]], choosing darker spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityMob.java:57 getBlockPathWeight, 0.5 - brightness -->
 

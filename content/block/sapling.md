@@ -86,3 +86,9 @@ five for one the world generates.
 - Translation key: `tile.sapling`
 
 The game names all three *Sapling*.
+
+A sapling with damage value 3 can be obtained through
+[[Block Transmutation#Tree growth|block transmutation]]. It looks and grows like
+an oak sapling, and drops itself with the same value.
+<!-- src: BlockSapling.java:36 growTree treats every value but 1 and 2 as oak,
+     :57 damageDropped metadata & 3. Tested: see Block Data Corruption. -->

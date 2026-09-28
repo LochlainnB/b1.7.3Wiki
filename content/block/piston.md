@@ -71,7 +71,13 @@ These blocks stop a piston from extending:
      (bedrock), mobility 2 (Material.portal, Material.piston), an extended
      piston, any tile entity; the BlockContainer subclasses -->
 
+A furnace can be pushed in the tick it lights or goes out; see
+[[Furnace#Behaviour]].
+
 A retracted piston can itself be pushed.
+
+Two pistons whose pushes meet in the same space can give a block another
+block's metadata; see [[Block Transmutation]].
 
 These blocks break instead of moving, and drop their items:
 

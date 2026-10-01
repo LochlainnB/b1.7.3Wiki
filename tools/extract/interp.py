@@ -20,9 +20,13 @@ Those arguments do not exist anywhere in the bytecode as constants -- they only
 exist once the loops have run. So we run them.
 
 What is modelled: locals, the operand stack, 32-bit int and float
-arithmetic, arrays, branches, instance fields, and calls into other game
-classes. What is not: class initialisers, exceptions, threads, string methods,
-64-bit arithmetic.
+arithmetic, double arithmetic, arrays, branches, instance fields, calls into
+other game classes, and the few JDK calls game code makes (see _jdk). What
+is not: class initialisers, exceptions, threads, most string methods, long
+arithmetic.
+
+Every value is one entry on the operand stack, a double included, where the
+JVM would give a double two.
 
 Static fields of game classes stay *symbolic*. `Block.stone` evaluates to
 Ref('uu', 'ba'), which is exactly what a recipe wants to know, so Block's
@@ -104,28 +108,14 @@ def f32(v):
 
 
 def arg_slots(desc):
-    """Stack slots a descriptor's arguments occupy (long and double take two)."""
-    inner = desc[desc.index('(') + 1:desc.rindex(')')]
-    n = 0
-    i = 0
-    while i < len(inner):
-        c = inner[i]
-        if c == 'L':
-            i = inner.index(';', i) + 1
-            n += 1
-        elif c == '[':
-            i += 1
-            while i < len(inner) and inner[i] == '[':
-                i += 1
-            if inner[i] == 'L':
-                i = inner.index(';', i) + 1
-            else:
-                i += 1
-            n += 1
-        else:
-            i += 1
-            n += 2 if c in 'JD' else 1
-    return n
+    """Operand-stack entries a call's arguments occupy.
+
+    One per argument. The JVM gives a long or a double two slots, but this
+    stack holds every value as one Python object, so counting two popped an
+    extra value and misaligned the rest: Vertex's constructor hands three
+    doubles to Vec3D.createVector, and that underflowed.
+    """
+    return len(params_of(desc))
 
 
 DEFAULTS = {'V': None, 'I': 0, 'Z': 0, 'B': 0, 'C': 0, 'S': 0,
@@ -168,6 +158,39 @@ def trunc(v):
     if v <= -2147483648.0:
         return -2147483648
     return int(v)
+
+
+class JavaRandom(object):
+    """java.util.Random: the 48-bit linear congruential generator, exactly."""
+
+    MULTIPLIER = 0x5DEECE66D
+    MASK = (1 << 48) - 1
+
+    def __init__(self, seed):
+        self.seed = (seed ^ self.MULTIPLIER) & self.MASK
+
+    def next(self, bits):
+        self.seed = (self.seed * self.MULTIPLIER + 0xB) & self.MASK
+        return self.seed >> (48 - bits)
+
+    def next_int(self, bound):
+        if bound <= 0:
+            raise Unsupported('Random.nextInt(%d)' % bound)
+        if bound & -bound == bound:                  # a power of two
+            return (bound * self.next(31)) >> 31
+        while True:
+            bits = self.next(31)
+            value = bits % bound
+            if bits - value + (bound - 1) < (1 << 31):
+                return value
+
+    def next_float(self):
+        return self.next(24) / float(1 << 24)
+
+
+# The java.lang.Math calls game code makes, by name; each takes one argument.
+MATH = {'sin': math.sin, 'cos': math.cos, 'sqrt': math.sqrt, 'atan': math.atan,
+        'abs': abs, 'floor': math.floor, 'ceil': math.ceil}
 
 
 ICONST = {0x02: -1, 0x03: 0, 0x04: 1, 0x05: 2, 0x06: 3, 0x07: 4, 0x08: 5}
@@ -283,6 +306,25 @@ class Interp(object):
                 return recv
             if name == 'toString':
                 return recv.fields.get(key, '') if isinstance(recv, Obj) else ''
+        if owner == 'java/util/Random':
+            # ModelGhast seeds one to pick its nine tentacles' lengths, so the
+            # sequence has to be Java's, bit for bit. Block's initialiser
+            # makes an unseeded one it never draws from; drawing from one
+            # would be a different answer every run, and is refused.
+            key = (owner, 'state')
+            if name == '<init>':
+                if desc == '(J)V' and isinstance(recv, Obj):
+                    recv.fields[key] = JavaRandom(args[0])
+                return self.NOTHING
+            rand = recv.fields.get(key) if isinstance(recv, Obj) else None
+            if rand is not None and name == 'nextInt' and desc == '(I)I':
+                return rand.next_int(args[0])
+            if rand is not None and name == 'nextFloat' and desc == '()F':
+                return rand.next_float()
+            raise Unsupported('JDK call %s.%s%s' % (owner, name, desc))
+        if owner == 'java/lang/Math' and name in MATH and len(args) == 1:
+            value = MATH[name](args[0])              # ModelSquid places its tentacles
+            return f32(value) if desc.endswith(')F') else value
         if name == '<init>':
             return self.NOTHING                      # new ArrayList(), new HashMap()
         if name == 'valueOf' and len(args) == 1:

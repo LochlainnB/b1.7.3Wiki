@@ -47,6 +47,22 @@ answering a question from the wiki, falling back to the source, and offering to
 write the result back. Its `SOURCEMAP.md` maps a topic to the classes that
 answer it.
 
+## Amp orbs
+
+`.agents/setup` installs Node 24 and the locked npm dependencies, then downloads
+a commit-pinned archive of [jacobo-mc/mc_b1.7.3_release](https://github.com/jacobo-mc/mc_b1.7.3_release).
+Only `1.7.3-LTS/src` is extracted, into a revision-specific sibling directory
+outside this repository. Setup sets `sourceDir` in the gitignored
+`wiki.local.json`, preserving its other settings, and runs `npm run check`.
+`B173_SOURCE` still takes precedence if explicitly configured. Repeated setup
+runs reuse the installed toolchain and source. No game code is committed.
+
+For a live preview, run `amp orb services ensure`. `.amp/services.yaml` declares
+`npm run dev` on port 8173, checks that the home page responds, and provides an
+authenticated portal. Share the printed portal URL, not a localhost URL.
+Generated `.amp/portals/` files are ignored. Do not start the server from setup
+or with a background shell command; Amp supervises the declared service.
+
 ## Commands
 
 ```
@@ -67,7 +83,7 @@ deploy. Committing is local; pushing is going live.
 
 A pull request into `main` runs the same build as a check
 (`.github/workflows/check.yml`) and publishes nothing. It cannot run the
-comparison against the decompiled source, which is never on GitHub, so run
+comparison against the decompiled source, which those jobs do not install, so run
 `npm run check` locally as well.
 
 `npm run check` does two things. It validates every page — frontmatter, links,
@@ -643,12 +659,26 @@ Research category and no infobox.
 
 ## Several agents at once
 
-Agents writing pages in parallel each work in their own git worktree, under
-`.claude/worktrees/`. `.claude/settings.json` branches those from the local
-HEAD rather than from `origin/main`, so work not yet pushed is in every
-worktree. Node finds `node_modules` in the main checkout above, and the tools
-find the decompiled source through it, so a worktree needs no setup. Before
-writing, `npm run check` must print `Verified against`.
+For local Claude Code agents, each parallel page-writing agent uses a git
+worktree under `.claude/worktrees/`. `.claude/settings.json` branches those from
+the local HEAD rather than `origin/main`, so local commits are available in each
+worktree; uncommitted edits are not copied. Node finds `node_modules` in the
+main checkout above, and the tools find the decompiled source through it.
+
+Amp subagents share their parent thread's checkout. Give concurrent workers
+disjoint file ownership. Separate Amp orb threads have independent checkouts:
+they do not inherit the parent thread's local commits, uncommitted edits,
+dependencies, source files, or running services. `.claude/settings.json` does
+not configure them. Each orb gets dependencies and the pinned source from
+`.agents/setup` or a prepared project snapshot, and starts its own preview with
+`amp orb services ensure` when needed.
+
+Before assigning work that depends on unpushed changes to another thread, use
+Amp's file-transfer tools to supply the exact files. Name the repository and
+distinguish local HEAD from `origin/main`; sending a commit ID does not transfer
+it. Inspect and integrate returned changes in the owning checkout, then run
+the combined check. Before writing game behaviour, `npm run check` must print
+`Verified against`.
 
 Each agent owns a fixed list of files and edits nothing else: no other page,
 and none of `AGENTS.md`, `data/`, `tools/` or `wiki.config.js`. A page it wants

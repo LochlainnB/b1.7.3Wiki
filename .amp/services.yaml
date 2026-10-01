@@ -1,0 +1,8 @@
+services:
+  wiki:
+    command: npm run dev
+    port: 8173
+    health: /
+    portal:
+      title: Beta 1.7.3 Wiki
+      description: Live wiki preview; rebuilds when content, theme, data, or tools change.

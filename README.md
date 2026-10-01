@@ -72,13 +72,27 @@ written for your agent to read.
 - **Python 3 and the client jar**, only to change the game data extractors. 
   AGENTS.md covers them.
 
+### Amp orbs
+
+Fresh Amp orbs run `.agents/setup` to install Node 24 and the locked npm
+dependencies, fetch the pinned archive of
+[jacobo-mc/mc_b1.7.3_release](https://github.com/jacobo-mc/mc_b1.7.3_release),
+and run `npm run check`. Only `1.7.3-LTS/src` is extracted, outside the
+repository; the gitignored `wiki.local.json` points the tools at it.
+The source revision is pinned in `.agents/setup`, not downloaded from a moving
+branch. No decompiled code is committed to this wiki.
+
+Run `amp orb services ensure` for a live preview. It starts the declared wiki
+service and prints an authenticated portal URL you can open from outside the
+orb. See [AGENTS.md](AGENTS.md) for parallel-agent and source-access guidance.
+
 ### Working with an agent
 
 Start the agent in the repository root. Most agents read AGENTS.md on their
 own; Claude Code reaches it through CLAUDE.md. It holds the editorial rule, the
 page format, the templates and the writing style guide.
 
-Claude Code also loads the **b173-wiki** skill from `.claude/skills/`. It answers
+Amp and Claude Code load the **b173-wiki** skill from `.claude/skills/`. It answers
 a Beta 1.7.3 question from the wiki first and the decompiled code second, then
 offers to write what it found back to the wiki. Its `SOURCEMAP.md` maps each
 topic to the classes that decide it, and is worth handing to any agent.

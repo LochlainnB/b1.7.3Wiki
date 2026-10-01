@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(dirname "$(dirname "$(realpath "$0")")")"
+cd "$repo_root"
+
+# Match CI's Node 24, including in later agent and service login shells.
+node_version=24.21.0
+case "$(uname -m)" in
+  x86_64) node_arch=x64 ;;
+  aarch64) node_arch=arm64 ;;
+  *) echo "Unsupported Node architecture: $(uname -m)" >&2; exit 1 ;;
+esac
+node_dir="/opt/node-v${node_version}-linux-${node_arch}"
+
+scratch="$(mktemp -d)"
+trap 'rm -rf "$scratch"' EXIT
+
+if [[ ! -x "$node_dir/bin/node" ]]; then
+  echo "Installing Node $node_version"
+  curl --fail --location --silent --show-error --retry 3 \
+    "https://nodejs.org/dist/v${node_version}/node-v${node_version}-linux-${node_arch}.tar.xz" \
+    -o "$scratch/node.tar.xz"
+  sudo tar -xJf "$scratch/node.tar.xz" -C /opt
+fi
+for tool in node npm npx; do
+  sudo ln -sfn "$node_dir/bin/$tool" "/usr/local/bin/$tool"
+done
+echo "Installing wiki dependencies with $(node --version)"
+npm ci
+
+# Extract only the source, never the upstream binaries or jars, outside Git.
+source_commit=740c583901e1ff1150e9ef37e37dab5bc0e4f807
+source_dir="$(dirname "$repo_root")/b1.7.3Source-${source_commit}"
+if [[ ! -d "$source_dir" ]]; then
+  echo "Downloading pinned Beta 1.7.3 source"
+  curl --fail --location --silent --show-error --retry 3 \
+    "https://codeload.github.com/jacobo-mc/mc_b1.7.3_release/tar.gz/${source_commit}" \
+    -o "$scratch/source.tar.gz"
+  mkdir "$scratch/source"
+  tar -xzf "$scratch/source.tar.gz" -C "$scratch/source" --strip-components=3 \
+    "mc_b1.7.3_release-${source_commit}/1.7.3-LTS/src"
+  mv "$scratch/source" "$source_dir"
+fi
+
+# Preserve jar/cache settings; B173_SOURCE remains an explicit override.
+node --input-type=module - "$source_dir" <<'JS'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+const file = 'wiki.local.json';
+const config = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+config.sourceDir = process.argv[2];
+writeFileSync(file, JSON.stringify(config, null, 2) + '\n');
+JS
+
+npm run check

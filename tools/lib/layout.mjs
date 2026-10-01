@@ -72,7 +72,9 @@ function sidebarHtml(config, ctx, tocSidebar) {
     return portlet(p.id, p.label, links);
   }).join('');
 
-  return `<div id="mw-panel" class="vector-legacy-sidebar">${logo}${portals}${tocSidebar}</div>`;
+  return `<div id="mw-panel" class="vector-legacy-sidebar">${logo}` +
+    `<button id="navigation-toggle" type="button" aria-expanded="false" aria-controls="sidebar-links">Menu</button>` +
+    `<div id="sidebar-links">${portals}${tocSidebar}</div></div>`;
 }
 
 function tabsHtml(page, ctx) {

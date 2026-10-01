@@ -229,6 +229,8 @@ body {
 .toc-sidebar > ul { padding-left: 0; }
 .toc-sidebar .tocnumber { color: #9fb4c7; margin-right: 0.3em; }
 
+#navigation-toggle { display: none; }
+
 /* ---------------------------------------------------------------- tabs -- */
 #mw-head { position: absolute; top: 0; right: 0; width: 100%; }
 #left-navigation { float: left; margin-left: 10em; margin-top: 54px; }
@@ -794,22 +796,48 @@ blockquote {
   #mw-panel {
     position: static;
     width: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1.5em;
-    padding: 0.5em 1em 1em;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.75em 1em;
   }
-  #p-logo, #p-logo a { width: auto; height: auto; flex-direction: row; }
-  .wiki-logo-mark { width: 40px; height: 40px; }
+  #p-logo { margin: 0; min-width: 0; }
+  #p-logo, #p-logo a { width: auto; height: auto; }
+  #p-logo a { flex-direction: row; justify-content: flex-start; text-align: left; }
+  .wiki-logo-mark { width: 40px; height: 40px; flex-shrink: 0; }
+  .mobile-navigation-ready #navigation-toggle {
+    display: block;
+    min-height: 44px;
+    padding: 0.5em 0.75em;
+    font: inherit;
+    color: var(--color-base);
+    background: var(--content-background-color);
+    border: 1px solid var(--border-color-base);
+    cursor: pointer;
+  }
+  #sidebar-links:not([hidden]) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14em), 1fr));
+    gap: 0.5em 1em;
+  }
+  .vector-menu-portal { margin: 0; font-size: 0.875rem; min-width: 0; }
+  .vector-menu-portal li { padding: 0; }
+  .vector-menu-portal li a { display: block; padding: 0.65em 0.25em; }
   #mw-page-base, #mw-head-base { display: none; }
-  #mw-head { position: static; }
-  #left-navigation, #right-navigation { float: none; margin: 0 0 0 1em; }
-  #right-navigation { display: flex; flex-wrap: wrap; }
-  #p-search { margin: 0.5em 0 0.5em 1em; }
+  #mw-navigation { display: flex; flex-direction: column; order: -1; }
+  #mw-head { position: static; order: 1; display: flex; flex-wrap: wrap; padding: 0 1em; }
+  #left-navigation, #right-navigation { float: none; margin: 0; }
+  #right-navigation { display: contents; }
+  #p-search { order: -1; position: relative; float: none; width: 100%; margin: 0 0 0.75em; }
+  #simpleSearch { height: 44px; }
+  #searchInput { width: 100%; min-width: 0; font-size: 1rem; }
+  #searchButton { flex-shrink: 0; width: 44px; }
+  #searchSuggest { width: 100%; min-width: 0; max-width: none; }
   #content.mw-body { margin: 0 4px; border-left-width: 3px; padding: 1em; }
   #footer { margin: 10px 4px; }
   .infobox { float: none; width: auto; margin: 1em 0; }
-  #mw-navigation { order: -1; }
   body { display: flex; flex-direction: column; }
   #content { order: 1; }
   #footer { order: 2; }

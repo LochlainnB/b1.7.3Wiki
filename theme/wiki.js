@@ -6,6 +6,30 @@
   var BASE = window.WIKI_BASE || './';
   var root = document.documentElement;
 
+  // ---------------------------------------------------- mobile navigation --
+  var navigationToggle = document.getElementById('navigation-toggle');
+  var sidebarLinks = document.getElementById('sidebar-links');
+  if (navigationToggle && sidebarLinks) {
+    var mobileNavigation = window.matchMedia('(max-width: 850px)');
+    function setNavigation(open) {
+      navigationToggle.setAttribute('aria-expanded', String(open));
+      sidebarLinks.hidden = mobileNavigation.matches && !open;
+    }
+    navigationToggle.addEventListener('click', function () {
+      setNavigation(navigationToggle.getAttribute('aria-expanded') !== 'true');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && mobileNavigation.matches &&
+          navigationToggle.getAttribute('aria-expanded') === 'true') {
+        setNavigation(false);
+        navigationToggle.focus();
+      }
+    });
+    mobileNavigation.addEventListener('change', function () { setNavigation(false); });
+    setNavigation(false);
+    root.classList.add('mobile-navigation-ready');
+  }
+
   // ---------------------------------------------------------------- theme --
   var toggle = document.getElementById('theme-toggle');
   if (toggle) {

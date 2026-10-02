@@ -18,7 +18,9 @@ is orthographic:
 which leaves the cube centred in its sixteen-pixel slot at ten units to the
 block. Faces are drawn into a depth buffer rather than sorted, because a slab,
 a stair and a fence all put more than one box on screen and only the depth
-buffer gets the overlaps right in every case.
+buffer gets the overlaps right in every case. A face turned away from the
+viewer is not drawn at all, since the GUI draws with GL_CULL_FACE on; without
+that, glass and leaves would show their far sides through their gaps.
 
 The face texture coordinates below are transcribed from RenderBlocks'
 renderTopFace, renderEastFace and their four siblings. Two of the six read
@@ -31,6 +33,7 @@ nearest texel, so they are dropped.
 import math
 
 from png import Image
+from softgl import packed_normal
 
 TILE = 16
 SIZE = 32                       # a 16-pixel inventory slot at GUI scale 2
@@ -67,12 +70,18 @@ LIGHTS = _lights()
 
 
 def _brightness(normal):
-    """The flat-shaded intensity GL gives a face pointing this way."""
-    ex, ey, ez = _eye(*normal)
+    """The light GL puts on a face pointing this way, before the clamp.
+
+    The normal goes through Tessellator.setNormal's byte packing first, which
+    turns +x into -x (see softgl.packed_normal): the right-hand face of every
+    block in a slot is lit as though it faced away, and is the darkest of the
+    three. Checked against the running client.
+    """
+    ex, ey, ez = _eye(*packed_normal(*normal))
     total = AMBIENT
     for lx, ly, lz in LIGHTS:
         total += DIFFUSE * max(0.0, ex * lx + ey * ly + ez * lz)
-    return min(1.0, total)
+    return total
 
 
 def _faces(bounds, inset):
@@ -189,8 +198,11 @@ def render(sheet, boxes, tint=0xFFFFFF, size=SIZE):
     canvas = Canvas(size)
     for bounds, tiles, inset in boxes:
         for side, normal, corners, uvs in _faces(bounds, inset):
+            if _eye(*normal)[2] <= 0.0:
+                continue        # GL_CULL_FACE is on in a slot: no face seen from behind
             light = _brightness(normal)
-            shade = tuple(c * light for c in _rgb(tints[side]))
+            # GL clamps the lit colour, not the light: colour times light, at most 1.
+            shade = tuple(min(1.0, c * light) for c in _rgb(tints[side]))
             sample = _sampler(sheet, tiles[side], shade)
             screen = []
             for (mx, my, mz), (u, v) in zip(corners, uvs):

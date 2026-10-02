@@ -25,8 +25,10 @@ other game classes, and the few JDK calls game code makes (see _jdk). What
 is not: class initialisers, exceptions, threads, most string methods, long
 arithmetic.
 
-Every value is one entry on the operand stack, a double included, where the
-JVM would give a double two.
+Every value is one entry on the operand stack, where the JVM gives a long or
+a double two slots. Those two are tagged instead (Wide, WideLong), which is
+what the stack-shuffling instructions need: dup2 copies one double or two
+floats, and only the tag says which.
 
 Static fields of game classes stay *symbolic*. `Block.stone` evaluates to
 Ref('uu', 'ba'), which is exactly what a recipe wants to know, so Block's
@@ -85,6 +87,53 @@ class Obj(object):
 
     def __repr__(self):
         return 'Obj(%s)' % self.cls
+
+
+class Stub(Obj):
+    """An object with nothing behind it.
+
+    Every method called on one returns the default of its type -- zero,
+    false or null -- unless a hook answers it, and every field read does the
+    same, unless something was stored there. It stands in for whatever the code under study needs
+    to hold but never really asks anything of: the world an entity is built
+    in, the Minecraft instance a renderer keeps a reference to.
+    """
+
+
+class Wide(float):
+    """A double: one entry on this stack, where the JVM would use two slots."""
+
+
+class WideLong(int):
+    """A long, likewise."""
+
+
+def widen(value, kind):
+    """Tag a value of descriptor type `kind` ('D', 'J', or anything else)."""
+    if kind == 'D' and isinstance(value, (int, float)) and not isinstance(value, Wide):
+        return Wide(value)
+    if kind == 'J' and isinstance(value, int) and not isinstance(value, WideLong):
+        return WideLong(value)
+    return value
+
+
+# Boxing. valueOf hands back the raw value, so a boxed number is usually just
+# the number; one made with `new` is an object holding it.
+BOXES = ('java/lang/Byte', 'java/lang/Short', 'java/lang/Integer', 'java/lang/Long',
+         'java/lang/Float', 'java/lang/Double', 'java/lang/Character', 'java/lang/Boolean')
+BOXED = ('java/lang/Number', 'value')
+UNBOX = ('byteValue', 'shortValue', 'intValue', 'longValue', 'floatValue', 'doubleValue',
+         'charValue', 'booleanValue')
+
+
+def unbox(value):
+    if isinstance(value, Obj) and BOXED in value.fields:
+        return value.fields[BOXED]
+    return value
+
+
+def slots(value):
+    return 2 if isinstance(value, (Wide, WideLong)) else 1
 
 
 class Arr(list):
@@ -193,10 +242,15 @@ MATH = {'sin': math.sin, 'cos': math.cos, 'sqrt': math.sqrt, 'atan': math.atan,
         'abs': abs, 'floor': math.floor, 'ceil': math.ceil}
 
 
+# The type each load family reads: iload, lload, fload, dload, aload.
+LOAD_KIND = 'IJFDA'
+# dup, dup_x1, dup_x2, dup2, dup2_x1, dup2_x2: (slots copied, slots they go under).
+DUPS = {0x59: (1, 0), 0x5a: (1, 1), 0x5b: (1, 2), 0x5c: (2, 0), 0x5d: (2, 1), 0x5e: (2, 2)}
+
 ICONST = {0x02: -1, 0x03: 0, 0x04: 1, 0x05: 2, 0x06: 3, 0x07: 4, 0x08: 5}
 FCONST = {0x0b: 0.0, 0x0c: 1.0, 0x0d: 2.0}
-LCONST = {0x09: 0, 0x0a: 1}
-DCONST = {0x0e: 0.0, 0x0f: 1.0}
+LCONST = {0x09: WideLong(0), 0x0a: WideLong(1)}
+DCONST = {0x0e: Wide(0.0), 0x0f: Wide(1.0)}
 
 
 class Interp(object):
@@ -257,6 +311,8 @@ class Interp(object):
             owner = recv.cls
         if hook is not None:
             return hook(self, recv, args)
+        if isinstance(recv, Stub) and not static:
+            return default_for(desc)
         if owner.startswith('java/') or owner.startswith('['):
             return self._jdk(owner, name, desc, recv, args)
         cf, m = self._find(owner, name, desc)
@@ -273,7 +329,7 @@ class Interp(object):
             local[0] = recv
             slot = 1
         for kind, val in zip(params_of(desc), args):
-            local[slot] = val
+            local[slot] = widen(val, kind)
             slot += 2 if kind in ('J', 'D') else 1
         return self.run(cf, m, code, local)
 
@@ -325,12 +381,15 @@ class Interp(object):
         if owner == 'java/lang/Math' and name in MATH and len(args) == 1:
             value = MATH[name](args[0])              # ModelSquid places its tentacles
             return f32(value) if desc.endswith(')F') else value
+        if owner in BOXES and name == '<init>' and len(args) == 1 and isinstance(recv, Obj):
+            recv.fields[BOXED] = args[0]             # new Byte(b), new Integer(i)
+            return self.NOTHING
         if name == '<init>':
             return self.NOTHING                      # new ArrayList(), new HashMap()
         if name == 'valueOf' and len(args) == 1:
             return args[0]                           # Character/Integer boxing
-        if name in ('charValue', 'intValue', 'booleanValue') and not args:
-            return recv
+        if name in UNBOX and not args:
+            return unbox(recv)
         if owner == 'java/util/Collections' and name == 'sort':
             return self.NOTHING                      # recipe ordering, not content
         if owner in ('java/util/List', 'java/util/ArrayList', 'java/util/Map',
@@ -358,6 +417,17 @@ class Interp(object):
         stack = []
         n = 0
         steps = 0
+
+        def span(end, n):
+            """Where the entries holding the top `n` JVM slots below `end` start."""
+            k = end
+            while n > 0:
+                k -= 1
+                n -= slots(stack[k])
+            if n < 0:
+                raise Unsupported('stack shuffle splits a long or double in %s.%s'
+                                  % (cf.this, m['name']))
+            return k
 
         def pop(k=1):
             if k == 0:
@@ -387,17 +457,20 @@ class Interp(object):
             elif op == 0x11:  stack.append(struct.unpack_from('>h', operand)[0])
             elif op in (0x12, 0x13):
                 stack.append(cf.const(operand[0] if op == 0x12 else u2(operand)))
-            elif op == 0x14:  stack.append(cf.const(u2(operand)))
+            elif op == 0x14:                                         # ldc2_w
+                stack.append(widen(cf.const(u2(operand)),
+                                   'D' if cf.cp[u2(operand)][0] == 'double' else 'J'))
 
             # loads
             elif op in (0x15, 0x16, 0x17, 0x18, 0x19):
-                stack.append(local.get(operand[0]))
+                stack.append(widen(local.get(operand[0]), LOAD_KIND[op - 0x15]))
             elif 0x1a <= op <= 0x2d:
-                stack.append(local.get((op - 0x1a) % 4))
+                stack.append(widen(local.get((op - 0x1a) % 4), LOAD_KIND[(op - 0x1a) // 4]))
             # array load
             elif 0x2e <= op <= 0x35:
                 arr, idx = pop(2)
-                stack.append(self._aload(arr, idx))
+                stack.append(widen(self._aload(arr, idx), 'J' if op == 0x2f else
+                                   'D' if op == 0x31 else ''))
 
             # stores
             elif op in (0x36, 0x37, 0x38, 0x39, 0x3a):
@@ -414,13 +487,13 @@ class Interp(object):
                 arr[idx] = val
 
             # stack shuffling
-            elif op == 0x57:  pop(1)
-            elif op == 0x58:  pop(2)
-            elif op == 0x59:
-                stack.append(stack[-1])
-            elif op == 0x5a:  stack.insert(-2, stack[-1])            # dup_x1
-            elif op == 0x5b:  stack.insert(-3, stack[-1])            # dup_x2
-            elif op == 0x5c:  stack.extend(stack[-2:])               # dup2
+            elif op in (0x57, 0x58):                                 # pop, pop2
+                del stack[span(len(stack), op - 0x56):]
+            elif op in DUPS:
+                n_copy, n_under = DUPS[op]
+                top = span(len(stack), n_copy)
+                under = span(top, n_under)
+                stack[under:under] = stack[top:]
             elif op == 0x5f:                                         # swap
                 stack[-1], stack[-2] = stack[-2], stack[-1]
 
@@ -449,13 +522,13 @@ class Interp(object):
                 stack.append(f32(FLOAT_OPS[op](a, b)))
             elif op - 1 in FLOAT_OPS:
                 a, b = pop(2)
-                stack.append(FLOAT_OPS[op - 1](a, b))
+                stack.append(Wide(FLOAT_OPS[op - 1](a, b)))
             elif op == 0x76:  stack.append(f32(-pop(1)[0]))          # fneg
-            elif op == 0x77:  stack.append(-pop(1)[0])               # dneg
+            elif op == 0x77:  stack.append(Wide(-pop(1)[0]))         # dneg
             elif op in (0x86, 0x90):                                 # i2f, d2f
                 stack.append(f32(pop(1)[0]))
             elif op in (0x87, 0x8d):                                 # i2d, f2d
-                stack.append(float(pop(1)[0]))
+                stack.append(Wide(pop(1)[0]))
             elif op in (0x8b, 0x8e):                                 # f2i, d2i
                 stack.append(trunc(pop(1)[0]))
             elif op in (0x95, 0x96, 0x97, 0x98):                     # f/dcmpl, f/dcmpg
@@ -505,14 +578,14 @@ class Interp(object):
             # fields
             elif op == 0xb2:                                         # getstatic
                 owner, name, desc = cf.ref(u2(operand))
-                stack.append(self._getstatic(owner, name, desc))
+                stack.append(widen(self._getstatic(owner, name, desc), desc))
             elif op == 0xb3:                                         # putstatic
                 owner, name, desc = cf.ref(u2(operand))
                 self.statics[(self._declares(owner, name), name)] = pop(1)[0]
             elif op == 0xb4:                                         # getfield
                 owner, name, desc = cf.ref(u2(operand))
                 obj = pop(1)[0]
-                stack.append(self._getfield(obj, owner, name, desc))
+                stack.append(widen(self._getfield(obj, owner, name, desc), desc))
             elif op == 0xb5:                                         # putfield
                 owner, name, desc = cf.ref(u2(operand))
                 obj, val = pop(2)
@@ -534,8 +607,7 @@ class Interp(object):
                 stack.append(len(arr))
             elif op == 0xc0:  pass                                   # checkcast
             elif op == 0xc1:                                         # instanceof
-                pop(1)
-                stack.append(1)
+                stack.append(self._instanceof(pop(1)[0], cf.cls_name(u2(operand))))
             elif op in (0xb6, 0xb7, 0xb8, 0xb9):
                 owner, name, desc = cf.ref(u2(operand))
                 args = pop(arg_slots(desc))
@@ -543,7 +615,7 @@ class Interp(object):
                 res = self.call(owner, name, desc, recv, args,
                                 static=(op == 0xb8), virtual=op in (0xb6, 0xb9))
                 if not desc.endswith(')V') and res is not self.NOTHING:
-                    stack.append(res)
+                    stack.append(widen(res, desc[desc.rindex(')') + 1:]))
             else:
                 raise Unsupported('opcode 0x%02x at %d in %s.%s'
                                   % (op, pc, cf.this, m['name']))
@@ -612,6 +684,31 @@ class Interp(object):
             # lava the water tile.
             self._refs[key] = Ref(owner, name, desc)
         return self._refs[key]
+
+    def _instanceof(self, value, target):
+        """`value instanceof target`, for the values this interpreter makes.
+
+        null is an instance of nothing. An object answers by its class, its
+        superclasses and every interface they declare. Anything else -- a
+        symbolic Ref, a string -- keeps the old answer of yes, since nothing
+        here can tell what class a Ref would have held.
+        """
+        if value is None:
+            return 0
+        if not isinstance(value, Obj):
+            return 1
+        todo, seen = [value.cls], set()
+        while todo:
+            cur = todo.pop()
+            if cur == target:
+                return 1
+            if cur in seen or cur.startswith('java/'):
+                continue
+            seen.add(cur)
+            cf = self.cls(cur)
+            if cf is not None:
+                todo.extend(c for c in [cf.super] + cf.interfaces if c)
+        return 0
 
     @staticmethod
     def _len(v):

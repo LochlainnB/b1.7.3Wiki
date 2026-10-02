@@ -1,24 +1,37 @@
-"""Just enough fixed-function OpenGL to draw what the game's model code asks for.
+"""Just enough fixed-function OpenGL to draw what the game's renderers ask for.
 
-models.py runs ModelPart.render, Quad.render and the Tessellator calls under
-them unchanged in interp.py. Every GL11 call they make lands here instead of
-on a driver, so the matrices, the display lists and the quads are the game's
-own, and only the rasterising is this file's.
+models.py runs the game's entity renderers unchanged in interp.py: the
+renderer, the model, ModelPart, the Tessellator calls under them and the held
+item. Every GL11 call they make lands here instead of on a driver, so the
+matrices, the display lists, the quads, the textures bound and the state
+switched on and off are the game's own. Only the rasterising is this file's.
 
-The state kept is the state Beta's entity rendering uses: a modelview stack,
-display lists, the current colour, the two lamps of
-RenderHelper.enableStandardItemLighting, blending and the alpha test. Any
-other GL call is a hard error, so a renderer reaching for something new is
-noticed rather than drawn wrong.
+The state kept is the state Beta's entity rendering touches: the modelview
+and texture matrices, display lists, the current colour, the two lamps of
+RenderHelper.enableStandardItemLighting, lighting, texturing, blending, the
+alpha test and the depth test. Any GL call or mode not listed is a hard
+error, so a renderer reaching for something new is noticed rather than drawn
+wrong. Face culling is the one switch kept and not acted on: every renderer
+here turns it off before it draws, and drawing with it on is refused.
 
-Rasterising follows GL where it shows: a depth buffer tested GL_LEQUAL, as
-EntityRenderer sets it; the alpha test at glAlphaFunc(GL_GREATER, 0.1);
-GL_SRC_ALPHA / GL_ONE_MINUS_SRC_ALPHA blending; flat-shaded per-face
-lighting, since every vertex of a model quad carries the one normal
-Quad.render computes; textures sampled nearest-texel and repeating, as
-RenderEngine sets them up. Faces are drawn in the order the game draws them,
-so a translucent layer composites exactly as the game composites it -- the
-slime's outer cube included.
+Nothing is rasterised while the game's code runs. Every face it draws is
+recorded, already transformed: its corners and normal in the space the
+caller set up, its colour, whether it is lit, its texture, and the blend and
+depth state in force. Frame then rasterises a record under any further
+placement, so one run of the game's code can be measured, framed and drawn,
+and the faces that make up a mob's head picked out and drawn alone.
+
+Rasterising follows GL where it shows: the lighting equation with
+GL_COLOR_MATERIAL, so a face is its colour times the light, clamped; a depth
+buffer; the alpha test at glAlphaFunc(GL_GREATER, 0.1), which the game sets
+once at start-up; texels sampled nearest and repeating, as RenderEngine sets
+mob textures up; faces drawn in the order the game draws them, so a
+translucent layer composites exactly as the game composites it.
+
+One thing GL does has no equivalent in a picture with a transparent
+background: additive blending onto nothing. Over a pixel nothing has been
+drawn to, an additive layer keeps its own colour with the brightest of its
+channels as its opacity, so it reads as a glow on any page colour.
 """
 import math
 
@@ -30,6 +43,18 @@ GL11 = 'org/lwjgl/opengl/GL11'
 AMBIENT = 0.4
 DIFFUSE = 0.6
 LAMPS = ((0.2, 1.0, -0.7), (-0.2, 1.0, 0.7))
+
+# glEnable / glDisable capabilities, by the constant the game passes.
+CAPS = {2896: 'lighting', 3042: 'blend', 3008: 'alpha_test', 3553: 'texture_2d',
+        2884: 'cull_face', 2929: 'depth_test'}
+# Capabilities that change nothing a rasteriser of flat-shaded, renormalised
+# faces could show: normal rescaling and renormalising, colour material
+# (always on here, as RenderHelper has it), and the two lamps themselves.
+INERT = {32826, 2977, 2903, 16384, 16385}
+
+MODELVIEW, TEXTURE = 5888, 5890
+ONE, SRC_ALPHA, ONE_MINUS_SRC_ALPHA = 1, 770, 771
+EQUAL, LEQUAL = 514, 515
 
 
 def identity():
@@ -94,6 +119,14 @@ def normal_matrix(m):
             (b * f - c * e) * k, (c * d - a * f) * k, (a * e - b * d) * k)
 
 
+def turn(n, v):
+    """A direction through a normal matrix, renormalised."""
+    x, y, z = v
+    return normalize((n[0] * x + n[1] * y + n[2] * z,
+                      n[3] * x + n[4] * y + n[5] * z,
+                      n[6] * x + n[7] * y + n[8] * z))
+
+
 class Texture(object):
     """An RGBA image, sampled nearest-texel and repeating."""
 
@@ -107,27 +140,50 @@ class Texture(object):
         return self.px[at], self.px[at + 1], self.px[at + 2], self.px[at + 3]
 
 
-class GL(object):
-    """The GL state machine, with a rasteriser behind it.
+class Draw(object):
+    """One face as the game drew it, ready to rasterise."""
+    __slots__ = ('corners', 'normal', 'rgba', 'lit', 'texture', 'textured', 'blend',
+                 'blend_func', 'alpha_test', 'depth_test', 'depth_mask', 'depth_func',
+                 'source')
 
-    `lists` is the display-list table. A ModelPart compiles its list the
-    first time it is drawn and only calls it after that, so every frame
-    drawn from one set of models has to share one table.
+    def __init__(self, **kw):
+        for k, v in kw.items():
+            setattr(self, k, v)
+
+
+class GL(object):
+    """The GL state machine, recording what is drawn into `draws`.
+
+    `lists` is the display-list table, shared by every context drawing one
+    set of models: a ModelPart compiles its list the first time it is drawn
+    and only calls it after that. Texture ids handed out for paths live in it
+    too, for the same reason.
+
+    Each Draw carries `source`: the display list it came from and the
+    modelview it was called under, or None for a face drawn directly. That
+    is how one model part is told apart from the rest.
     """
 
-    def __init__(self, width, height, lists):
-        self.width, self.height = width, height
-        self.colour = bytearray(width * height * 4)
-        self.depth = [-1e30] * (width * height)
-        self.stack = [identity()]
+    def __init__(self, lists):
         self.lists = lists
+        self.draws = []
+        self.source = None
+        self.stack = [identity()]
+        self.texture_matrix = identity()
+        self.mode = MODELVIEW
         self.recording = None
         self.rgba = (1.0, 1.0, 1.0, 1.0)
-        self.lighting = False
         self.lights = ()
+        self.lighting = False
         self.blend = False
         self.alpha_test = True
-        self.texture = None
+        self.texture_2d = True
+        self.cull_face = False
+        self.depth_test = True
+        self.depth_mask = True
+        self.depth_func = LEQUAL
+        self.blend_func = (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
+        self.texture_path = None
         self.pending = []
         self.normal = (0.0, 0.0, 1.0)
 
@@ -137,12 +193,29 @@ class GL(object):
         return self.stack[-1]
 
     def multiply(self, m):
-        self.stack[-1] = mul(self.stack[-1], m)
+        if self.mode == TEXTURE:
+            self.texture_matrix = mul(self.texture_matrix, m)
+        else:
+            self.stack[-1] = mul(self.stack[-1], m)
+
+    def load_identity(self):
+        if self.mode != TEXTURE:
+            raise Unsupported('glLoadIdentity on the modelview')
+        self.texture_matrix = identity()
+
+    def matrix_mode(self, mode):
+        if mode not in (MODELVIEW, TEXTURE):
+            raise Unsupported('glMatrixMode(%d)' % mode)
+        self.mode = mode
 
     def push(self):
+        if self.mode != MODELVIEW:
+            raise Unsupported('glPushMatrix on the texture matrix')
         self.stack.append(list(self.stack[-1]))
 
     def pop(self):
+        if self.mode != MODELVIEW:
+            raise Unsupported('glPopMatrix on the texture matrix')
         self.stack.pop()
 
     def enable_standard_lighting(self):
@@ -155,6 +228,37 @@ class GL(object):
         self.lighting = True
         self.lights = tuple(normalize(apply(self.top, *normalize(lamp), w=0.0))
                             for lamp in LAMPS)
+
+    # -- state -------------------------------------------------------------------
+    def enable(self, cap, on):
+        if cap in INERT:
+            return
+        if cap not in CAPS:
+            raise Unsupported('gl%s(%d)' % ('Enable' if on else 'Disable', cap))
+        setattr(self, CAPS[cap], bool(on))
+
+    def set_blend_func(self, src, dst):
+        if (src, dst) not in ((SRC_ALPHA, ONE_MINUS_SRC_ALPHA), (ONE, ONE)):
+            raise Unsupported('glBlendFunc(%d, %d)' % (src, dst))
+        self.blend_func = (src, dst)
+
+    def set_depth_func(self, func):
+        if func not in (EQUAL, LEQUAL):
+            raise Unsupported('glDepthFunc(%d)' % func)
+        self.depth_func = func
+
+    def texture_id(self, path):
+        ids = self.lists.setdefault('textures', {})
+        if path not in ids:
+            ids[path] = len(ids) + 1
+        return ids[path]
+
+    def bind(self, ident):
+        for path, known in self.lists.get('textures', {}).items():
+            if known == ident:
+                self.texture_path = path
+                return
+        raise Unsupported('glBindTexture(%r): no such texture' % ident)
 
     # -- the Tessellator -------------------------------------------------------
     def vertex(self, x, y, z, u, v):
@@ -172,33 +276,161 @@ class GL(object):
                 self.quad(quad)
 
     def call_list(self, ident):
+        self.source = (ident, tuple(self.top))
         for quad in self.lists.get(ident, ()):
             self.quad(quad)
-
-    # -- rasterising -----------------------------------------------------------
-    def shade(self, normal):
-        if not self.lighting:
-            return 1.0
-        n = normal_matrix(self.top)
-        x, y, z = normal
-        n = normalize((n[0] * x + n[1] * y + n[2] * z,
-                       n[3] * x + n[4] * y + n[5] * z,
-                       n[6] * x + n[7] * y + n[8] * z))
-        total = AMBIENT
-        for lx, ly, lz in self.lights:
-            total += DIFFUSE * max(0.0, n[0] * lx + n[1] * ly + n[2] * lz)
-        return min(1.0, total)
+        self.source = None
 
     def quad(self, quad):
-        light = self.shade(quad[0][5])
-        r, g, b, a = self.rgba
-        tint = (r * light, g * light, b * light, a)
-        corners = [apply(self.top, x, y, z) + (u, v) for x, y, z, u, v, _n in quad]
-        self.triangle(corners[0], corners[1], corners[2], tint)
-        self.triangle(corners[0], corners[2], corners[3], tint)
+        if self.cull_face:
+            raise Unsupported('drawing with face culling on')
+        if self.texture_2d and self.texture_path is None:
+            raise Unsupported('drawing with no texture bound')
+        m, tm = self.top, self.texture_matrix
+        corners = []
+        for x, y, z, u, v, _n in quad:
+            tu, tv, _tw = apply(tm, u, v, 0.0)
+            corners.append(apply(m, x, y, z) + (tu, tv))
+        self.draws.append(Draw(
+            corners=corners, normal=turn(normal_matrix(m), quad[0][5]), rgba=self.rgba,
+            lit=self.lighting, texture=self.texture_path, textured=self.texture_2d,
+            blend=self.blend, blend_func=self.blend_func, alpha_test=self.alpha_test,
+            depth_test=self.depth_test, depth_mask=self.depth_mask,
+            depth_func=self.depth_func, source=self.source))
 
-    def triangle(self, p, q, r, tint):
-        """Fill one triangle of (x, y, depth, u, v) eye-space vertices.
+    # -- wiring into the interpreter ---------------------------------------------
+    def install(self, interp, names):
+        """Answer GL11, GlAllocation, the Tessellator and RenderEngine from here.
+
+        `names` carries the jar's names for the Tessellator's, GlAllocation's
+        and RenderEngine's methods. Installing again moves the hooks to
+        another context; display lists and texture ids stay where they are.
+        """
+        nothing = Interp.NOTHING
+        hooks = interp.hooks
+
+        def hook(owner, name, desc, fn):
+            hooks[(owner, name, desc)] = lambda _it, _recv, args: (fn(*args), nothing)[1]
+
+        def answer(owner, name, desc, fn):
+            hooks[(owner, name, desc)] = lambda _it, _recv, args: fn(*args)
+
+        def new_list(ident, _mode):
+            self.recording = ident
+            self.lists[ident] = []
+
+        def end_list():
+            self.recording = None
+
+        def gen_lists(count):
+            ident = self.lists['next']
+            self.lists['next'] += count
+            return ident
+
+        def normal(x, y, z):
+            self.normal = (x, y, z)
+
+        def colour(r, g, b, a=1.0):
+            self.rgba = (r, g, b, a)
+
+        def bind(target, ident):
+            if target != 3553:
+                raise Unsupported('glBindTexture(%d, ...)' % target)
+            self.bind(ident)
+
+        def depth_mask(flag):
+            self.depth_mask = bool(flag)
+
+        hook(GL11, 'glPushMatrix', '()V', lambda: self.push())
+        hook(GL11, 'glPopMatrix', '()V', lambda: self.pop())
+        hook(GL11, 'glTranslatef', '(FFF)V', lambda x, y, z: self.multiply(translation(x, y, z)))
+        hook(GL11, 'glScalef', '(FFF)V', lambda x, y, z: self.multiply(scaling(x, y, z)))
+        hook(GL11, 'glRotatef', '(FFFF)V',
+             lambda deg, x, y, z: self.multiply(rotation(deg, x, y, z)))
+        hook(GL11, 'glMatrixMode', '(I)V', lambda mode: self.matrix_mode(mode))
+        hook(GL11, 'glLoadIdentity', '()V', lambda: self.load_identity())
+        hook(GL11, 'glNewList', '(II)V', new_list)
+        hook(GL11, 'glEndList', '()V', end_list)
+        hook(GL11, 'glCallList', '(I)V', lambda ident: self.call_list(ident))
+        hook(GL11, 'glEnable', '(I)V', lambda cap: self.enable(cap, True))
+        hook(GL11, 'glDisable', '(I)V', lambda cap: self.enable(cap, False))
+        hook(GL11, 'glColor3f', '(FFF)V', colour)
+        hook(GL11, 'glColor4f', '(FFFF)V', colour)
+        hook(GL11, 'glBlendFunc', '(II)V', lambda s, d: self.set_blend_func(s, d))
+        hook(GL11, 'glDepthFunc', '(I)V', lambda f: self.set_depth_func(f))
+        hook(GL11, 'glDepthMask', '(Z)V', depth_mask)
+        hook(GL11, 'glBindTexture', '(II)V', bind)
+        answer(names['glalloc'], names['generateDisplayLists'], '(I)I', gen_lists)
+
+        t = names['tessellator']
+        hook(t, names['startQuads'], '()V', lambda: None)
+        hook(t, names['normal'], '(FFF)V', normal)
+        hook(t, names['vertexUV'], '(DDDDD)V', lambda x, y, z, u, v: self.vertex(x, y, z, u, v))
+        hook(t, names['draw'], '()V', lambda: self.draw())
+
+        # RenderEngine: a texture's id stands for its path, and binding one
+        # makes it current. A downloadable skin is never there, so the
+        # fallback path is always the one used, as it is for any mob.
+        e = names['textureManager']
+        answer(e, names['getTexture'], '(Ljava/lang/String;)I', lambda path: self.texture_id(path))
+        answer(e, names['getDownloadable'], '(Ljava/lang/String;Ljava/lang/String;)I',
+               lambda _url, path: -1 if path is None else self.texture_id(path))
+        hook(e, names['bindTexture'], '(I)V', lambda ident: self.bind(ident))
+
+
+def bounds(draws):
+    """([x0, y0, z0], [x1, y1, z1]) around every corner of `draws`."""
+    lo, hi = [1e30] * 3, [-1e30] * 3
+    for d in draws:
+        for corner in d.corners:
+            for k in range(3):
+                if corner[k] < lo[k]:
+                    lo[k] = corner[k]
+                if corner[k] > hi[k]:
+                    hi[k] = corner[k]
+    return lo, hi
+
+
+class Frame(object):
+    """A colour and depth buffer that recorded draws are rasterised into.
+
+    `textures` turns a texture path into an Image.
+    """
+
+    def __init__(self, width, height, textures):
+        self.width, self.height = width, height
+        self.colour = bytearray(width * height * 4)
+        self.depth = [-1e30] * (width * height)
+        self.textures = textures
+        self._loaded = {}
+
+    def texture(self, path):
+        if path not in self._loaded:
+            self._loaded[path] = Texture(self.textures(path))
+        return self._loaded[path]
+
+    def draw(self, draws, root, lights):
+        """Rasterise draws in order, placed by `root` and lit by `lights`.
+
+        `root` maps the recorded space to pixels, with depth in z, nearer
+        larger; it may turn as well as scale. `lights` are the lamp
+        directions in that final space.
+        """
+        rn = normal_matrix(root)
+        for d in draws:
+            r, g, b, a = d.rgba
+            if d.lit:
+                n = turn(rn, d.normal)
+                total = AMBIENT
+                for lx, ly, lz in lights:
+                    total += DIFFUSE * max(0.0, n[0] * lx + n[1] * ly + n[2] * lz)
+                r, g, b = min(1.0, r * total), min(1.0, g * total), min(1.0, b * total)
+            c = [apply(root, x, y, z) + (u, v) for x, y, z, u, v in d.corners]
+            self.triangle(d, c[0], c[1], c[2], (r, g, b, a))
+            self.triangle(d, c[0], c[2], c[3], (r, g, b, a))
+
+    def triangle(self, d, p, q, r, tint):
+        """Fill one triangle of (x, y, depth, u, v) vertices.
 
         The projection is orthographic, so screen x and y are eye x and y, and
         depth and texture coordinates interpolate affinely.
@@ -212,9 +444,12 @@ class GL(object):
         hi_x = min(self.width - 1, int(math.ceil(max(ax, bx, cx))))
         lo_y = max(0, int(math.floor(min(ay, by, cy))))
         hi_y = min(self.height - 1, int(math.ceil(max(ay, by, cy))))
-        sample = self.texture.sample
+        sample = self.texture(d.texture).sample if d.textured else None
         tr, tg, tb, ta = tint
-        blend, alpha_test = self.blend, self.alpha_test
+        additive = d.blend and d.blend_func == (ONE, ONE)
+        blend, alpha_test = d.blend, d.alpha_test
+        equal = d.depth_func == EQUAL
+        test, write = d.depth_test, d.depth_mask
         width, depth, colour = self.width, self.depth, self.colour
         for py in range(lo_y, hi_y + 1):
             y = py + 0.5
@@ -227,16 +462,29 @@ class GL(object):
                     continue
                 z = az * w0 + bz * w1 + cz * w2
                 slot = py * width + px
-                if z < depth[slot]:                       # GL_LEQUAL; nearer is larger
-                    continue
-                sr, sg, sb, sa = sample(au * w0 + bu * w1 + cu * w2,
-                                        av * w0 + bv * w1 + cv * w2)
+                if test:
+                    held = depth[slot]
+                    if (abs(z - held) > 1e-6) if equal else (z < held - 1e-9):
+                        continue                          # nearer is larger
+                if sample:
+                    sr, sg, sb, sa = sample(au * w0 + bu * w1 + cu * w2,
+                                            av * w0 + bv * w1 + cv * w2)
+                else:
+                    sr = sg = sb = sa = 255
                 fa = sa / 255.0 * ta
                 if alpha_test and fa <= 0.1:
                     continue
                 at = slot * 4
                 fr, fg, fb = sr * tr, sg * tg, sb * tb
-                if blend:
+                if additive:
+                    if colour[at + 3]:
+                        fr += colour[at]
+                        fg += colour[at + 1]
+                        fb += colour[at + 2]
+                        out_a = colour[at + 3]
+                    else:
+                        out_a = max(fr, fg, fb)
+                elif blend:
                     keep = 1.0 - fa
                     fr = fr * fa + colour[at] * keep
                     fg = fg * fa + colour[at + 1] * keep
@@ -248,50 +496,5 @@ class GL(object):
                 colour[at + 1] = min(255, int(fg + 0.5))
                 colour[at + 2] = min(255, int(fb + 0.5))
                 colour[at + 3] = min(255, int(out_a + 0.5))
-                depth[slot] = z
-
-    # -- wiring into the interpreter ---------------------------------------------
-    def install(self, interp, names):
-        """Answer GL11, GlAllocation and the Tessellator from this context.
-
-        `names` carries the jar's names for the Tessellator and GlAllocation.
-        Installing again moves the hooks to another context; the display
-        lists stay where they are.
-        """
-        nothing = Interp.NOTHING
-        hooks = interp.hooks
-
-        def hook(owner, name, desc, fn):
-            hooks[(owner, name, desc)] = lambda _it, _recv, args: (fn(*args), nothing)[1]
-
-        def new_list(ident, _mode):
-            self.recording = ident
-            self.lists[ident] = []
-
-        def end_list():
-            self.recording = None
-
-        def gen_lists(_it, _recv, args):
-            ident = self.lists['next']
-            self.lists['next'] += args[0]
-            return ident
-
-        def normal(x, y, z):
-            self.normal = (x, y, z)
-
-        hook(GL11, 'glPushMatrix', '()V', lambda: self.push())
-        hook(GL11, 'glPopMatrix', '()V', lambda: self.pop())
-        hook(GL11, 'glTranslatef', '(FFF)V', lambda x, y, z: self.multiply(translation(x, y, z)))
-        hook(GL11, 'glScalef', '(FFF)V', lambda x, y, z: self.multiply(scaling(x, y, z)))
-        hook(GL11, 'glRotatef', '(FFFF)V',
-             lambda deg, x, y, z: self.multiply(rotation(deg, x, y, z)))
-        hook(GL11, 'glNewList', '(II)V', new_list)
-        hook(GL11, 'glEndList', '()V', end_list)
-        hook(GL11, 'glCallList', '(I)V', lambda ident: self.call_list(ident))
-        hooks[(names['glalloc'], names['generateDisplayLists'], '(I)I')] = gen_lists
-
-        t = names['tessellator']
-        hook(t, names['startQuads'], '()V', lambda: None)
-        hook(t, names['normal'], '(FFF)V', normal)
-        hook(t, names['vertexUV'], '(DDDDD)V', lambda x, y, z, u, v: self.vertex(x, y, z, u, v))
-        hook(t, names['draw'], '()V', lambda: self.draw())
+                if write:
+                    depth[slot] = z

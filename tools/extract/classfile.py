@@ -33,7 +33,7 @@ class ClassFile:
         r.u2()                               # access flags
         self.this = self.cls_name(r.u2())
         self.super = self.cls_name(r.u2())
-        for _ in range(r.u2()): r.u2()       # interfaces
+        self.interfaces = [self.cls_name(r.u2()) for _ in range(r.u2())]
         self.fields = self._members(r)
         self.methods = self._members(r)
 

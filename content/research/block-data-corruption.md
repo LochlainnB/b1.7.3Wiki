@@ -46,11 +46,11 @@ Four side findings came out of the same work:
 
 - A [[Piston|piston]] can push a [[Furnace|furnace]] in the tick the furnace
   lights or goes out (tested). The furnace loses its contents and stays lit for good.
-- The gap between a piston's check and its push can catch a powered piston, a
-  piston head or a moving block in the line and move it anyway. A moving block
-  stored this way lands as an invisible moving piston with no block entity,
-  and an explosion breaking one that stores another moving block crashes the
-  game (read).
+- The gap between a piston's check and its push can catch an extended piston,
+  a piston head or a moving block in the line and move it anyway. A moving
+  block stored this way lands as an invisible moving piston with no block
+  entity, and an explosion breaking one that still stores another moving
+  block crashes the game (read).
 - The world's chunk map treats chunks 524,288 blocks apart as the same chunk.
   A block placed at one position reads back 524,288 blocks east of it (tested on
   a server).
@@ -74,7 +74,7 @@ As of 2 October 2026:
 | Pistons can push a furnace in the tick it lights | tested |
 | Chunks 524,288 blocks apart share one chunk object | tested on the server, read for singleplayer |
 | Hovering an invalid slab crashes the client | read; the exception reproduced outside the game |
-| The gap between a piston's loops can move a powered piston, a piston head or a moving block | read |
+| The gap between a piston's check and its push can move an extended piston, a piston head or a moving block | read |
 | A moving block stored in another lands as block 36 with no block entity | read |
 | An explosion breaking that nested moving block crashes the game | read |
 | Other transmutation methods (liquids, placement) | reported elsewhere, not tested here |
@@ -712,60 +712,74 @@ it works on any block a tree or other writer places without updates.
 ### What the gap can move
 
 *Read, not tested.* The merge needs a moving block to write over; the gap
-between a piston's two loops supplies stranger ones. When the first loop drops
-its fragile block, the neighbour updates reach other pistons, and a piston
-answers at once: `World.playNoteAt` calls `playBlock` directly
+between a piston's check and its push supplies others. When the first loop
+drops its fragile block, the neighbour updates reach other pistons, and a
+piston answers at once: `World.playNoteAt` calls `playBlock` directly
 (`World.java:2369`), so its whole push runs inside those updates. The second
 loop then moves whatever is in the line now, and it checks nothing. Three
-things can be in the line that the first loop would have refused:
+things can be in the line at that point that the first loop would not push:
 
-- **A moving block.** The re-entrant piston's head is block 36 for two ticks
+- **A moving block.** The re-entrant piston's head is block 36 while it moves
   (`BlockPistonBase.java:353`), and so is every block it pushed (`:356`).
   `canPushBlock` refuses block 36, whose hardness is −1
   (`BlockPistonMoving.java:8`), so no piston can set out to push one — the
-  second loop simply does not ask.
-- **A powered piston.** The re-entrant piston's own body takes the powered bit
-  as it extends (`BlockPistonBase.java:116`), and the first loop had passed it
-  while it was still retracted. `canPushBlock` refuses an extended piston.
+  second loop does not ask.
+- **An extended piston.** The re-entrant piston's own body takes the powered
+  bit as it extends (`BlockPistonBase.java:116`), and the first loop had passed
+  it while it was still retracted. `canPushBlock` refuses an extended piston.
 - **A landed piston head.** Block 34 is immovable, mobility 2
   (`Material.java:137`), and `canPushBlock` refuses it. It can still land
   inside the gap, when a moving block's `onBlockRemoval` settles it
   (`BlockPistonMoving.java:18`), and be read a moment later.
 
-Obsidian cannot be moved this way. Both loops check the line, and nothing in
-the updates writes obsidian: only a player and the portal's `Teleporter` do
-(`Teleporter.java:228`), and neither runs inside a neighbour update.
-
-**A moving block inside a moving block lands as a ghost.** When the second
+A moving block stored inside a moving block lands as a ghost. When the second
 loop reads a moving block at one position, the tile entity it writes one
 position out stores block 36 itself (`BlockPistonBase.java:356`). That tile
 entity settles like any other: it removes itself and places its stored block,
-block 36 (`TileEntityPiston.java:109`-`:112`). Block 36's own `getBlockEntity`
-makes nothing (`BlockPistonMoving.java:11`), so the space keeps block 36 with
-no block entity. The ghost is invisible (`getRenderType` returns −1,
-`BlockPistonMoving.java:36`) and solid to nothing
-(`getCollisionBoundingBoxFromPool` returns null without a tile entity, `:80`).
-Mining cannot break it, as with bedrock, because strength is 0 for hardness
-below 0 (`Block.java:327`). A right-click removes it: `blockActivated` sets
-the space to air when no tile entity answers (`BlockPistonMoving.java:48`).
-Nothing repairs it, pistons refuse it, and it saves and loads like any block.
+block 36 (`TileEntityPiston.java:109`-`:112`). Block 36's `getBlockEntity`
+makes nothing (`BlockPistonMoving.java:11`) and its `onBlockAdded` does
+nothing (`:15`), so the space keeps block 36 with no block entity. The ghost
+is invisible (`getRenderType` returns −1, `BlockPistonMoving.java:36`) and has
+no collision (`getCollisionBoundingBoxFromPool` returns null without a tile
+entity, `:80`). Mining cannot break it, as with bedrock, because strength is 0
+for hardness below 0 (`Block.java:327`). A right-click removes it:
+`blockActivated` sets the space to air when no tile entity answers
+(`BlockPistonMoving.java:48`). Nothing repairs it, pistons refuse it, and it
+persists through saves, which write the block array and the tile entity list
+separately (`Chunk.java:12`).
 
-**The recursion hypothesis holds, and an explosion reaches it.**
-`dropBlockAsItemWithChance` drops the stored block's drop while the tile entity
-is still in place (`BlockPistonMoving.java:61`-`:66`). If the stored block is
-36, that drop runs the same method at the same position, finds the same tile
-entity, and never returns: a `StackOverflowError`. The client's main loop
-catches it and shows the crash screen (`Minecraft.java:626`); the server's run
-loop catches it, logs `Unexpected exception`, and never ticks the world again
-(`MinecraftServer.java:271`). The explosion is the one way in:
-`doExplosionB` drops each block before removing it (`Explosion.java:158`),
-and block 36 does not slow the ray at all, because `setHardness(-1)` leaves
-the resistance at its default 0 (`Block.java:199`-`:203`) and
-`getExplosionResistance` returns a fifth of it (`:371`). Mining cannot break
-the block at all, a piston's destroy path drops nothing
-(`BlockPistonBase.java:150`), and no other code drops blocks. An explosion
-breaking a tile entity that stores any other block drops that block's
-ordinary drop, with the stored metadata.
+The merge machine cannot make one. There the re-entrant piston's moving block
+lands on the cleared fragile position, which the second loop writes and never
+reads; a ghost needs the moving block at a position the first loop scanned as
+a pushable block.
+
+An explosion breaking that nested block crashes the game.
+`dropBlockAsItemWithChance` drops the stored block's drop while the tile
+entity is still in place (`BlockPistonMoving.java:61`-`:66`). If the stored
+block is 36, that drop runs the same method at the same position, finds the
+same tile entity, and never returns: a `StackOverflowError`. The client's main
+loop catches it and shows the crash screen (`Minecraft.java:626`); the
+server's run loop catches it, logs `Unexpected exception`, and never ticks the
+world again (`MinecraftServer.java:271`). The explosion is the one vanilla
+route: `doExplosionB` drops each block before removing it
+(`Explosion.java:158`), and block 36 has zero blast resistance, because
+`setHardness(-1)` leaves the resistance at its default 0
+(`Block.java:199`-`:203`) and `getExplosionResistance` returns a fifth of it
+(`:371`). Nothing else calls the drop while a tile entity remains: mining
+cannot break the block, a piston retracting past an unpushable block destroys
+it without a drop (`BlockPistonBase.java:150`, `:165`), and the other drop
+paths name their own blocks. An explosion breaking a tile entity that stores
+any other block drops that block's ordinary drop, with the stored metadata.
+
+Obsidian has one route into a cascade and no machine at the end of it. The one
+thing that writes obsidian inside a tick is lava hardening: a lava source with
+water beside or above it becomes obsidian the moment a neighbour update
+reaches it (`BlockFluid.java:243`-`:274`). But a lava source in the line ends
+the first loop's scan and is removed, because its mobility is 1; the second
+loop reads only positions the first loop scanned; and no liquid moves inside a
+cascade, because flow runs on scheduled ticks. No machine is known that moves
+obsidian this way. Whether singleplayer's synchronous chunk population, which
+can write liquids during a block read, breaks that argument is untested.
 
 None of it yields a new item. Every drop is either nothing, an existing
 block's ordinary drop, or the crash.
@@ -815,11 +829,15 @@ Each of these was followed far enough to rule out, for the reason given.
 - **Confirm the tooltip crash in a running client**, and whether it happens on a
   server when one player hovers an invalid slab another put in a chest.
 - **Test the gap machine.** The gap findings above were read out of the code,
-  not run. What the lab owes: a machine built E5-style that stores block 36
-  inside another moving block, the ghost moving piston it lands as, and the
-  `StackOverflowError` that `lab boom` on it causes. `lab drop` on the nested
-  block crashes the server the same way, so test it last, in a world that can
-  be thrown away.
+  not run. Two runs separate the two states. One builds a machine that stores
+  block 36 inside a still-moving block and watches it settle into the ghost,
+  which a right-click should then remove. The other times an explosion onto
+  the nested block while its tile entity is still alive: the tile entity lives
+  two ticks (`TileEntityPiston.java:105`), so `lab boom` — whose handler
+  catches every `Throwable` (Appendix A) — reports the `StackOverflowError`
+  without stopping the server, and a vanilla crash needs an explosion inside
+  that window, such as a TNT fuse timed to the same tick. `lab drop` on the
+  nested block recurses the same way.
 - **Other block entities.** The furnace is the only block that swaps itself
   during the block entity pass. Whether any other container can be caught
   without its block entity is open.

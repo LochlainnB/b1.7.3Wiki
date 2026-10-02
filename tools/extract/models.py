@@ -440,9 +440,49 @@ class Game(object):
         r = self.renderer(cls)
         return r is not None and self.f_model in r.fields
 
+    def concrete(self, cls):
+        """Whether the game could ever make one. EntityList registers Mob,
+        which is EntityLiving, and Java refuses to build an abstract class."""
+        return not self.jar.cls(cls).access & 0x0400
+
+    def player(self):
+        """The player as the inventory draws it: Minecraft.thePlayer, an
+        EntityPlayerSP, built with nothing for its Minecraft and an empty
+        session, so it has no name and wears the default skin."""
+        cls = self._field(self.c_minecraft, 'player')
+        cls = next(f['desc'][1:-1] for f in self.jar.cls(self.c_minecraft).fields
+                   if f['name'] == cls[1])
+        session = self.mp.find_class('net/minecraft/client/util/Session')
+        desc = '(Lnet/minecraft/client/Minecraft;L%%s;L%s;I)V' % session
+        return cls, desc, [Stub(self.c_minecraft)], [Stub(session), 0]
+
+    def spawn_player(self):
+        """Minecraft gives a new player a movement input before anything
+        draws it, holding no keys until one is pressed. It is the player's
+        field whose type updates itself from a player: MovementInput's
+        updatePlayerMoveState(EntityPlayer)."""
+        cls, desc, before, args = self.player()
+        entity = self.spawn(cls, desc, args, before)
+        takes_player = '(L%s;)V' % self.c_player
+        fields = [f for f in self.jar.cls(cls).fields if f['desc'].startswith('L')
+                  and self.jar.cls(f['desc'][1:-1]) is not None
+                  and any(m['desc'] == takes_player for m in self.jar.cls(f['desc'][1:-1]).methods)]
+        if len(fields) != 1:
+            raise jvm.Unsupported('%d movement-input fields on the player' % len(fields))
+        field = fields[0]
+        kind = field['desc'][1:-1]
+        keys = Obj(kind)
+        self.interp.call(kind, '<init>', '()V', keys, [])
+        entity.fields[(cls, field['name'])] = keys
+        return entity
+
     # -- entities ---------------------------------------------------------------
-    def spawn(self, cls, desc='(L%s;)V', args=()):
-        """A new entity, made by its own constructor in a world of nothing."""
+    def spawn(self, cls, desc='(L%s;)V', args=(), before=()):
+        """A new entity, made by its own constructor in a world of nothing.
+
+        `desc` has %s where the world goes; `before` and `args` are the
+        constructor's arguments either side of it.
+        """
         it = self.interp
         for c in reversed(list(self._ancestry(cls))):
             if c in self._initialised:
@@ -451,7 +491,8 @@ class Game(object):
             if self.jar.cls(c).method('<clinit>'):
                 it.call(c, '<clinit>', '()V', None, [], static=True)
         entity = Obj(cls)
-        it.call(cls, '<init>', desc % self.c_world, entity, [self.world] + list(args))
+        it.call(cls, '<init>', desc % self.c_world, entity,
+                list(before) + [self.world] + list(args))
         return entity
 
     def watch(self, entity, slots):
@@ -506,6 +547,7 @@ class Game(object):
         gl = GL(self.lists)
         gl.install(it, self.gl_names)
         gl.stack = [camera]
+        gl.rescale_normal = True        # GuiInventory enables GL_RESCALE_NORMAL first
         if lamps == 'inventory':
             gl.multiply(rotation(135.0, 0.0, 1.0, 0.0))
             gl.enable_standard_lighting()
@@ -521,7 +563,9 @@ class Game(object):
         entity.fields[self.f_brightness] = 1.0
         gl.multiply(translation(0.0, entity.fields.get(self.f_y_offset, 0.0), 0.0))
         self.dispatcher.fields[self.f_view_y] = 180.0
-        self.dispatcher.fields[self.f_player] = entity
+        # GuiInventory draws the living player, so no name tag is drawn; a
+        # minecart or a boat is no one.
+        self.dispatcher.fields[self.f_player] = entity if living else None
         self.dispatcher.fields[self.f_world] = self.world
         renderer = self.renderer(entity.cls)
         # renderEntityWithPosYaw(entity, 0, 0, 0, yaw, 1): a living entity
@@ -646,7 +690,10 @@ def entity_pictures(game, name, cls, wool=None):
     variants = variants or [{'label': None, 'main': True}]
     recorded = []
     for variant in variants:
-        entity = game.spawn(cls)
+        if name == 'Player':
+            entity = game.spawn_player()
+        else:
+            entity = game.spawn(cls)
         prepare(game, entity, variant)
         recorded.append((variant, entity, game.record(entity, GUI, YAW)))
     scale = min(frame_scale(gl.draws, PORTRAIT) for _v, _e, gl in recorded)
@@ -741,10 +788,10 @@ Picture = collections.namedtuple('Picture', 'subject label main image icon block
 def pictures(game, wool, only=None, log=None):
     """Every picture of every entity, item in the world and painting."""
     _records, classes = extract_entities(game.jar, game.mp)
-    classes['Player'] = game.c_player
+    classes['Player'] = game.player()[0]
     out = []
     for name, cls in sorted(classes.items()):
-        if (only and name not in only) or not game.living(cls):
+        if (only and name not in only) or not game.living(cls) or not game.concrete(cls):
             continue
         for label, main, image, head_icon in entity_pictures(game, name, cls, wool):
             out.append(Picture(name, label, main, image, head_icon, None))

@@ -28,6 +28,14 @@ once at start-up; texels sampled nearest and repeating, as RenderEngine sets
 mob textures up; faces drawn in the order the game draws them, so a
 translucent layer composites exactly as the game composites it.
 
+Normals go through the same narrowing the game puts them through.
+Tessellator.setNormal packs each into three signed bytes for a GL_BYTE
+normal array, x times 128 and y and z times 127, so an x of exactly 1 comes
+out as byte 128, which wraps to -128: -1. Every face pointing straight
+along +x is lit as though it pointed the other way. That is how the game
+lights its models, and checked against the running client it is the only
+thing that makes those faces come out right.
+
 One thing GL does has no equivalent in a picture with a transparent
 background: additive blending onto nothing. Over a pixel nothing has been
 drawn to, an additive layer keeps its own colour with the brightest of its
@@ -46,11 +54,11 @@ LAMPS = ((0.2, 1.0, -0.7), (-0.2, 1.0, 0.7))
 
 # glEnable / glDisable capabilities, by the constant the game passes.
 CAPS = {2896: 'lighting', 3042: 'blend', 3008: 'alpha_test', 3553: 'texture_2d',
-        2884: 'cull_face', 2929: 'depth_test'}
-# Capabilities that change nothing a rasteriser of flat-shaded, renormalised
-# faces could show: normal rescaling and renormalising, colour material
-# (always on here, as RenderHelper has it), and the two lamps themselves.
-INERT = {32826, 2977, 2903, 16384, 16385}
+        2884: 'cull_face', 2929: 'depth_test', 32826: 'rescale_normal', 2977: 'normalize'}
+# Capabilities that change nothing a flat-shaded rasteriser could show:
+# colour material (always on here, as RenderHelper has it), and the two lamps
+# themselves.
+INERT = {2903, 16384, 16385}
 
 MODELVIEW, TEXTURE = 5888, 5890
 ONE, SRC_ALPHA, ONE_MINUS_SRC_ALPHA = 1, 770, 771
@@ -119,6 +127,14 @@ def normal_matrix(m):
             (b * f - c * e) * k, (c * d - a * f) * k, (a * e - b * d) * k)
 
 
+def packed_normal(x, y, z):
+    """Tessellator.setNormal's bytes, read back as GL reads a GL_BYTE normal."""
+    def byte(v):
+        v = int(v) & 0xFF                     # Java's (byte)(int)f
+        return v - 0x100 if v & 0x80 else v
+    return tuple(max(c / 127.0, -1.0) for c in (byte(x * 128.0), byte(y * 127.0), byte(z * 127.0)))
+
+
 def turn(n, v):
     """A direction through a normal matrix, renormalised."""
     x, y, z = v
@@ -180,6 +196,8 @@ class GL(object):
         self.texture_2d = True
         self.cull_face = False
         self.depth_test = True
+        self.rescale_normal = False
+        self.normalize = False
         self.depth_mask = True
         self.depth_func = LEQUAL
         self.blend_func = (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
@@ -281,6 +299,25 @@ class GL(object):
             self.quad(quad)
         self.source = None
 
+    def eye_normal(self, m, normal):
+        """A normal as GL lights it: through the inverse transpose, then
+        renormalised under GL_NORMALIZE, or under GL_RESCALE_NORMAL divided by
+        the scale the modelview puts on z -- which leaves it unit length only
+        where the modelview scales evenly. The ghast about to fire is
+        stretched, and GL lights its tentacles with the longer normals."""
+        n = normal_matrix(m)
+        x, y, z = normal
+        v = (n[0] * x + n[1] * y + n[2] * z, n[3] * x + n[4] * y + n[5] * z,
+             n[6] * x + n[7] * y + n[8] * z)
+        if self.normalize:
+            return normalize(v)
+        if self.rescale_normal:
+            # The inverse modelview's third row is the third column of the
+            # normal matrix.
+            f = math.sqrt(n[2] * n[2] + n[5] * n[5] + n[8] * n[8]) or 1.0
+            return (v[0] / f, v[1] / f, v[2] / f)
+        return v
+
     def quad(self, quad):
         if self.cull_face:
             raise Unsupported('drawing with face culling on')
@@ -292,7 +329,7 @@ class GL(object):
             tu, tv, _tw = apply(tm, u, v, 0.0)
             corners.append(apply(m, x, y, z) + (tu, tv))
         self.draws.append(Draw(
-            corners=corners, normal=turn(normal_matrix(m), quad[0][5]), rgba=self.rgba,
+            corners=corners, normal=self.eye_normal(m, quad[0][5]), rgba=self.rgba,
             lit=self.lighting, texture=self.texture_path, textured=self.texture_2d,
             blend=self.blend, blend_func=self.blend_func, alpha_test=self.alpha_test,
             depth_test=self.depth_test, depth_mask=self.depth_mask,
@@ -328,7 +365,7 @@ class GL(object):
             return ident
 
         def normal(x, y, z):
-            self.normal = (x, y, z)
+            self.normal = packed_normal(x, y, z)
 
         def colour(r, g, b, a=1.0):
             self.rgba = (r, g, b, a)
@@ -416,11 +453,17 @@ class Frame(object):
         larger; it may turn as well as scale. `lights` are the lamp
         directions in that final space.
         """
+        # Framing scales evenly, and turns only an icon: its rotation is all it
+        # does to a normal.
         rn = normal_matrix(root)
+        k = math.sqrt(rn[0] * rn[0] + rn[3] * rn[3] + rn[6] * rn[6]) or 1.0
+        rn = tuple(c / k for c in rn)
         for d in draws:
             r, g, b, a = d.rgba
             if d.lit:
-                n = turn(rn, d.normal)
+                x, y, z = d.normal
+                n = (rn[0] * x + rn[1] * y + rn[2] * z, rn[3] * x + rn[4] * y + rn[5] * z,
+                     rn[6] * x + rn[7] * y + rn[8] * z)
                 total = AMBIENT
                 for lx, ly, lz in lights:
                     total += DIFFUSE * max(0.0, n[0] * lx + n[1] * ly + n[2] * lz)

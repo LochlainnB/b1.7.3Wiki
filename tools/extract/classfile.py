@@ -30,7 +30,7 @@ class ClassFile:
         assert r.u4() == 0xCAFEBABE, 'not a class file'
         r.u2(); r.u2()                       # minor, major
         self.cp = self._const_pool(r)
-        r.u2()                               # access flags
+        self.access = r.u2()                 # ACC_ABSTRACT is 0x0400
         self.this = self.cls_name(r.u2())
         self.super = self.cls_name(r.u2())
         self.interfaces = [self.cls_name(r.u2()) for _ in range(r.u2())]

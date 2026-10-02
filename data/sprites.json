@@ -695,9 +695,6 @@
       "index": 167,
       "file": "assets/sprites/items/167.png"
     },
-    "mob": {
-      "file": "assets/sprites/entity/mob.png"
-    },
     "monster": {
       "file": "assets/sprites/entity/monster.png"
     },
@@ -1094,13 +1091,6 @@
     {
       "file": "assets/renders/giant.png",
       "of": "Giant",
-      "width": 256,
-      "height": 256,
-      "main": true
-    },
-    {
-      "file": "assets/renders/mob.png",
-      "of": "Mob",
       "width": 256,
       "height": 256,
       "main": true

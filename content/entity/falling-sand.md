@@ -4,6 +4,7 @@ description: The entity sand or gravel becomes while it falls, which lands as th
 type: entity
 subject: FallingSand
 aliases: [FallingSand]
+sprite: {Sand: Sand, Gravel: Gravel}
 categories: [Entities]
 ---
 

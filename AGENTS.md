@@ -116,7 +116,8 @@ content/           the wiki. Markdown + YAML frontmatter. EDIT THIS.
   block/ item/ entity/ biome/ dimension/ structure/ mechanic/ guide/ wiki/
 data/              game data extracted from the jar. GENERATED - do not hand-edit,
                    except name-overrides.json.
-assets/            sprites, inventory icons and textures from the jar. GENERATED.
+assets/            sprites, inventory icons, entity pictures and textures from
+                   the jar. GENERATED.
 theme/             wiki.css and wiki.js.
 tools/             the build (Node) and the extractors (Python).
   extract/interp.py  a small JVM interpreter; the recipe extractor runs the
@@ -130,6 +131,11 @@ tools/             the build (Node) and the extractors (Python).
   extract/animated.py    the tiles the game generates at load rather than
                    shipping: water, lava, fire, the portal, the clock and the
                    compass.
+  extract/models.py  runs the game's entity renderers against real entities
+                   built by their own constructors: mob portraits and
+                   variants, head icons, minecarts, the boat, paintings.
+  extract/softgl.py  the fixed-function OpenGL those renderers draw through,
+                   and the rasteriser behind it.
   extract/paths.py   finds the client jar and the Babric mappings.
 site/              build output. GENERATED, gitignored, never edit.
 wiki.config.js     site title, sidebar navigation, namespaces, footer.
@@ -261,6 +267,16 @@ from the client jar into `data/`. They reach pages automatically:
   torch, glowing redstone ore and a powered repeater all emit light their unlit
   twin does not, and the infobox used to report the twin's.
 
+- Entities have pictures, drawn by the game's own renderers
+  (`tools/extract/models.py`). Every mob and the player have a portrait,
+  which the infobox shows, and a mob's head is its sprite, so
+  `{{sprite|Creeper}}` works. Each state the game draws a mob in is a
+  picture of its own: sixteen fleece colours and a sheared sheep, a tame,
+  sitting and angry wolf, a charged creeper, a saddled pig, a ghast about to
+  fire, the three slime sizes. `{{gallery}}` shows them. The minecarts and the
+  boat have a picture as they stand in the world, and each painting motif one
+  at its size.
+
 If you find yourself typing "hardness of 2" into prose, stop: either the
 infobox already says it, or a template should.
 
@@ -279,6 +295,7 @@ Full reference with live examples: `content/wiki/page-templates.md`, rendered at
 | `{{used in\|Cobblestone}}` | recipes that consume it |
 | `{{recipe list}}` | every recipe in the game |
 | `{{id\|Cobblestone}}` | the numeric id; `31:2` for a subtype; `{{id\|block 68}}` for one of several ids |
+| `{{gallery}}` | every picture the game draws of the page's subject, captioned |
 | `{{list\|blocks}}` | sortable table of a whole data set; `light`, `opacity` and `food` give the narrower tables the hubs use |
 | `{{pagelist\|namespace=biome}}` | linked list of pages |
 | `{{stub}}` `{{main\|X}}` `{{see also\|X}}` `{{hatnote\|…}}` `{{msgbox\|…}}` | notes |
@@ -315,7 +332,7 @@ two Babric mapping files:
 
 ```
 python tools/extract/gamedata.py --out data
-python tools/extract/sprites.py  --out .
+python tools/extract/sprites.py  --out .        about a minute; draws the entities too
 node tools/seed.mjs              stub any newly discovered block/item/entity
 node tools/seed.mjs --force      rebuild existing stubs from the new data
 ```
@@ -573,7 +590,9 @@ miniature:
   death, and how much), **Behaviour** (movement, what provokes it, how it
   attacks), **Data values** (the entity network id) instead.
   `tools/lib/mobs.mjs` holds the list of which entities count, and both
-  generators read it.
+  generators read it. A mob the game draws in more than one state has a
+  **Gallery** holding `{{gallery}}` just before Data values; the build warns
+  when it is missing.
 - Any other entity gets a page only when it has no block or item of its own:
   the player, a dropped item, a fireball, falling sand, lightning. Those pages
   run **Spawning** (what creates it, and where), **Behaviour** (how it moves,

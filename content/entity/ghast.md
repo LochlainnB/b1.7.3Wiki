@@ -73,6 +73,10 @@ Its sounds carry 160 blocks, ten times as far as other mobs'.
 A fireball explodes on the first block or entity it hits, and a player can hit
 it back towards the ghast.
 
+## Gallery
+
+{{gallery}}
+
 ## Data values
 
 - Entity network ID: {{id|Ghast}}

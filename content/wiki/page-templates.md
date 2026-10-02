@@ -20,6 +20,22 @@ To show a template without running it, put it in backticks or a fenced block.
 
 {{sprite|Cobblestone}} {{sprite|Diamond|link=no}} {{slot|Iron Ingot|3}}
 
+A mob's sprite is its head, so `{{sprite|Creeper}}` gives {{sprite|Creeper}}.
+
+## Pictures
+
+```
+{{gallery}}                     every picture of this page's subject, captioned
+{{gallery|Wolf}}                every picture of another subject
+```
+
+A subject the game draws in more than one state has a picture of each, in
+`data/sprites.json` under `renders`: a sheep in every fleece colour, a tame or
+angry wolf, every painting. `{{gallery}}` shows them all, and the build warns
+on a page whose subject has several and never shows them.
+
+{{gallery|Creeper}}
+
 ## Recipes
 
 Called with no argument, these use the page's own subject and read the real
@@ -80,7 +96,10 @@ Cobblestone's block id is {{id|Cobblestone}}, and a fern is {{id|Fern}}.
 ## Infoboxes
 
 Infoboxes are automatic. If a page's title (or its `subject`) matches a block,
-item or entity, the box builds itself from the extracted data. Add or override
+item or entity, the box builds itself from the extracted data. Its picture is
+the subject's portrait where the game draws one -- every mob, the player, the
+minecarts and the boat -- and its sprite otherwise; a `sprite:` in the
+frontmatter overrides both. Add or override
 rows from frontmatter:
 
 ```yaml

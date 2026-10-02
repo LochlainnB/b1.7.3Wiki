@@ -60,6 +60,10 @@ It [[Wandering|wanders]], choosing [[Grass|grass]] and then brighter spaces.
      random spots by EntityAnimal.java:8 getBlockPathWeight, 10 above grass
      and brightness - 0.5 elsewhere -->
 
+## Gallery
+
+{{gallery}}
+
 ## Data values
 
 - Entity network ID: {{id|Pig}}

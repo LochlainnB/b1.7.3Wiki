@@ -3,10 +3,14 @@ title: Fireball
 description: The projectile a ghast shoots, which speeds up in a straight line, explodes on impact, and can be sent back by hitting it.
 type: entity
 aliases: [Ghast Fireball]
+sprite: Snowball
 categories: [Entities]
 ---
 
-A **fireball** is the exploding projectile a [[Ghast|ghast]] shoots.
+A **fireball** is the exploding projectile a [[Ghast|ghast]] shoots. It is drawn
+as the [[Snowball|snowball]] icon, 2 blocks across and always facing the player.
+<!-- src: RenderFireball.java:10-:30, Item.snowball's icon on one quad a unit
+     wide, scaled by 2 and turned by playerViewY and playerViewX -->
 
 ## Spawning
 

@@ -78,6 +78,10 @@ damage than that kills it without a split.
      body is removed 20 ticks after death; EntityLiving.java:372 damageEntity
      lets health fall below 0. The server tree has the same test. -->
 
+## Gallery
+
+{{gallery}}
+
 ## Data values
 
 - Entity network ID: {{id|Slime}}

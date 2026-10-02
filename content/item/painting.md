@@ -35,17 +35,9 @@ If no picture fits, nothing is hung and the painting is not used up.
 
 ### Pictures
 
-| Size, in blocks | Pictures |
-|---|---|
-| 1 × 1 | Kebab, Aztec, Alban, Aztec2, Bomb, Plant, Wasteland |
-| 2 × 1 | Pool, Courbet, Sea, Sunset, Creebet |
-| 1 × 2 | Wanderer, Graham |
-| 2 × 2 | Match, Bust, Stage, Void, SkullAndRoses |
-| 4 × 2 | Fighters |
-| 4 × 3 | Skeleton, DonkeyKong |
-| 4 × 4 | Pointer, Pigscene, BurningSkull |
+{{gallery}}
 
-Sizes are width by height. The names are the ones the game saves; nothing in
+Sizes are width by height, in blocks. The names are the ones the game saves; nothing in
 the game shows them.
 <!-- src: EnumArt.java:4-:28, sizes in pixels divided by 16;
      EntityPainting.java:216 writes the title as "Motive" -->

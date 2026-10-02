@@ -68,6 +68,10 @@ With no target it [[Wandering|wanders]], choosing darker spaces.
 <!-- src: EntityCreature.java:118 updateWanderPath takes the best of ten
      random spots by EntityMob.java:57 getBlockPathWeight, 0.5 - brightness -->
 
+## Gallery
+
+{{gallery}}
+
 ## Data values
 
 - Entity network ID: {{id|Creeper}}

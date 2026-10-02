@@ -142,6 +142,10 @@ Its tail sits lower the less health it has.
 <!-- src: EntityWolf.java:410 setTailRotation, (0.55 - (20 - health) x 0.02)
      x pi for a tamed wolf, drawn at ModelWolf.java:136 -->
 
+## Gallery
+
+{{gallery}}
+
 ## Data values
 
 - Entity network ID: {{id|Wolf}}

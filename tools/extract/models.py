@@ -34,11 +34,22 @@ for every entity, with the body and head both turned YAW and the scene
 tilted PITCH: the view the inventory gives when the pointer is below the
 player and to one side, seen from above and from the mob's left.
 
-Where the game itself gives an entity no world to stand in, a Stub does:
-asked anything, it answers nothing. Five more things are answered here
+Where the game would give an entity a world to stand in, a Stub does: asked
+anything, it answers nothing, except that its spawn point is the origin and
+every block in it is in full light. A few more things are answered here
 rather than run, each for a reason given where it is done: the DataWatcher's
-map, java.util.Random without a seed, Math.random, MathHelper's sine table
-and the map renderer inside the held-item renderer.
+map, java.util.Random without a seed, Math.random, MathHelper's sine table,
+the map renderer inside the held-item renderer, the player's crafting grid,
+and Minecraft.theMinecraft, which is null.
+
+Checked against the running client: a Babric mod built each entity the way
+this module does, drew it through the game's own OpenGL with the same
+camera, and the frames were compared pixel by pixel with these. Coverage
+matched exactly, and colour to within two levels on all but 0.2% of pixels
+for every entity but the charged creeper, whose additive glow sits flush
+against itself and is z-fought differently by every GPU. That check is what
+found the Tessellator's normal packing (softgl.packed_normal) and the
+abstract Mob.
 
 The head is found by asking the game too. The entity is drawn twice with
 nothing changed but its head yaw, and the faces that moved are the head.

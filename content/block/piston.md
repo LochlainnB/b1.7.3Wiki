@@ -79,6 +79,15 @@ A retracted piston can itself be pushed.
 Two pistons whose pushes meet in the same space can give a block another
 block's metadata; see [[Block Transmutation]].
 
+A piston whose line changes between its two checks can also move things its
+check refuses: a powered piston, a piston head or a moving block. A moving
+block caught this way can land as an invisible moving piston with no block
+entity, removed with a right-click; see [[Block Data Corruption]].
+<!-- src: BlockPistonBase.java:309 tryExtend, second loop at :345 checks
+     nothing; World.java:2369 playNoteAt runs a re-entrant piston inside the
+     first loop's neighbour updates; TileEntityPiston.java:112 lands the
+     stored block -->
+
 These blocks break instead of moving, and drop their items:
 
 - plants: [[Sapling|saplings]], [[Flower|flowers]], [[Rose|roses]],

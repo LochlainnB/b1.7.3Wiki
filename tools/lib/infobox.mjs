@@ -96,7 +96,12 @@ export function renderInfobox(page, ctx) {
   const custom = (fm.infobox && typeof fm.infobox === 'object' && !Array.isArray(fm.infobox))
     ? fm.infobox : {};
   const auto = columns.length ? mergeColumns(columns, ctx) : [];
-  if (!auto.length && !Object.keys(custom).length) return '';
+  const image = imageArea(page, columns, ctx);
+  // A page with no data rows still gets a box when it has a picture of its
+  // own to show: a render, or a sprite it names. The Player has no record in
+  // data/, and the fireball is drawn as a snowball.
+  const pictured = Boolean(renderOf(page, columns, ctx) || spritesOf(page).length);
+  if (!auto.length && !Object.keys(custom).length && !pictured) return '';
 
   // Custom values replace generated ones of the same name; the rest append,
   // keeping the generated order stable across pages.
@@ -114,8 +119,6 @@ export function renderInfobox(page, ctx) {
   for (const [k, v] of Object.entries(custom)) {
     if (!seen.has(k)) rows.push([k, [String(v)]]);
   }
-
-  const image = imageArea(page, columns, ctx);
 
   const cells = (values) => {
     const span = values.length < columns.length || values.every((v) => v === values[0]);
@@ -137,8 +140,8 @@ export function renderInfobox(page, ctx) {
     `<div class="infobox notaninfobox">` +
     `<div class="mcwiki-header infobox-title">${escapeHtml(fm.infoboxTitle || page.title)}</div>` +
     image +
-    `<table class="infobox-rows${multi ? ' infobox-multi' : ''}">${head}` +
-    `<tbody>${body}</tbody></table>` +
+    (rows.length ? `<table class="infobox-rows${multi ? ' infobox-multi' : ''}">${head}` +
+      `<tbody>${body}</tbody></table>` : '') +
     `</div>`
   );
 }
@@ -153,6 +156,12 @@ export function renderInfobox(page, ctx) {
  */
 function imageArea(page, columns, ctx) {
   const asked = spritesOf(page);
+  const render = asked.length ? null : renderOf(page, columns, ctx);
+  if (render) {
+    return `<div class="infobox-imagearea"><img class="infobox-render" ` +
+      `src="${ctx.hrefFor('/' + render.file)}" width="${RENDER_SIZE}" height="${RENDER_SIZE}" ` +
+      `alt="${escapeHtml(page.title)}"></div>`;
+  }
   // A name like "block 83" is no description of a picture, so a named one is
   // described by the page and its label instead.
   const shown = asked.length > 1
@@ -169,6 +178,20 @@ function imageArea(page, columns, ctx) {
     `<span class="infobox-image">${ctx.sprite(s.name, { size, link: false, title: s.alt })}` +
     `<span class="infobox-image-label">${escapeHtml(s.label)}</span></span>`);
   return `<div class="infobox-imagearea infobox-imagearea-multi">${cells.join('')}</div>`;
+}
+
+// CSS pixels for an infobox render, drawn at 256 by tools/extract/models.py.
+const RENDER_SIZE = 192;
+
+/**
+ * The picture models.py drew of a page's one subject, if it drew one: a mob,
+ * the player, or an item as it stands in the world. A page naming its own
+ * `sprite:` keeps that instead, and so does one covering several ids.
+ */
+function renderOf(page, columns, ctx) {
+  if (spritesOf(page).length || columns.length > 1) return null;
+  const name = columns.length ? columns[0].rec.name : subjectsOf(page)[0].name;
+  return ctx.data.render(name);
 }
 
 /**

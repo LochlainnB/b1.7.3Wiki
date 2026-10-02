@@ -65,10 +65,13 @@ function makeContext({ config, data, pages, index, problems, links }) {
     // template in front of it. Recorded at render time rather than scanned
     // out of the markdown, so every spelling of the template counts.
     shown: new Map(),
-    showedRecipes(kind, subject) {
+    showed(kind, subject) {
       if (!ctx.page) return;
       if (!ctx.shown.has(ctx.page.url)) ctx.shown.set(ctx.page.url, new Set());
       ctx.shown.get(ctx.page.url).add(`${kind}\u0000${slug(subject)}`);
+    },
+    showedRecipes(kind, subject) {
+      ctx.showed(kind, subject);
     },
 
     /** The thing this page is about, used by data-driven templates. */

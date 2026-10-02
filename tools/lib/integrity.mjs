@@ -4,6 +4,7 @@
 
 import { subjectsOf } from './content.mjs';
 import { slug } from './slug.mjs';
+import { isMob } from './mobs.mjs';
 
 const REQUIRED = ['title'];
 const KNOWN_KEYS = new Set([
@@ -233,6 +234,41 @@ function checkRecipeCoverage(pages, data, shown, problems) {
 }
 
 /**
+ * Pictures no page shows, the same gap as checkRecipeCoverage's.
+ *
+ * A subject the game draws more than one way -- sixteen sheep, a tame wolf,
+ * every painting -- has its pictures shown only where a page asks with
+ * {{gallery}}, so a page that never asks is flagged. A mob page with no
+ * picture at all means the renders are older than the page.
+ */
+function checkPictureCoverage(pages, data, shown, problems) {
+  if (!data || !data.rendersOf) return;
+  for (const page of pages) {
+    if (page.generated) continue;
+    const seen = shown.get(page.url);
+    for (const subject of subjectsOf(page)) {
+      const name = data.nameOf(subject.name);
+      const pictures = data.rendersOf(subject.name);
+      if (pictures.length > 1 && !(seen && seen.has(`gallery\u0000${slug(name)}`))) {
+        problems.push({
+          page: page.relFile,
+          level: 'warn',
+          message: `data/ has ${pictures.length} pictures of "${name}" that this page ` +
+            'never shows - add {{gallery}}',
+        });
+      }
+      if (page.namespace === 'entity' && isMob(name) && !pictures.length) {
+        problems.push({
+          page: page.relFile,
+          level: 'warn',
+          message: `data/ has no picture of the mob "${name}" - rerun tools/extract/sprites.py`,
+        });
+      }
+    }
+  }
+}
+
+/**
  * Print the build report and return counts. Errors fail the build; warnings are
  * the editorial to-do list (red links, unwritten pages).
  */
@@ -245,6 +281,7 @@ export function report({ pages, problems, links, backlinks, data, shown, quiet, 
     checkPlaceholders(page, all, config);
   }
   checkRecipeCoverage(pages, data, shown || new Map(), all);
+  checkPictureCoverage(pages, data, shown || new Map(), all);
 
   // Two pages sharing a title make [[links]] ambiguous: whichever loads first
   // wins and the other becomes unreachable by name.

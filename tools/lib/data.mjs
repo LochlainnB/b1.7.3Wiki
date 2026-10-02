@@ -30,6 +30,11 @@ export function loadData(root) {
   for (const b of blocks) if (!bySlug.has(slug(b.name))) bySlug.set(slug(b.name), { kind: 'block', ...b });
   for (const i of items) if (!bySlug.has(slug(i.name))) bySlug.set(slug(i.name), { kind: 'item', ...i });
   for (const e of entities) if (!bySlug.has(slug(e.name))) bySlug.set(slug(e.name), { kind: 'entity', ...e });
+  // The game runs an entity's name together -- PigZombie, PrimedTnt -- where a
+  // page title spaces it, so an entity also answers to its name with every
+  // space and hyphen dropped. tools/lib/mobs.mjs matches mobs the same way.
+  const compact = (name) => String(name).replace(/[^A-Za-z0-9]+/g, '').toLowerCase();
+  const byCompact = new Map(entities.map((e) => [compact(e.name), { kind: 'entity', ...e }]));
   // Subtypes answer to their own names too. A page called "Fern" or "Magenta
   // Wool" is a page about one damage value of a block, and it wants that
   // block's id and hardness; the damage comes with it so the infobox can say
@@ -53,7 +58,7 @@ export function loadData(root) {
   const BY_ID = /^(block|item|entity)\s+(\d+)$/i;
   function lookup(name) {
     const byId = BY_ID.exec(String(name).trim());
-    if (!byId) return bySlug.get(slug(name)) || null;
+    if (!byId) return bySlug.get(slug(name)) || byCompact.get(compact(name)) || null;
     const kind = byId[1].toLowerCase();
     const id = Number(byId[2]);
     const rec = kind === 'block' ? blockById.get(id)
@@ -123,6 +128,22 @@ export function loadData(root) {
     push(usedIn, refSlugs(s.input), { ...s, type: 'smelting' });
   }
 
+  // Pictures models.py drew of entities, and of items as they stand in the
+  // world, in the order a gallery shows them. `of` is the data name of what
+  // each one shows; one per subject is `main`, the infobox's.
+  const renders = spriteFile.renders || [];
+  const rendersBy = new Map();
+  for (const r of renders) {
+    const key = slug(r.of);
+    if (!rendersBy.has(key)) rendersBy.set(key, []);
+    rendersBy.get(key).push(r);
+  }
+  /** Every picture of a subject, found by any name its record answers to. */
+  const rendersOf = (name) => {
+    const rec = lookup(name);
+    return rendersBy.get(slug(rec ? rec.name : name)) || [];
+  };
+
   return {
     meta,
     blocks,
@@ -146,7 +167,16 @@ export function loadData(root) {
       const rec = lookup(name) || {};
       return rec.label || rec.name || String(name);
     },
-    sprite: (name) => (spriteFile.sprites || {})[slug(name)] || null,
+    sprite: (name) => {
+      const sprites = spriteFile.sprites || {};
+      if (sprites[slug(name)]) return sprites[slug(name)];
+      const rec = lookup(name);
+      return (rec && sprites[slug(rec.name)]) || null;
+    },
+    renders,
+    rendersOf,
+    /** The picture an infobox shows for a subject, or null. */
+    render: (name) => rendersOf(name).find((r) => r.main) || null,
     resolveRef,
     refSlug,
     recipesFor: (name) => producedBy.get(slug(name)) || [],

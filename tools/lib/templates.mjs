@@ -166,6 +166,39 @@ define(['sprite', 'icon', 'item', 'block'], ({ args, named, ctx }) => {
   return link ? ctx.linkWrap(name, body, 'sprite-link') : `<span class="sprite-link">${body}</span>`;
 });
 
+// CSS pixels: a portrait in a gallery, and one block of a painting, which is
+// sixteen texels drawn three times over.
+const GALLERY_SIZE = 128;
+const PAINTING_BLOCK = 48;
+
+/**
+ * Every picture the game draws of a subject, captioned: {{gallery}} for the
+ * page's own subject, {{gallery|Sheep}} for another. The pictures come in the
+ * order data/ lists them, the infobox's among them. A painting comes at its
+ * size in blocks, pixel for pixel, with that size in its caption.
+ */
+define(['gallery'], ({ args, named, ctx }) => {
+  const subject = args[0] || named.for || ctx.subjectName();
+  const name = ctx.data.nameOf(subject);
+  ctx.showed('gallery', name);
+  const pictures = ctx.data.rendersOf(subject);
+  if (!pictures.length) {
+    ctx.warn(`{{gallery}}: data/ has no pictures of "${subject}"`);
+    return '';
+  }
+  const items = pictures.map((r) => {
+    const caption = r.label || name;
+    const size = r.blocks ? ` (${r.blocks[0]}\u00d7${r.blocks[1]})` : '';
+    const w = r.blocks ? r.blocks[0] * PAINTING_BLOCK : GALLERY_SIZE;
+    const h = r.blocks ? r.blocks[1] * PAINTING_BLOCK : GALLERY_SIZE;
+    return `<li><img${r.blocks ? ' class="pixel-image"' : ''} ` +
+      `src="${ctx.hrefFor('/' + r.file)}" width="${w}" height="${h}" loading="lazy" ` +
+      `decoding="async" alt="${escapeHtml(`${name} (${caption})`)}">` +
+      `<span class="gallery-caption">${escapeHtml(caption + size)}</span></li>`;
+  });
+  return `<ul class="gallery">${items.join('')}</ul>`;
+});
+
 define(['slot', 'invslot'], ({ args, named, ctx }) =>
   invslot(ctx, args[0] || named.name, { count: named.count || args[1], large: named.large === 'yes' }));
 
@@ -347,8 +380,8 @@ define(['list', 'datatable'], ({ args, named, ctx }) => {
 
 const fmtNum = (n) => (n == null ? '&ndash;' : String(Math.round(n * 1000) / 1000));
 
-/** Every page in a namespace or category, as a linked gallery. */
-define(['pagelist', 'gallery'], ({ args, named, ctx }) => {
+/** Every page in a namespace or category, as a linked list. */
+define(['pagelist'], ({ args, named, ctx }) => {
   const ns = named.namespace || args[0];
   const cat = named.category;
   const pages = ctx.allPages().filter((p) => {

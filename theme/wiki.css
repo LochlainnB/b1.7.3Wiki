@@ -506,6 +506,39 @@ blockquote {
 .infobox-multi thead th + th,
 .infobox-multi tbody td + td { border-left: 1px solid var(--border-color-base); }
 
+/* A picture of an entity, drawn by tools/extract/models.py at 256 pixels and
+   antialiased there, so it scales smoothly rather than as pixel art. */
+.infobox-imagearea .infobox-render { display: block; margin: 0 auto; }
+
+/* {{gallery}}: every picture of a subject, captioned. A painting is pixel art
+   at its size in blocks; a portrait is not. */
+.gallery {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6em;
+}
+.gallery li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0;
+  padding: 0.4em;
+  background: var(--background-color-neutral-subtle);
+  border: 1px solid var(--border-color-subtle);
+}
+.gallery img { display: block; max-width: 100%; height: auto; }
+.gallery-caption {
+  max-width: 128px;
+  font-size: 0.85em;
+  text-align: center;
+  color: var(--color-subtle);
+}
+
 /* ----------------------------------------------- inventory / crafting UI -- */
 .pixel-image, .sprite-file img, .invslot img {
   image-rendering: pixelated;

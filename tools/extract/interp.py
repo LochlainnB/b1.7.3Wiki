@@ -372,6 +372,9 @@ class Interp(object):
                 if desc == '(J)V' and isinstance(recv, Obj):
                     recv.fields[key] = JavaRandom(args[0])
                 return self.NOTHING
+            if name == 'setSeed' and desc == '(J)V' and isinstance(recv, Obj):
+                recv.fields[key] = JavaRandom(args[0])
+                return self.NOTHING
             rand = recv.fields.get(key) if isinstance(recv, Obj) else None
             if rand is not None and name == 'nextInt' and desc == '(I)I':
                 return rand.next_int(args[0])

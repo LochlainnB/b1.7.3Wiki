@@ -48,6 +48,7 @@ slime and a squid turn their whole body, so for them the head is the body:
 the first part drawn, and whatever is drawn in the same place.
 """
 import argparse
+import collections
 import io
 import json
 import math
@@ -202,6 +203,8 @@ class Game(object):
         self.gl.install(it, self.gl_names)
         self._inventory_screen()
         self.renderers = self._run_dispatcher()
+        self.f_player = self._typed_field(self.c_dispatcher, self.c_living)
+        self.f_world = self._typed_field(self.c_dispatcher, self.c_world)
         self._initialised = set()
 
     # -- names ---------------------------------------------------------------
@@ -216,6 +219,12 @@ class Game(object):
             if m['desc'] == desc and self.mp.member(cls, m['name'], desc) == named:
                 return m['name']
         raise jvm.Unsupported('no method %s%s on %s' % (named, desc, cls))
+
+    def _typed_field(self, cls, of):
+        found = [f['name'] for f in self.jar.cls(cls).fields if f['desc'] == 'L%s;' % of]
+        if len(found) != 1:
+            raise jvm.Unsupported('%d fields of type %s on %s' % (len(found), of, cls))
+        return (cls, found[0])
 
     def _ancestry(self, cls):
         while cls and not cls.startswith('java/'):
@@ -293,6 +302,13 @@ class Game(object):
             return at
         it.hooks[(self.c_world, self._method(self.c_world, 'getSpawnPos', '()L%s;' % point),
                   '()L%s;' % point)] = spawn_point
+        # A painting asks the world how bright its wall is. World's only
+        # (int, int, int) -> float is getLightBrightness; the answer is full
+        # light, the brightness GuiInventory gives the player.
+        bright = [m['name'] for m in self.jar.cls(self.c_world).methods if m['desc'] == '(III)F']
+        if len(bright) != 1:
+            raise jvm.Unsupported('World has %d (III)F methods' % len(bright))
+        it.hooks[(self.c_world, bright[0], '(III)F')] = lambda *_: 1.0
         player_ctor = self.jar.cls(self.c_player).method('<init>', '(L%s;)V' % self.c_world)
         inventory = self.mp.find_class('net/minecraft/entity/player/PlayerInventory')
         cf = self.jar.cls(self.c_player)
@@ -477,20 +493,26 @@ class Game(object):
             self._images[path] = png.decode(self.zip.read(path))
         return self._images[path]
 
-    def record(self, entity, camera, yaw, head_yaw=None, lamps=True):
-        """Draw `entity` as GuiInventory draws the player; return the faces.
+    def record(self, entity, camera, yaw, pitch=PITCH, head_yaw=None, lamps='inventory'):
+        """Draw `entity` as GuiInventory draws the player; return the GL record.
 
-        `camera` is everything GuiInventory does before it switches the lamps
-        on, less the pixel scale, which framing supplies later.
+        `camera` is what GuiInventory does before it switches the lamps on,
+        less the pixel scale, which framing supplies later. `lamps` is
+        'inventory' to switch them on where GuiInventory does, 'later' to
+        draw lit and leave the lamps to whoever rasterises, or None to draw
+        unlit.
         """
         it = self.interp
         gl = GL(self.lists)
         gl.install(it, self.gl_names)
         gl.stack = [camera]
-        gl.multiply(rotation(135.0, 0.0, 1.0, 0.0))
-        gl.enable_standard_lighting()
-        gl.multiply(rotation(-135.0, 0.0, 1.0, 0.0))
-        gl.multiply(rotation(PITCH if lamps else 0.0, 1.0, 0.0, 0.0))
+        if lamps == 'inventory':
+            gl.multiply(rotation(135.0, 0.0, 1.0, 0.0))
+            gl.enable_standard_lighting()
+            gl.multiply(rotation(-135.0, 0.0, 1.0, 0.0))
+        elif lamps == 'later':
+            gl.lighting = True
+        gl.multiply(rotation(pitch, 1.0, 0.0, 0.0))
         living = self.f_body_yaw[0] in self._ancestry(entity.cls)
         if living:
             entity.fields[self.f_body_yaw] = yaw
@@ -499,9 +521,8 @@ class Game(object):
         entity.fields[self.f_brightness] = 1.0
         gl.multiply(translation(0.0, entity.fields.get(self.f_y_offset, 0.0), 0.0))
         self.dispatcher.fields[self.f_view_y] = 180.0
-        for f in self.jar.cls(self.c_dispatcher).fields:
-            if f['desc'] == 'L%s;' % self.c_living:
-                self.dispatcher.fields[(self.c_dispatcher, f['name'])] = entity
+        self.dispatcher.fields[self.f_player] = entity
+        self.dispatcher.fields[self.f_world] = self.world
         renderer = self.renderer(entity.cls)
         # renderEntityWithPosYaw(entity, 0, 0, 0, yaw, 1): a living entity
         # turns by its own body yaw and is passed 0, anything else by this.
@@ -536,7 +557,7 @@ def portrait_frame(game, gl, scale, size=PORTRAIT, ss=SUPERSAMPLE):
 
 def head(game, entity):
     """The faces that turn with the head, recorded in the entity's own space."""
-    runs = [game.record(entity, identity(), 0.0, head_yaw=h, lamps=False).draws
+    runs = [game.record(entity, identity(), 0.0, pitch=0.0, head_yaw=h, lamps='later').draws
             for h in (0.0, 40.0)]
     still, turned = runs
     if len(still) != len(turned):
@@ -637,14 +658,103 @@ def entity_pictures(game, name, cls, wool=None):
     return out
 
 
-def minecart_pictures(game, cls):
-    """[(item name, portrait)] for each minecart type, drawn as it stands."""
+def placed_pictures(game, classes):
+    """Items as they stand in the world: each minecart type, and the boat."""
+    out = []
     recorded = []
     for kind, item in MINECARTS:
-        cart = game.spawn(cls, '(L%s;DDDI)V', [0.0, 0.0, 0.0, kind])
+        cart = game.spawn(classes['Minecart'], '(L%s;DDDI)V', [0.0, 0.0, 0.0, kind])
         recorded.append((item, game.record(cart, GUI, YAW)))
     scale = min(frame_scale(gl.draws, PORTRAIT) for _i, gl in recorded)
-    return [(item, portrait_frame(game, gl, scale)) for item, gl in recorded]
+    for item, gl in recorded:
+        out.append(Picture(item, None, True, portrait_frame(game, gl, scale), None, None))
+    boat = game.record(game.spawn(classes['Boat']), GUI, YAW)
+    out.append(Picture('Boat', None, True,
+                       portrait_frame(game, boat, frame_scale(boat.draws, PORTRAIT)), None, None))
+    return out
+
+
+def motifs(game, painting):
+    """EnumArt, run: [(enum value, title, width, height)] in the game's order.
+
+    The painting's one enum-typed field holds its motif. EnumArt's
+    constructor stores title, width, height and the two texture offsets, in
+    that order, after the name and ordinal every enum constant gets.
+    """
+    jar, it = game.jar, game.interp
+    for f in jar.cls(painting).fields:
+        cls = f['desc'][1:-1] if f['desc'].startswith('L') else None
+        cf = jar.cls(cls) if cls else None
+        if cf is not None and cf.super == 'java/lang/Enum':
+            art_field, art = (painting, f['name']), cls
+            break
+    else:
+        raise jvm.Unsupported('no motif field on the painting')
+    cf = jar.cls(art)
+    ctor = next(m for m in cf.methods if m['name'] == '<init>')
+    stored = [cf.ref(u2(o))[1] for _pc, op, o in _code(cf, ctor) if op == 0xb5]
+    if len(stored) != 5:
+        raise jvm.Unsupported('EnumArt stores %d fields' % len(stored))
+    it.call(art, '<clinit>', '()V', None, [], static=True)
+    values = next(it.statics[(art, f['name'])] for f in cf.fields
+                  if f['desc'] == '[L%s;' % art)
+    return art_field, [(v,) + tuple(v.fields[(art, n)] for n in stored[:3]) for v in values]
+
+
+PAINTING_PIXELS = 16    # per block: one per texel of art/kz.png
+
+
+def painting_pictures(game, cls):
+    """Every motif, as RenderPainting draws it, face-on and at one pixel per texel.
+
+    A painting in the world is lit by the two lamps from whichever way its
+    wall faces, so a picture of the motif itself is drawn unlit, in full
+    light.
+    """
+    art_field, arts = motifs(game, cls)
+    out = []
+    for value, title, width, height in arts:
+        painting = game.spawn(cls)
+        painting.fields[art_field] = value
+        gl = game.record(painting, GUI, 180.0, pitch=0.0, lamps=None)
+        lo, hi = bounds(gl.draws)
+        s = float(PAINTING_PIXELS)
+        root = mul(translation(width / 2.0 - s * (lo[0] + hi[0]) / 2.0,
+                               height / 2.0 - s * (lo[1] + hi[1]) / 2.0, 0.0),
+                   scaling(s, s, s))
+        frame = Frame(width, height, game.image)
+        frame.draw(gl.draws, root, ())
+        image = png.Image(width, height)
+        image.px = frame.colour
+        out.append(Picture('Painting', title, False, image, None,
+                           (width // PAINTING_PIXELS, height // PAINTING_PIXELS)))
+    return out
+
+
+# What sprites.py writes. `subject` is the name data/ gives the thing drawn;
+# `label` names a variant, None for a thing with only one picture; `main` is
+# the picture its infobox shows; `icon` is a mob's head; `blocks` is a
+# painting's size, which is drawn pixel for pixel.
+Picture = collections.namedtuple('Picture', 'subject label main image icon blocks')
+
+
+def pictures(game, wool, only=None, log=None):
+    """Every picture of every entity, item in the world and painting."""
+    _records, classes = extract_entities(game.jar, game.mp)
+    classes['Player'] = game.c_player
+    out = []
+    for name, cls in sorted(classes.items()):
+        if (only and name not in only) or not game.living(cls):
+            continue
+        for label, main, image, head_icon in entity_pictures(game, name, cls, wool):
+            out.append(Picture(name, label, main, image, head_icon, None))
+        if log:
+            log(name)
+    if not only or 'Minecart' in only or 'Boat' in only:
+        out += placed_pictures(game, classes)
+    if not only or 'Painting' in only:
+        out += painting_pictures(game, classes['Painting'])
+    return out
 
 
 def contact_sheet(images, columns, scale=1):
@@ -701,33 +811,21 @@ def main():
         raise SystemExit('error: %s' % err)
     mp = load_mappings(os.path.join(cache, 'intermediary.tiny'), os.path.join(cache, 'barn.tiny'))
     game = Game(jar_path, mp)
-    _records, classes = extract_entities(game.jar, mp)
-    classes['Player'] = game.c_player
-    wool = wool_names(os.getcwd())
-
-    portraits, icons = [], []
-    for name, cls in sorted(classes.items()):
-        if a.only and name not in a.only:
-            continue
-        if not game.living(cls):
-            continue
-        for label, main, picture, head_icon in entity_pictures(game, name, cls, wool):
-            tag = slug(name + (' ' + label if label and not main else ''))
-            write(os.path.join(a.preview, 'portrait', tag + '.png'), picture)
-            portraits.append(picture)
-            if head_icon:
-                write(os.path.join(a.preview, 'icon', slug(name) + '.png'), head_icon)
-                icons.append(head_icon)
-            print('%-10s %s' % (name, label or ''))
-    if not a.only or 'Minecart' in a.only:
-        for item, picture in minecart_pictures(game, classes['Minecart']):
-            write(os.path.join(a.preview, 'portrait', slug(item) + '.png'), picture)
-            portraits.append(picture)
-            print('%-10s placed' % item)
+    found = pictures(game, wool_names(os.getcwd()), a.only, log=print)
+    portraits = [p.image for p in found if not p.blocks]
+    paintings = [p.image for p in found if p.blocks]
+    icons = [p.icon for p in found if p.icon]
+    for p in found:
+        tag = slug(p.subject + (' ' + p.label if p.label else ''))
+        write(os.path.join(a.preview, 'painting' if p.blocks else 'portrait', tag + '.png'), p.image)
+        if p.icon:
+            write(os.path.join(a.preview, 'icon', slug(p.subject) + '.png'), p.icon)
     if portraits:
         write(os.path.join(a.preview, 'portraits.png'), contact_sheet(portraits, 6))
     if icons:
         write(os.path.join(a.preview, 'icons.png'), contact_sheet(icons, 9, scale=3))
+    if paintings:
+        write(os.path.join(a.preview, 'paintings.png'), contact_sheet(paintings, 7, scale=2))
 
 
 if __name__ == '__main__':

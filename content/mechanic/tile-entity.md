@@ -10,6 +10,17 @@ A **tile entity** is an object that stores a block's data beyond its block ID an
 
 ## Types
 
+The **block ID** is a number identifying the kind of block at a position.
+**Metadata** stores a small amount of additional information, such as the
+direction a block faces or its colour. A tile entity is a separate object in
+the game's memory. It holds information that cannot fit into those block
+values, such as an inventory.
+Replacing a block and replacing its tile entity are therefore separate parts
+of a block change.
+<!-- src: Chunk.java:12-15 stores blocks and metadata separately from :22
+     chunkTileEntityMap; :275-308 setBlockID;
+     BlockFurnace.java:58-62 facing; TileEntityFurnace.java:4 inventory -->
+
 There are eight tile-entity types. Several block IDs share one type.
 
 | Block | Stored state | Work each tick |
@@ -21,7 +32,7 @@ There are eight tile-entity types. Several block IDs share one type.
 | [[Monster Spawner]] | Mob type and spawn delay | Counts down and attempts to spawn while a player is nearby |
 | [[Note Block]] | Pitch and previous redstone state | None |
 | [[Jukebox]] | Inserted record's item ID | None |
-| Moving [[Piston\|piston block]] | Carried block ID and metadata, direction, progress, extension state and retracting-base rendering state | Advances motion and settles the carried block |
+| Moving [[Piston\|piston block]] | ID and metadata of the block being moved, movement direction and progress, whether it is extending, and whether the animation represents a retracting base | Advances the animation and puts the moved block in its final position |
 
 <!-- src: TileEntity.java:100-108 registers eight subclasses; TileEntityChest.java:4;
      TileEntityFurnace.java:4-7,105-145; TileEntityDispenser.java:6,39-53;
@@ -30,194 +41,321 @@ There are eight tile-entity types. Several block IDs share one type.
      TileEntityRecordPlayer.java:4; TileEntityPiston.java:8-25,105-125 -->
 
 A double chest retains one tile entity in each half. An ordinary piston base
-and a settled piston head have none. [[Crafting Table|Crafting tables]],
-[[Bed|beds]] and [[Locked chest|locked chests]] also have none.
+and a piston head that has finished moving have none.
+[[Crafting Table|Crafting tables]], [[Bed|beds]] and
+[[Locked chest|locked chests]] also have none.
 <!-- src: BlockChest.java:185-229 blockActivated combines separate inventories;
      BlockPistonBase.java:5, BlockPistonExtension.java:6, BlockWorkbench.java:3,
      BlockBed.java:6 and BlockLockedChest.java:5 extend Block, not BlockContainer -->
 
-Tile entities are not moving entities. A moving piston keeps its tile entity
-at the block position where its carried block will settle.
+While a piston head, base or pushed/pulled block is animating, the game uses
+a temporary **moving piston block**. Its tile entity records what block should
+occupy that position once the motion finishes. Tile entities are not ordinary
+entities, such as mobs or dropped items: the moving-piston tile entity stays
+at the final block position, rather than moving its coordinates along with
+the animation.
 <!-- src: TileEntity.java:6 does not extend Entity;
-     BlockPistonBase.java:345-356 writes moving TEs at destination coordinates -->
+     BlockPistonBase.java:125-126,160-161,345-356 writes moving blocks and
+     their TEs at final coordinates -->
+
+A **tile-entity block** is a block type that uses a tile entity. These are also
+called **container blocks** in the game's code, even when they have no
+inventory, as with signs. A **non-container block** is a block type that does
+not normally have a tile entity. The distinction matters when the game decides
+whether to attach a tile entity to a block position.
+<!-- src: BlockContainer.java:3-10; Chunk.java:405-411,440-445 -->
 
 ## Behaviour
 
 ### Bookkeeping
 
-A tile entity holds a world reference, absolute block coordinates and an
-invalid-state marker. A new object has no world reference, coordinates 0, 0, 0
-and a valid state. Invalidating an object does not erase its inventory or other
-data. Revalidating it clears the invalid state.
-<!-- src: TileEntity.java:9-13,88-98; no constructor overrides these defaults -->
+A **world reference** is a link from a tile entity to the game object that
+represents the world it operates in. It is not a copy of the world. The tile
+entity uses this link to ask what blocks are nearby, read block metadata or
+change blocks. Its coordinates identify *where* to do that work; its world
+reference identifies *which world* to work in. Remembering coordinates alone
+does not give the tile entity access to the blocks at those coordinates.
+<!-- src: TileEntity.java:9-12,66-73,84-85; TileEntityPiston.java:75-77,96-99;
+     TileEntityFurnace.java:139 -->
 
-Three collections have separate roles:
+A tile entity also has an **invalid-state marker**. Invalidating the object
+marks it as no longer active, so the game can skip its updates and remove it
+from its tracking collections. It does not erase the object's inventory or
+other data. Revalidating the same object clears that marker; it does not
+create a new object or a new inventory.
+<!-- src: TileEntity.java:13,88-98; World.java:1238-1248 -->
+
+Immediately after a tile entity is constructed, it has no world reference,
+its coordinates are 0, 0, 0, and it is marked valid. During an attempt to
+attach the object to a chunk, the game assigns its world reference and block
+coordinates. Here, **valid** only means that the invalid-state marker is clear. It does not
+guarantee that the object is attached to a block or matches that block's type.
+<!-- src: TileEntity.java:9-13,88-98; no constructor overrides these defaults;
+     Chunk.java:434-445 assigns world and coordinates before acceptance check -->
+
+The game tracks tile entities in three separate collections. A **chunk** is a
+section of the world that is loaded and saved as a unit. Its tile-entity
+**map** associates block positions with tile-entity objects: one **map entry**
+records which object belongs to one position. A **mapped tile entity** means
+the object recorded for that position in this map.
+
+The two lists serve different purposes from the map. The loaded list is the
+list of objects offered an update each [[Game Tick|game tick]]. Working through
+this list once is the **loaded-list update pass**. The deferred list is a
+waiting queue for additions requested during that pass. These updates form
+the **tile-entity phase**, explained under Ticking.
 
 | Collection | Scope | Purpose |
 |---|---|---|
-| Chunk tile-entity map | One per chunk | Finds one tile entity at a block position; supplies the tile entities saved with that chunk |
-| Loaded tile-entity list | One per world | Supplies the objects updated during the tile-entity phase, in list order |
-| Deferred tile-entity list | One per world | Holds objects added while the loaded list is being updated |
+| Chunk tile-entity map | One per chunk | Finds the tile entity associated with a block position. The game also uses this map to decide which tile entities to save with the chunk. |
+| Loaded tile-entity list | One per world | Supplies the objects offered an update during the tile-entity phase, in list order. An object's presence here does not guarantee that it also has a chunk-map entry. |
+| Deferred tile-entity list | One per world | Holds additions requested during the loaded-list update pass. The game processes this waiting queue after that pass, rather than changing the loaded list while working through it. |
 
 <!-- src: Chunk.java:22,30 chunkTileEntityMap; World.java:19-20
      loadedTileEntityList and field_30900_E; World.java:1235-1273;
      ChunkLoader.java:138-148 -->
 
-The chunk map uses local x and z coordinates. Tile entities themselves keep
-absolute coordinates.
+The chunk map uses x and z coordinates measured within its own chunk. Tile
+entities themselves keep absolute coordinates, measured in the world as a
+whole. These are two ways of identifying the same block position, not two
+different locations for the tile entity.
 <!-- src: World.java:1600-1601 masks x and z with 15;
      Chunk.java:437-439 adds the chunk's absolute offset -->
 
-The chunk map and loaded list can disagree. Replacing a map entry does not
-invalidate the displaced object or remove it from the loaded list. Several
-valid objects can therefore tick at the same coordinates, although a block
-lookup finds only one.
+The chunk map and loaded list can disagree because changing one does not
+automatically change the other. Replacing the object recorded in a map entry
+does not invalidate the previously recorded object or remove it from the
+loaded list. The old and new objects can both remain active at the same
+coordinates. The game can update both, but asking for the tile entity at that
+position finds only the one recorded in the map.
 <!-- src: Chunk.java:434-445 setChunkBlockTileEntity; World.java:1612-1615;
      verified with original client.jar method probes: overwrite retains old
      valid object in loaded list -->
 
 ### Creation and lookup
 
-Placing a tile-entity block creates its default tile entity. Ordinary removal
-removes the block's mapped tile entity. A moving piston is the exception to
-default creation: the piston movement supplies its carried block and motion
-data separately.
+Placing a tile-entity block creates a default tile entity for it. This means
+new data, such as an empty inventory for a chest or furnace. Ordinary removal
+of the block also removes its mapped tile entity. Moving piston blocks are an
+exception to default creation: the piston movement has to supply the identity
+of the block being moved and the animation's state separately.
 <!-- src: BlockContainer.java:14-22; BlockPistonMoving.java:11-16,76-77;
      BlockPistonBase.java:125-126,160-161,352-356 -->
 
-Looking up a tile entity reads the chunk map, not the loaded or deferred lists.
-The lookup has these effects:
+A **lookup** is the game's request for the tile entity at particular block
+coordinates. Opening a furnace and checking whether a piston can push a block
+are examples of actions that perform this request. The game checks the chunk
+map, not the loaded or deferred lists.
 
 | Map entry | Result |
 |---|---|
-| Valid object | Returns that object, without checking whether its type or the block at its coordinates matches |
-| Invalid object | Removes the map entry and returns no tile entity; does not create a replacement in the same lookup |
-| No object, tile-entity block present | Runs the block's placement behaviour to create a replacement, then reads the map again |
-| No object, another block or air present | Returns no tile entity |
+| Valid object | Finds the recorded object even if its type does not match the current block, or the block has been removed. |
+| Invalid object | Deletes the map entry and finds no tile entity. This request does not also create a replacement; a later lookup can try to do that. |
+| No object, tile-entity block present | Runs the block's placement behaviour again to try to create a default tile entity, then reads the map again. This attempt to replace missing block data is called **repairing a missing tile entity**. |
+| No object, another block or air present | Finds no tile entity and does not attempt a repair. |
 
 <!-- src: World.java:1599-1601 getBlockTileEntity;
      Chunk.java:401-420 getChunkBlockTileEntity; verified invalid lookup followed
-     by a second lookup repairing a chest against original client.jar -->
+     by a second lookup repairing a chest against original client.jar;
+     BlockFurnace.java:106 and BlockPistonBase.java:268-269 lookup callers -->
 
-Repairing a missing [[Furnace|furnace]] or [[Dispenser|dispenser]] also resets
-its facing and sends neighbour updates. Looking up a missing [[Chest|chest]]
-does not send those updates. A missing moving-piston tile entity is not repaired.
+Repairing a missing [[Furnace|furnace]] or [[Dispenser|dispenser]] also
+recalculates the block's facing using its placement rules and sends neighbour
+updates. A **neighbour update** is a notification asking adjacent blocks to
+react to a change. Those blocks can respond immediately, before the original
+lookup finishes. Repairing a missing [[Chest|chest]] does not send these
+updates. A moving piston has no default tile entity to create, so this repair
+process cannot replace its missing motion data.
 <!-- src: BlockFurnace.java:20-49; BlockDispenser.java:21-50;
      BlockChest.java inherits BlockContainer.onBlockAdded, which only creates
      a TE; BlockPistonMoving.java:15-16 overrides onBlockAdded with an empty body.
+     World.java:506-523 notifyBlocksOfNeighborChange;
      HackMD's claim about chest lookup sending updates does not apply here. -->
 
-Repeated lookups during deferred creation can create several replacement
-objects without finding any of them. A lookup is therefore not a passive
-inspection of the world.
+Repairing creates a new object with default data. It does not recover the
+inventory or other contents of the missing tile entity.
+<!-- src: BlockContainer.java:14-16; BlockFurnace.java:128-129;
+     TileEntityFurnace.java:4 and TileEntityChest.java:6 start with empty slots -->
+
+During the loaded-list update pass, a repair puts its new tile entity in the
+deferred list instead of the chunk map. Reading the map again still finds no
+object. Another lookup can therefore attempt another repair, adding another
+replacement to the deferred list. Looking up a tile entity can change the
+world and create new objects; it is not just an inspection of existing data.
 <!-- src: Chunk.java:404-412; World.java:1606-1610; verified deferred chest
      lookup queues a second TE and still returns null in original client.jar -->
 
 ### Installation and removal
 
-Outside the tile-entity phase, installing a valid tile entity first appends it
-to the loaded list. It then receives its world reference and coordinates.
-The chunk accepts it only if a tile-entity block occupies those coordinates.
-It checks for a tile-entity block, not for a matching tile-entity type.
-Installation requests ignore invalid objects.
+**Installing** a tile entity means asking the game to attach that object to a
+block position. When the game is not working through the loaded-list update
+pass, it handles a request for a valid object immediately:
+
+1. Add the object to the loaded tile-entity list.
+2. Give the object its world reference and block coordinates.
+3. Check the block at those coordinates. If it is a tile-entity block, record
+   the object in the chunk map. If it is air or a non-container block, do not
+   add a map entry.
+
+The block check does not compare tile-entity types. It can accept a chest tile
+entity at a furnace's position, for example. An installation request for an
+object marked invalid is ignored entirely.
 <!-- src: World.java:1604-1618; Chunk.java:434-445 -->
 
-A rejected object still has its world reference and coordinates, and remains
-in the loaded list. Installing the same object twice outside the phase also
-adds it twice to that list. If it stays valid, it receives two updates per pass.
+Rejection in step 3 only prevents an entry in the chunk map. The rejected
+object still has its world reference and coordinates, and remains in the
+loaded list. It can therefore keep receiving updates despite not being
+associated with a block in the map.
+
+Immediate installation also does not check for an existing loaded-list entry.
+Installing the same object twice adds two entries referring to that one object.
+If the object stays valid, the game updates it twice per loaded-list pass.
 <!-- src: World.java:1612 has no contains check; Chunk.java:436-439 runs before
      the container check; verified rejection and duplicate insertion against
      original client.jar -->
 
-Removing a tile entity by coordinates first performs a lookup. Outside the
-phase, the found object is removed from the loaded list and the chunk entry
-is removed and invalidated. During the phase, a found object is only
-invalidated. An object present only in the deferred list cannot be found or
-removed this way.
+Removing a tile entity at a block position first performs a coordinate lookup.
+When the loaded-list update pass is not running, the game removes the found
+object from the loaded list, removes the chunk-map entry and invalidates the
+object. During the update pass, it only marks the found object invalid; the
+pass's cleanup handles removal later.
+
+This removal request does not search the deferred list. If an object is waiting
+there and has no chunk-map entry, the lookup cannot find it. Removing the tile
+entity at its coordinates does not cancel that waiting object's addition.
 <!-- src: World.java:1622-1635; Chunk.java:448-455 removes only while
      isChunkLoaded; verified removal of invisible pending TE does not cancel
      it in original client.jar -->
 
 ### Ticking
 
-The **tile-entity phase**, or **TE phase**, follows the ordinary entity update
-pass. It runs before scheduled and random block ticks in singleplayer, but
-after them on a dedicated server. See [[Game Tick#What one tick does]].
+The **tile-entity phase**, or **TE phase**, is the part of a
+[[Game Tick|game tick]] that updates tile entities. Updating a tile entity gives
+it a turn to do its per-tick work, such as burning fuel or advancing a piston
+animation. Some types only store data and do no work during this turn.
+
+The TE phase follows the update pass for ordinary entities, such as mobs and
+dropped items. It runs before scheduled and random block ticks in singleplayer,
+but after those block ticks on a dedicated server.
+See [[Game Tick#What one tick does]].
 <!-- src: World.java:1208-1273; Minecraft.java:1160-1165;
      server MinecraftServer.java:328-333 -->
 
 The phase runs in this order:
 
-1. Enable deferred additions.
-2. Visit the loaded tile-entity list in order. Update each valid object.
-3. After each object's turn, remove it if it is invalid. Remove the chunk-map
-   entry at its coordinates too.
-4. Disable deferred additions.
-5. Process the deferred list in insertion order. Skip invalid objects. Add
-   each valid object to the loaded list if it is not already there, attempt
-   to install it in the chunk map, and mark the position for a display update.
-6. Clear the deferred list.
+1. Start deferring additions. Requests to install tile entities go into the
+   deferred tile-entity list instead of changing the loaded list during its
+   update pass.
+2. Visit the loaded tile-entity list in order. Update each object that is still
+   valid. Skip the update of an object already marked invalid.
+3. After checking each object, remove it from the loaded list if it is invalid.
+   Also ask its chunk to remove the map entry at that object's coordinates.
+4. Stop deferring additions once the loaded-list pass is finished.
+5. Process the deferred tile-entity list in the order additions were requested.
+   Skip invalid objects. Add each valid object to the loaded list if it is not
+   already present, then attempt to put it in the chunk map. Mark its block
+   position for a display update so the game can redraw the change.
+6. Empty the deferred list. The next TE phase uses the updated loaded list.
 
 <!-- src: World.java:1235-1273 updateEntities -->
 
-A newly deferred object gets its first update in the next TE phase. The ticking
-list is not sorted by position. Loading a chunk appends its map's objects;
-that map does not define a coordinate order.
+A newly added, deferred object gets its first update in the next TE phase.
+By the time it joins the loaded list, the current phase's update pass has
+already finished.
+
+The loaded list is not sorted by block position. Loading a chunk adds that
+chunk's mapped objects to the end of the world list, and the chunk map does
+not supply them in a fixed coordinate order. Tile entities do not have a rule
+such as updating from the lowest x coordinate to the highest.
 <!-- src: World.java:1236 iterator and :1261 append; Chunk.java:30 HashMap,
      :459-461 onChunkLoad; World.java:1278-1283 addTileEntity -->
 
-Tile-entity updates do not require random-tick selection, a nearby player, or
-the surrounding chunks required for ordinary entity updates. Individual types
-can impose their own conditions; a [[Monster Spawner|monster spawner]] checks
-for a nearby player.
+Tile entities do not have to be selected for a random block tick to receive
+their updates. The world also does not require a nearby player or check that
+surrounding chunks are loaded before offering a tile entity its update.
+Individual tile-entity types can still impose conditions on their own work;
+a [[Monster Spawner|monster spawner]] checks for a nearby player before
+attempting to spawn mobs.
 <!-- src: World.java:1238-1242 has only an invalidity check, unlike :1294-1295
      entity chunk-radius gate; TileEntityMobSpawner.java:21-27 -->
 
-Cleanup uses coordinates, not object identity. An invalid object left in the
-loaded list can remove and invalidate a different object now occupying its
-chunk-map entry. An object invalidated after its turn waits until the next
-phase for list cleanup.
+Cleanup removes a chunk-map entry using the invalid object's coordinates. It
+does not check that the map still points to the object being cleaned up. If
+an old tile entity is marked invalid after being replaced in the map, but
+remains in the loaded list, cleanup of that old object can remove and
+invalidate the new tile entity at the same position as well.
+
+An object marked invalid after the update pass has already checked it remains
+in the loaded list until the next TE phase's cleanup reaches it.
 <!-- src: World.java:1244-1248; Chunk.java:448-453;
      verified invalid displaced chest TE also removes its valid replacement
      during original client.jar updateEntities -->
 
 ### Deferred additions
 
-During the ticking pass, installation assigns coordinates and queues the
-object. It does not assign a world reference or change the chunk map.
-A newly constructed object therefore has no world reference until the queue
-is processed. An existing object retains its previous world reference.
+During the loaded-list update pass, an installation request assigns block
+coordinates to the tile entity and adds it to the **deferred tile-entity list**.
+This is the waiting queue described under Bookkeeping, not the loaded list
+that the game is currently updating. The request does not yet assign a world
+reference or create a chunk-map entry.
+
+A newly constructed tile entity therefore knows its intended coordinates but
+still has no link to a world. It receives that world reference when the game
+processes the deferred list and attempts to attach it to a chunk. If the
+request reuses an existing tile entity rather than creating one, that object
+keeps its previous world reference until this attachment attempt.
 <!-- src: World.java:1606-1610; verified both new and reused-object world
      references against original client.jar -->
 
-Deferred objects are invisible to coordinate lookups for the rest of the
-ticking pass. Removing their block does not cancel them. At the end of the
-phase, they join the loaded list even if their position is now air or a block
-without a tile entity.
+Coordinate lookups cannot find objects that are only in the deferred list,
+because lookups search the chunk map. This is what it means for a pending tile
+entity to be **invisible to lookups**; it is not a statement about the block's
+appearance on screen.
+
+Removing a pending tile entity's intended block does not cancel the object
+waiting in the deferred list. At the end of the TE phase, a still-valid object
+joins the loaded list even if the block is gone. Attachment to the chunk map
+then fails over air or a non-container block, but that failure does not undo
+the addition to the loaded list.
 <!-- src: World.java:1599-1601,1259-1266; Chunk.java:434-445 -->
 
-When several deferred objects share a position, each accepted installation
-overwrites the previous map entry. The last accepted object occupies the map.
-The displaced objects remain in the loaded list.
+When several deferred objects are waiting for the same block position, the
+game processes them in the order they were added. Each successful chunk-map
+installation replaces the object recorded by the previous installation at
+that position. Only the last accepted object remains mapped, but all the
+valid objects added to the loaded list can continue receiving updates.
 <!-- src: World.java:1255-1267; Chunk.java:441-442 -->
 
 ### Orphaned and mismatched tile entities
 
-An **orphaned tile entity** remains in the loaded list without being the object
-held in the chunk map. It can continue ticking, but coordinate lookups cannot
-find it. A **mismatched tile entity** is held under a block that does not
-normally use its type, including a non-container block or air.
+An **orphaned tile entity** is still in the loaded list, but no longer has a
+chunk-map entry of its own. Its position's map entry may be empty or may point
+to a different tile entity. The orphan can continue receiving updates, but
+asking for the tile entity at its coordinates does not find it. **List-only**
+describes an object tracked in the loaded list but not the chunk map.
+
+A **mismatched tile entity** is recorded in the chunk map for a block that
+does not normally use its type. A chest tile entity recorded at a furnace's
+position is one example. A map entry can also be left at coordinates containing
+a block that normally has no tile entity, or even air.
 <!-- src: World.java:1238-1242; Chunk.java:401-420,434-445 -->
 
-A furnace orphan can continue burning and smelting from its own inventory.
-A moving-piston orphan expires when its motion finishes. It restores its
-carried block only if a moving piston block still occupies its coordinates.
+An orphaned furnace tile entity still has its own inventory and fuel timers,
+so it can continue burning and smelting even without a mapped furnace at its
+position. An orphaned moving-piston tile entity continues its motion timer,
+then invalidates itself when the motion finishes. It puts its saved block
+back only if a moving piston block still occupies the orphan's coordinates.
+If those coordinates contain air, it does not place a block there.
 <!-- src: TileEntityFurnace.java:105-145 has no block-identity check;
      TileEntityPiston.java:105-113 checks the moving-block ID before restoring -->
 
-Unloading a chunk invalidates only the objects in its map. An orphan absent
-from that map can survive unloading and continue ticking. Leaving and
-reopening the world discards list-only orphans because they are not saved.
+Unloading a chunk invalidates the tile entities recorded in that chunk's map.
+It does not search the world's loaded list for every object whose coordinates
+lie in the chunk. An orphan missing from the map can therefore remain valid
+in the loaded list and continue ticking after the chunk unloads.
+
+Leaving and reopening the world has a different result. List-only orphans are
+not written to the world save, so reopening the world does not recreate them.
 <!-- src: Chunk.java:469-475; World.java:1238-1242;
      ChunkLoader.java:138-148 -->
 
@@ -225,22 +363,40 @@ reopening the world discards list-only orphans because they are not saved.
 
 {{main|Furnace}}
 
-A [[Furnace|furnace]] changes between lit and unlit blocks when its burning
-state changes. The change takes place during its TE update:
+A [[Furnace|furnace]] uses different block IDs for its lit and unlit states.
+Starting or stopping fuel burning replaces the block, rather than just changing
+its appearance. The inventory and fuel timers belong to the tile entity, so
+the game keeps the original tile-entity object to preserve those contents.
+<!-- src: TileEntityFurnace.java:4-7,105-139; BlockFurnace.java:112-125 -->
 
-1. Remember the position's metadata and mapped tile entity.
-2. Suppress furnace inventory drops and replace the block with the lit or
-   unlit furnace. The replacement invalidates the old tile entity and queues
-   a new, empty one.
-3. Restore inventory drops and the remembered metadata.
-4. Revalidate the remembered tile entity and queue it for installation.
+During the furnace tile entity's update, this replacement proceeds as follows:
+
+1. Read the block's metadata and look up its mapped tile entity. Remember the
+   metadata and that same tile-entity object for restoration later. Normally,
+   this is the furnace's own tile entity.
+2. Temporarily prevent the usual dropping of furnace inventory contents when
+   the old block is removed. Replace the block with the lit or unlit furnace.
+   Removal marks the old tile entity invalid. Placement of the new block
+   creates an empty furnace tile entity and adds it to the deferred list.
+3. Run the block replacement's neighbour updates. Adjacent blocks can respond
+   while the original tile entity is invalid and the empty replacement is
+   still waiting in the deferred list.
+4. Re-enable furnace inventory drops and restore the remembered block metadata.
+   Restoring this metadata sends further neighbour updates.
+5. Revalidate the tile entity remembered in step 1 and add it to the deferred
+   list for installation at the furnace's coordinates. Its inventory and
+   other data are preserved because it is the same object, not a new copy.
 
 <!-- src: TileEntityFurnace.java:137-139; BlockFurnace.java:112-125;
      BlockContainer.java:14-21; World.java:1606-1610,1624-1625 -->
 
-An ordinary transition leaves one extra empty furnace tile entity ticking.
-The original object is installed last and keeps the inventory in the chunk
-map. The empty replacement becomes an orphan.
+In an ordinary state change, with no intervening block removal or piston
+movement, the empty replacement is installed first when the deferred list is
+processed at the end of the TE phase. The original furnace tile entity is
+installed after it. The chunk map ends up pointing to the original object,
+so opening the furnace still accesses the original inventory. Both objects
+remain in the loaded list. The extra empty furnace tile entity becomes an
+orphan and continues receiving updates.
 <!-- src: BlockFurnace.java:20-22,124-125; World.java:1259-1266;
      Chunk.java:442; original client.jar probe confirms one additional
      persistent loaded TE after an ordinary extinguishing transition.
@@ -248,17 +404,29 @@ map. The empty replacement becomes an orphan.
 
 ### Moving a furnace
 
-A [[Piston|piston]] can move a furnace during the neighbour updates sent by
-that transition. Its mobility check finds the invalid tile entity, removes it
-from the map, and treats the furnace as having none. Any replacement created
-by another lookup is deferred and remains invisible.
+A [[Piston|piston]] normally cannot move a block that has a tile entity. During
+the neighbour updates sent by a furnace lighting or going out, the original
+furnace tile entity is temporarily invalid. If a piston checks the furnace
+then, its tile-entity lookup deletes the invalid map entry and finds no object.
+The furnace can pass the tile-entity part of the piston's movement check.
+
+Another lookup may try to repair the missing furnace tile entity before the
+push finishes. However, a repair made during the TE update pass adds the new
+object to the deferred list, not the chunk map. That replacement still cannot
+be found by the piston's coordinate lookups.
 <!-- src: BlockPistonBase.java:268-269,273-307,309-337;
      Chunk.java:404-417; BlockFurnace.java:20-49,117-123 -->
 
-The piston carries the furnace's block ID and metadata, not its inventory.
-The moved furnace receives a new, empty tile entity when it settles. A furnace
-moved as it lights can remain permanently lit without burning fuel. A furnace
-moved as it goes out settles unlit.
+The piston moves the furnace's block ID and metadata, not its inventory or
+fuel timers. The original furnace tile entity stays at the old coordinates.
+When the piston finishes moving the furnace block, placement at the new
+position creates a new, empty furnace tile entity.
+
+A furnace moved as it lights can arrive as a lit block with an empty inventory
+and no burning fuel. Waiting does not turn that block unlit: the new tile
+entity already has no burning fuel, and the lit-to-unlit replacement only
+happens when its burning state changes. A furnace moved as it goes out arrives
+as an unlit block instead.
 <!-- src: BlockPistonBase.java:345-356; TileEntityPiston.java:111-112;
      TileEntityFurnace.java:137-139 changes blocks only when burn state changes;
      original client.jar probe: powered east-facing piston pushes furnace as
@@ -267,45 +435,85 @@ moved as it goes out settles unlit.
 
 ### Destruction and substitution
 
-Destroying the furnace during its state change can leave the original tile
-entity behind after it is revalidated. The result depends on whether
-destruction removes the invalid map entry:
+#### Tile entities left after removal
+
+Removing the furnace block during the neighbour updates of a lit/unlit state
+change can leave its tile entity behind. The state-change procedure still
+remembers the original furnace tile entity from its initial lookup. The new,
+empty furnace tile entity created by placement of the lit or unlit block is
+also waiting in the deferred list. The procedure later revalidates the
+remembered original object and requests installation, even though the furnace
+block has already been removed.
+
+If the old position is now air or a non-container block, the result depends
+on whether removal deleted the original tile entity's invalid map entry:
 
 | Destruction path | Result at the old position |
 |---|---|
-| Looks up the invalid tile entity, as piston removal can do | The original and empty replacement can remain list-only orphans under air or another non-container block |
-| Avoids that lookup and leaves the entry intact | The original can remain mapped under air or another non-container block; the empty replacement remains list-only |
+| Removal looks up the invalid tile entity and deletes its map entry, as piston removal can do | The original furnace tile entity and the empty replacement can remain in the loaded list without map entries. They are list-only orphans at the old coordinates. |
+| Removal avoids that lookup and leaves the map entry intact | Revalidation makes the original furnace tile entity valid again in its existing map entry, even if the position now contains air or a non-container block. The empty replacement remains list-only. |
 
 <!-- src: BlockFurnace.java:115-125,152-181; World.java:1622-1635,1259-1267;
      Chunk.java:415-417,434-445; HackMD Exploiting updateFurnaceBlockState,
      Illegal TEs 1-2 reports piston and door constructions respectively.
      Door construction details are absent; conditional mechanism only. -->
 
-Placing a tile-entity block at a burning furnace orphan's coordinates supplies
-a new mapped object. When the orphan stops burning, it replaces that block
-with a furnace and restores the supplied object, not necessarily itself.
-A chest tile entity can therefore end up mapped under a furnace. Destroying
-the replacement during this transition can leave the supplied object under
-air, either mapped or list-only by the same rules above.
+#### Replacing a chest with a furnace
+
+An orphaned furnace tile entity can also replace a different tile-entity
+block. The orphan still runs its fuel timer at the old coordinates. Its
+lit/unlit replacement procedure looks up whichever tile entity is currently
+mapped at those coordinates, not necessarily the furnace object performing
+the update.
+
+For a chest placed at the burning furnace orphan's position, the sequence is:
+
+1. Placing the chest creates a chest tile entity and records it in the chunk
+   map. The orphaned furnace tile entity remains separately in the loaded list.
+2. When the orphan's burning fuel runs out, it starts the unlit-furnace
+   replacement procedure. The procedure looks up the tile entity at the old
+   coordinates and remembers the **chest tile entity** for later restoration.
+3. The procedure replaces the chest block with an unlit furnace block.
+4. It revalidates the remembered chest tile entity and adds that object to the
+   deferred list. At the end of the TE phase, the chunk accepts it at the
+   furnace's position because installation checks for a tile-entity block,
+   not a matching tile-entity type.
+
+The result is a furnace block with a chest tile entity associated with its
+position.
+If neighbour updates remove the newly placed furnace block before this same
+replacement procedure finishes, the **remembered chest tile entity** can be
+left at coordinates that now contain air. It remains mapped if removal leaves
+its invalid map entry intact; it becomes list-only if removal deletes that
+entry. This is the chest object remembered in step 2, not the orphaned furnace
+object that triggered the replacement.
 <!-- src: TileEntityFurnace.java:137-139; BlockFurnace.java:113-125;
      Chunk.java:440-442; original client.jar probe confirms chest TE retained
      under idle furnace after a burning list-only furnace TE expires -->
 
 ### Metadata transfer and crashes
 
-The state change copies the metadata of whatever block occupies the orphan's
-coordinates. Placing [[Wool|wool]] there can give the resulting furnace the
-wool's colour value as metadata when the orphan stops burning. The block and
-metadata change first. The missing mapped tile entity then causes an exception.
+The furnace state-change procedure also reads the block metadata currently
+at the orphan's coordinates. It does not check that this value came from a
+furnace. Placing [[Wool|wool]] at a burning furnace orphan's position therefore
+makes the procedure remember the wool's colour metadata when the orphan's
+fuel runs out. It writes an unlit furnace block and restores that wool value
+as the furnace's metadata.
+
+Wool normally has no tile entity, so the procedure's initial lookup remembers
+no tile-entity object to restore. After changing the block and metadata, the
+procedure tries to revalidate that missing object and throws an exception.
+The metadata transfer occurs before the failure; it is not a crash-free
+method of changing a furnace's metadata.
 <!-- src: BlockFurnace.java:113-125; Chunk.java:404-408;
      original client.jar probe: wool metadata 11 becomes idle furnace metadata
      11 before NullPointerException. HackMD Block transmutation 1 omits this. -->
 
 | Condition | Failure |
 |---|---|
-| A list-only furnace changes burning state over air or a non-container block, with no mapped tile entity | `NullPointerException` after the furnace block and remembered metadata have been written |
-| A furnace containing a non-furnace tile entity is opened or removed normally | `ClassCastException` when the block treats that object as a furnace inventory |
-| A powered piston faces a transitioning furnace but cannot finish its push scan because of an obstruction beyond it or the push limit | `StackOverflowError` from recursively repairing the furnace's missing tile entity |
+| A list-only furnace tile entity changes burning state at coordinates containing air or a non-container block, with no mapped tile entity | `NullPointerException`: the state-change procedure tries to use a missing tile-entity object. The furnace block and remembered metadata have already been written. |
+| A furnace block with a non-furnace tile entity, such as the chest object above, is opened or removed normally | `ClassCastException`: the game tries to treat a different kind of object as a furnace tile entity so it can access the furnace inventory. |
+| A powered piston faces a furnace changing between lit and unlit, but an obstruction beyond the furnace or the push limit prevents a complete push | `StackOverflowError`: attempts to repair the furnace's missing tile entity repeatedly trigger more piston checks before the previous checks can finish. |
 
 <!-- src: BlockFurnace.java:106,124,154; BlockPistonBase.java:268-269,273-307;
      Chunk.java:404-411; BlockFurnace.java:20-49 metadata notification calls
@@ -318,38 +526,63 @@ metadata change first. The missing mapped tile entity then causes an exception.
 
 {{main|Piston}}
 
-Piston extension and retraction events run immediately inside the update
-that triggers them. If triggered during the TE phase, their moving tile
-entities are deferred. Normal pistons share one suppression of nested updates;
-[[Sticky Piston|sticky pistons]] share another. This suppression does not
-prevent one kind from activating the other.
+Piston extension and retraction start immediately when the game processes the
+block update that triggers them. If a tile entity's update triggers a piston,
+the piston acts before that tile entity's update finishes. The piston changes
+blocks immediately, but its requests to install moving tile entities go into
+the deferred list because the loaded-list update pass is still running.
+
+While a normal piston processes extension or retraction, normal pistons
+temporarily ignore neighbour updates that could make them react in the middle
+of that movement operation. This protection is shared by all normal pistons.
+[[Sticky Piston|Sticky pistons]] have a separate, shared protection. A normal
+piston's operation therefore does not prevent a sticky piston from reacting
+to its neighbour updates, or the reverse.
 <!-- src: World.java:2369-2373 playNoteAt; BlockPistonBase.java:7,52-55,
      66-79,112-113,172; Block.java:621,625 registers one Block object per kind -->
 
 ### Motion and clearing
 
-A moving tile entity created in the TE phase settles on its third subsequent
-TE update:
+A moving-piston tile entity remembers the block ID and metadata to put at its
+position when the motion finishes. This saved block is the **carried block**;
+it can be a piston head or base, not just a block being pushed or pulled.
+**Settling** means replacing the temporary moving piston block with that
+carried block.
+<!-- src: BlockPistonBase.java:125-126,160-161,345-356;
+     TileEntityPiston.java:8-25,111-112 -->
+
+Motion progress runs from 0 at the start to 1 at the end; 0.5 is halfway.
+A moving tile entity created during the loaded-list update pass does not
+advance in that same pass. It settles on its third subsequent TE update:
 
 | Phase | Progress |
 |---|---|
-| Creation phase | Queued; no update |
-| Next phase | Advances from 0 to 0.5 |
-| Second phase after creation | Advances from 0.5 to 1; still a moving block |
-| Third phase after creation | Removes its tile entity and restores the carried block, if a moving block is still present |
+| Creation phase | Added to the deferred list. It receives no motion update in this phase. |
+| Next phase | Advances from 0 to 0.5: halfway through the motion. |
+| Second phase after creation | Advances from 0.5 to 1. The animation reaches its endpoint, but the position still contains a temporary moving piston block. |
+| Third phase after creation | Removes the motion tile entity and replaces the temporary moving piston block with the carried block, if a moving piston block is still present at those coordinates. |
 
 <!-- src: World.java:1235-1273; TileEntityPiston.java:105-125;
      original client.jar probe verifies all four phase boundaries -->
 
-Explicitly clearing unfinished motion also removes the tile entity at its
-coordinates and invalidates the motion object. It restores the carried block
-only over a moving piston block. Clearing can remove a different mapped object
-at the same coordinates.
-<!-- src: TileEntityPiston.java:93-103 -->
+**Clearing** a moving piston tile entity means explicitly finishing its motion
+early, rather than waiting for its normal updates to finish. Retraction can
+attempt this for a head that is still extending. The clear operation removes
+the mapped tile entity at the motion object's coordinates and invalidates the
+motion object itself. It restores the carried block only if the position
+still contains a moving piston block.
 
-Clearing an unfinished piston tile entity with no world reference throws
-`NullPointerException`; it is not a no-op. Newly deferred piston tile entities
-normally escape clearing because the coordinate lookup cannot find them.
+As with other coordinate-based removal, clearing does not check that the map
+entry belongs to the motion object being cleared. It can remove a different
+tile entity now recorded at the same position.
+<!-- src: TileEntityPiston.java:93-103; BlockPistonBase.java:120-122 -->
+
+If clearing is attempted on an unfinished piston tile entity with no world
+reference, it throws `NullPointerException`: the object tries to use a world
+that it has not yet been linked to. It does not safely ignore the request.
+However, ordinary coordinate lookups cannot find newly deferred piston tile
+entities. Retraction therefore cannot clear those pending objects through
+such a lookup in the first place.
 <!-- src: TileEntityPiston.java:93-99 has no null-world guard;
      World.java:1599-1601; original client.jar probe directly calls clear on
      a fresh piston TE and confirms NPE, contradicting HackMD null-world claim -->
@@ -357,10 +590,16 @@ normally escape clearing because the coordinate lookup cannot find them.
 ### Zero-tick sequences
 
 A **zero-tick sequence** extends and retracts a piston within the same TE
-phase. Its newly created head tile entity is invisible during retraction.
-Removing the moving head block leaves that object queued. If its position
-remains air, it joins the loaded list without a map entry and expires on its
-third update without restoring a head.
+phase, before the newly created motion tile entities get their first update.
+The extending head's tile entity is still in the deferred list when retraction
+tries to look it up. Retraction cannot find and clear that pending head object.
+Removing the moving head block therefore leaves its tile entity waiting in
+the deferred list.
+
+If the head's intended position remains air, the pending head object joins
+the loaded list at the end of the phase but is rejected by the chunk map.
+It runs its motion timer as a list-only orphan. On its third update, it
+invalidates itself without restoring a head because the position is still air.
 <!-- src: BlockPistonBase.java:120-126,147-166;
      BlockPistonMoving.java:18-24; World.java:1259-1266;
      TileEntityPiston.java:105-113; original client.jar probe calls normal
@@ -368,10 +607,10 @@ third update without restoring a head.
 
 | Sequence within one TE phase | Result |
 |---|---|
-| Normal piston extends and retracts into empty space | Retracts, leaving a temporary list-only head tile entity |
-| Sticky piston pushes a block, then retracts | Does not pull the newly pushed block; that block finishes moving at the pushed position |
-| Sticky piston extends into air with a movable block two spaces ahead, then retracts to pull it | The old head tile entity can settle into the pulled block's moving position first, replacing the pulled block with a head in front of a retracted base |
-| First piston extends and retracts, then an opposing second piston extends into the same position | The first head can settle into the second head's moving position; the first base retains a head and the powered second base has no matching head |
+| Normal piston extends and retracts into empty space | The base retracts. The pending head tile entity temporarily survives as a list-only orphan, then expires without placing a head if its position stays air. |
+| Sticky piston pushes a block, then retracts | The piston does not pull the newly pushed block back. That block's motion tile entity finishes the push, leaving the block at the pushed position. |
+| Sticky piston extends into air with a movable block two spaces ahead of the base, then retracts to pull that block | The old extending-head tile entity can finish first at the position now used for the pull. It places a head instead of the pulled block, leaving a head in front of a retracted base. |
+| First piston extends and retracts, then an opposing second piston extends its head into the same position | The first piston's old head tile entity can finish at the shared position before the second head's tile entity. The head there belongs to the first piston; the powered second base has no matching head. |
 
 <!-- src: BlockPistonBase.java:131-165,345-356; TileEntityPiston.java:105-113;
      World.java:1255-1267; Chunk.java:440-442. Original client.jar method
@@ -381,50 +620,96 @@ third update without restoring a head.
      pulse circuit. Source attribution: HackMD TE phase piston mechanics. -->
 
 The retained-head results are described as **double-headed** pistons in the
-HackMD notes. They depend on another moving block occupying the orphan's
-coordinates when it finishes. The competing tile entities' insertion and
-update order determines which carried block survives. The sticky-piston
-special case that abandons a just-pushed block requires finding its extending
-tile entity; it cannot find one newly deferred in the same phase.
+HackMD notes. Unlike the empty-space case, a new moving piston block occupies
+the old head tile entity's coordinates when that old object finishes. The old
+object checks only that a moving piston block is present, not that it belongs
+to the old object's original movement. It can replace that new moving block
+with its own carried head. The order in which the competing tile entities
+join the loaded list and receive updates determines which block survives.
+
+Sticky pistons also have special handling for a block that is still being
+pushed: retraction can finish that push without pulling the block back. This
+special handling requires finding the pushed block's extending tile entity.
+It cannot identify a tile entity that is newly deferred in the same TE phase.
 <!-- src: TileEntityPiston.java:111-112; BlockPistonBase.java:134-150;
      HackMD's alternative double-head explanation depends on deferred lookup
      in other versions and is not a separate Beta 1.7.3 push outcome -->
+
+#### A sticky pull, step by step
+
+For the sticky-piston pull in the table, the head and the block being pulled
+both use the position immediately in front of the base, but at different
+points in the sequence:
+
+1. Extension into air creates a moving head at that position. Its head tile
+   entity is added to the deferred list.
+2. Retraction begins in the same TE phase. It cannot find the deferred head
+   tile entity to clear it. Instead, the pull places a new moving piston block
+   at the head's position, carrying the block that was two spaces ahead of the
+   base. The pull's tile entity is added to the deferred list after the head's.
+3. At the end of the phase, both objects join the loaded list in that order.
+   The pull's object is installed last at the shared position and gets the
+   chunk-map entry. The older head object remains as an orphan in the loaded
+   list.
+4. When the older head object finishes its motion timer, the shared position
+   still contains the pull's moving piston block. The head object removes
+   the mapped pull tile entity and places its own carried head there. The
+   pulled block is lost, and a head remains in front of the retracted base.
+
+<!-- src: BlockPistonBase.java:120-161,345-356; World.java:1255-1267;
+     Chunk.java:440-453; TileEntityPiston.java:105-113;
+     original client.jar sticky zero-tick pull probe verifies the final state -->
 
 ## Saving and multiplayer
 
 ### Saving and loading
 
-Chunks save the objects in their tile-entity maps, not every object in the
-loaded list. List-only orphans are not saved. A mapped object under air or a
-non-container block is written, but rejected when loaded again. A mismatched
-object under a tile-entity block can survive loading because the check does
-not compare types.
+Saving a chunk writes the tile entities recorded in that chunk's map. It does
+not walk through the world's loaded list to save every ticking object.
+List-only orphans therefore have no saved tile-entity record and cannot be
+recreated when the world is reopened.
+
+A mapped tile entity at coordinates containing air or a non-container block
+is written to the save, but loading tries to attach it to its block position
+again. The chunk rejects that attachment because the block does not use a
+tile entity. A mismatched object at a tile-entity block's position can survive
+this loading check: as during normal installation, the check asks whether the
+block uses *any* tile entity, not whether it uses that object's type.
 <!-- src: ChunkLoader.java:138-148,188-195; Chunk.java:423-445;
      McRegionChunkLoader.java:26,50 reuses ChunkLoader compound routines;
      original client.jar NBT round-trip probes verify all three cases -->
 
-Saved tile entities are reconstructed from their string type ID. Unknown IDs
-are skipped. The world reference and invalid state are not saved.
+Loading creates a new tile-entity object using the saved type name, then reads
+its stored data. An unknown type name is skipped rather than creating an
+object. The world reference and invalid-state marker are not saved fields;
+the new object receives its link to the current world during attachment.
 <!-- src: TileEntity.java:24-63,100-108; Chunk.java:434-442 -->
 
-Changes reported by a tile entity mark its chunk for saving. This does not
-send a redstone neighbour update or schedule a block tick.
+When a tile entity reports that its data has changed, the game marks its chunk
+as needing to be saved. This is separate from notifying adjacent blocks about
+a block change. Reporting the data change does not send a redstone neighbour
+update or request a future scheduled block tick.
 <!-- src: TileEntity.java:70-73 onInventoryChanged;
      World.java:2053-2059 func_698_b marks chunk modified and calls world
      access doNothingWithTileEntity, not notifyBlocksOfNeighborChange -->
 
 ### Multiplayer
 
-The server owns inventories and world changes. Inventory windows receive
-their contents separately from chunk block data. Furnace windows also receive
-cooking progress, remaining burn time and the current fuel's total burn time.
+In multiplayer, the server maintains the inventories and makes world changes.
+The client receives the information needed to display and interact with them.
+Sending a chunk's block data is not the same as sending all of its tile
+entities' saved fields. When an inventory window is open, its slot contents
+are sent separately. Furnace windows also receive cooking progress, remaining
+burn time and the current fuel's total burn time for their progress indicators.
 <!-- src: server EntityPlayerMP.java:306-328 Packet103SetSlot,
      Packet104WindowItems and Packet105UpdateProgressbar;
      ContainerFurnace.java:28-63 -->
 
-Signs receive text updates. Note sounds and piston motion use block-event
-packets, which the client executes at the supplied coordinates. These are
-not transfers of every tile entity's saved data.
+Signs receive messages containing their text. Note sounds and piston motion
+use **block-event packets**: network messages telling the client to perform a
+block action at particular coordinates. These messages let the client play
+the sound or execute the piston movement; they do not transfer every saved
+field of the server's tile entity.
 <!-- src: server TileEntity.java:77-78 default getDescriptionPacket null;
      server TileEntitySign.java:29-36 Packet130UpdateSign;
      server PlayerInstance.java:171-176; server WorldServer.java:100-102;
@@ -432,20 +717,29 @@ not transfers of every tile entity's saved data.
 
 ## Data values
 
-Tile entities have string save IDs, not ordinary entity network IDs. Every
+Tile-entity data is stored in **NBT**, the game's structured save-data format.
+A saved tile entity consists of named fields, each with a value and a data
+type. In the table below, a string is text, a boolean is true or false, and
+byte, short and integer are whole-number types. A float can store fractional
+values, such as motion progress.
+<!-- src: ChunkLoader.java:138-148; NBTTagCompound.java:43-84 stores typed fields;
+     TileEntity.java:30-38 -->
+
+Each tile entity has a text **save ID** identifying which kind of object to
+recreate during loading. This is not an ordinary entity network ID. Every
 saved object has `id` as a string and `x`, `y`, `z` as integer block coordinates.
 <!-- src: TileEntity.java:30-38,100-108; TileEntity does not extend Entity -->
 
 | Type | Save ID | Additional saved fields |
 |---|---|---|
-| Furnace | `Furnace` | `Items` list; `BurnTime`, `CookTime` shorts |
-| Chest | `Chest` | `Items` list |
-| Jukebox | `RecordPlayer` | `Record` integer, written only when a record is present |
-| Dispenser | `Trap` | `Items` list |
-| Sign | `Sign` | `Text1`, `Text2`, `Text3`, `Text4` strings |
-| Monster spawner | `MobSpawner` | `EntityId` string; `Delay` short |
-| Note block | `Music` | `note` byte |
-| Moving piston | `Piston` | `blockId`, `blockData`, `facing` integers; `progress` float; `extending` boolean |
+| Furnace | `Furnace` | `Items`: inventory list. `BurnTime`: remaining fuel-burning ticks, short. `CookTime`: current smelting progress in ticks, short. |
+| Chest | `Chest` | `Items`: inventory list. |
+| Jukebox | `RecordPlayer` | `Record`: inserted record's item ID, integer. Written only when a record is present. |
+| Dispenser | `Trap` | `Items`: inventory list. |
+| Sign | `Sign` | `Text1`, `Text2`, `Text3`, `Text4`: the four lines of text, strings. |
+| Monster spawner | `MobSpawner` | `EntityId`: mob type, string. `Delay`: spawn delay, short. |
+| Note block | `Music` | `note`: pitch, byte. |
+| Moving piston | `Piston` | `blockId`, `blockData`: carried block's ID and metadata, integers. `facing`: movement direction, integer. `progress`: previous update's motion progress, float. `extending`: true for extension, false for retraction, boolean. |
 
 <!-- src: TileEntity.java:100-108; TileEntityFurnace.java:49-82;
      TileEntityChest.java:49-77; TileEntityRecordPlayer.java:6-15;
@@ -453,22 +747,29 @@ saved object has `id` as a string and `x`, `y`, `z` as integer block coordinates
      TileEntityMobSpawner.java:93-102; TileEntityNote.java:7-22;
      TileEntityPiston.java:128-143 -->
 
-Each `Items` entry has a `Slot` byte, an `id` short, a `Count` byte and a
-`Damage` short. Chest slots are 0–26, dispenser slots 0–8, and furnace slots
-0–2 for input, fuel and output. A double chest saves two separate inventories.
+Each entry in an inventory's `Items` list describes an item stack. `Slot`
+(byte) identifies its inventory slot, `id` (short) identifies the item, `Count`
+(byte) is the stack size, and `Damage` (short) is the item's damage or subtype
+value. Slot numbers start at 0. Chest slots are 0–26, dispenser slots 0–8,
+and furnace slots 0–2 for input, fuel and output respectively. A double chest
+saves the inventories of its two halves separately.
 <!-- src: TileEntityChest.java:6-7,49-77; TileEntityDispenser.java:9-10,69-97;
      TileEntityFurnace.java:4,49-82,149-179; ItemStack.java:75-85;
      BlockChest.java:185-229 -->
 
-Loading truncates sign lines to 15 characters and clamps note pitch to 0–24.
-A note block's previous redstone state is not saved. Furnace loading
-recalculates total fuel duration from the item still in its fuel slot.
+Loading shortens sign lines longer than 15 characters to their first 15
+characters. A note pitch below 0 is changed to 0, and one above 24 is changed
+to 24. A note block's remembered previous redstone state is not saved.
+Furnace loading recalculates the fuel's total burning duration from the item
+still in the fuel slot, rather than reading that total from a saved field.
 <!-- src: TileEntitySign.java:20-24; TileEntityNote.java:4-22;
      TileEntityFurnace.java:62-64 -->
 
-Moving-piston saves record the previous update's progress, not its current
-progress. Reloading can repeat a movement step. The separate retracting-base
-rendering state is not saved.
+Moving-piston saves record the previous update's progress, not the current
+progress. If a motion update has just advanced from 0.5 to 1, the saved
+`progress` is still 0.5. Loading starts the motion at that saved value, so it
+can repeat a movement step. The separate state identifying a retracting-base
+animation is not saved.
 <!-- src: TileEntityPiston.java:13-14,25,106,128-143; :133 restores both
      current and previous progress from the saved previous-progress field;
      field_31023_j is omitted from writeToNBT -->
@@ -483,10 +784,12 @@ the furnace and piston exploits in three April 2022 HackMD notes:
 - [TE phase piston mechanics](https://hackmd.io/@pa-2w-2MT5iGybHuegbruw/Hk1bpzs4c)
 
 The rules on this page are checked against the Beta 1.7.3 decompile.
-Method-level probes against the original client jar verify the bookkeeping,
-furnace and piston sequences, crash corrections and NBT loading described
-above. The probes use in-memory chunks and direct piston events, not a full
-client session or a reconstruction of every reported redstone machine.
+Tests that call the original client jar's game code directly verify the
+bookkeeping, furnace and piston sequences, crash corrections and NBT loading
+described above. These are **method-level probes**: they create test chunks
+in memory and invoke piston extension and retraction directly during a
+tile-entity update. They are not a full client session or a reconstruction of
+every reported redstone machine.
 <!-- Verification: original Mojang client.jar SHA-1
      43db9b498cb67058d2e12d394e6507722e71bb45; Java 17; 21 assertion-based
      scenarios. Obfuscated World fd, Chunk lm, TileEntity ow, Furnace sk,
@@ -496,9 +799,12 @@ client session or a reconstruction of every reported redstone machine.
      during the unmodified World.updateEntities loop. Blocks and TEs execute
      original jar bytecode. No decompiled source or vanilla methods modified. -->
 
-The furnace note's door-based constructions lack placement and timing details.
-Their proposed map-preserving result is conditional on avoiding removal of
-the invalid map entry; those constructions are not independently reproduced.
+The furnace note's door-based constructions lack placement and timing details
+and are not independently reproduced. The proposed result is a tile entity
+that remains recorded in the chunk map after its block is removed. That result
+requires removal to leave the invalid map entry intact until the furnace
+state-change procedure revalidates the remembered object, as described under
+Destruction and substitution.
 [[Block Data Corruption#A piston can push a furnace in the tick it lights]]
 records an earlier in-game test of furnace movement and the empty-tile-entity
 leak.

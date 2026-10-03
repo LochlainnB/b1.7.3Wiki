@@ -69,29 +69,36 @@ whether to attach a tile entity to a block position.
 
 ### Bookkeeping
 
-A **world reference** is a link from a tile entity to the game object that
-represents the world it operates in. It is not a copy of the world. The tile
-entity uses this link to ask what blocks are nearby, read block metadata or
-change blocks. Its coordinates identify *where* to do that work; its world
-reference identifies *which world* to work in. Remembering coordinates alone
-does not give the tile entity access to the blocks at those coordinates.
-<!-- src: TileEntity.java:9-12,66-73,84-85; TileEntityPiston.java:75-77,96-99;
-     TileEntityFurnace.java:139 -->
+Every tile entity stores these bookkeeping properties:
 
-A tile entity also has an **invalid-state marker**. Invalidating the object
-marks it as no longer active, so the game can skip its updates and remove it
-from its tracking collections. It does not erase the object's inventory or
-other data. Revalidating the same object clears that marker; it does not
-create a new object or a new inventory.
-<!-- src: TileEntity.java:13,88-98; World.java:1238-1248 -->
+- **World reference:** A link to the game object representing the world the
+  tile entity operates in. It identifies *which world* to work in, rather
+  than holding a copy of that world. The tile entity uses this link to ask
+  what blocks are nearby, read block metadata or change blocks. A newly
+  constructed tile entity has no world reference. The game assigns the link
+  when it attempts to attach the object to a chunk.
+  <!-- src: TileEntity.java:9,66-73,84-85; TileEntityPiston.java:75-77,96-99;
+       TileEntityFurnace.java:139; Chunk.java:434-445 -->
 
-Immediately after a tile entity is constructed, it has no world reference,
-its coordinates are 0, 0, 0, and it is marked valid. During an attempt to
-attach the object to a chunk, the game assigns its world reference and block
-coordinates. Here, **valid** only means that the invalid-state marker is clear. It does not
-guarantee that the object is attached to a block or matches that block's type.
-<!-- src: TileEntity.java:9-13,88-98; no constructor overrides these defaults;
-     Chunk.java:434-445 assigns world and coordinates before acceptance check -->
+- **Block coordinates:** The x, y and z position where the tile entity's
+  work takes place, measured in the world as a whole. These coordinates
+  identify *where* to work, but do not give the object access to the blocks
+  there without a world reference. A newly constructed tile entity has
+  coordinates 0, 0, 0. Installation assigns its intended block position;
+  a deferred installation can assign these coordinates before the object
+  receives its world reference.
+  <!-- src: TileEntity.java:10-12,66-67; World.java:1606-1610;
+       Chunk.java:437-439 -->
+
+- **Invalid-state marker:** Whether the object has been marked as no longer
+  active. Invalidating it lets the game skip its updates and remove it from
+  its tracking collections. It does not erase the inventory or other stored
+  data. Revalidating the same object clears the marker; it does not create a
+  new object or inventory. A newly constructed tile entity is marked valid.
+  Here, **valid** only means that this marker is clear. It does not guarantee
+  that the object is attached to a block or matches that block's type.
+  <!-- src: TileEntity.java:13,88-98; World.java:1238-1248;
+       no constructor overrides the base fields' defaults -->
 
 The game tracks tile entities in three separate collections. A **chunk** is a
 section of the world that is loaded and saved as a unit. Its tile-entity
@@ -400,7 +407,10 @@ orphan and continues receiving updates.
 <!-- src: BlockFurnace.java:20-22,124-125; World.java:1259-1266;
      Chunk.java:442; original client.jar probe confirms one additional
      persistent loaded TE after an ordinary extinguishing transition.
-     Also tested in Block Data Corruption, experiment E3. -->
+     Also tested in Block Data Corruption, experiment E3:
+     content/research/block-data-corruption.md, section
+     "A piston can push a furnace in the tick it lights" records an earlier
+     in-game test of furnace movement and the empty-tile-entity leak. -->
 
 ### Moving a furnace
 
@@ -456,7 +466,13 @@ on whether removal deleted the original tile entity's invalid map entry:
 <!-- src: BlockFurnace.java:115-125,152-181; World.java:1622-1635,1259-1267;
      Chunk.java:415-417,434-445; HackMD Exploiting updateFurnaceBlockState,
      Illegal TEs 1-2 reports piston and door constructions respectively.
-     Door construction details are absent; conditional mechanism only. -->
+     Door-based constructions lack placement and timing details and are not
+     independently reproduced. Their proposed map-preserving result requires
+     removal to leave the invalid map entry intact until the furnace
+     state-change procedure revalidates the remembered object. Conditional
+     mechanism only. Reported: Illegal TEs 2 and 5 contain "add details"
+     placeholders. Read: Chunk.java:401-420 permits a valid mapped TE at
+     coordinates containing air; :434-445 cannot newly install it there. -->
 
 #### Replacing a chest with a furnace
 
@@ -774,7 +790,7 @@ animation is not saved.
      current and previous progress from the saved previous-progress field;
      field_31023_j is omitted from writeToNBT -->
 
-## Verification and sources
+## References
 
 Jan Matula and Spheres (v3rtices) document the deferred-creation mechanism and
 the furnace and piston exploits in three April 2022 HackMD notes:
@@ -783,14 +799,13 @@ the furnace and piston exploits in three April 2022 HackMD notes:
 - [Exploiting updateFurnaceBlockState](https://hackmd.io/@pa-2w-2MT5iGybHuegbruw/HyUrqxVN9)
 - [TE phase piston mechanics](https://hackmd.io/@pa-2w-2MT5iGybHuegbruw/Hk1bpzs4c)
 
-The rules on this page are checked against the Beta 1.7.3 decompile.
-Tests that call the original client jar's game code directly verify the
-bookkeeping, furnace and piston sequences, crash corrections and NBT loading
-described above. These are **method-level probes**: they create test chunks
-in memory and invoke piston extension and retraction directly during a
-tile-entity update. They are not a full client session or a reconstruction of
-every reported redstone machine.
-<!-- Verification: original Mojang client.jar SHA-1
+<!-- Verification: rules checked against the Beta 1.7.3 decompile.
+     Method-level probes calling the original client jar's game code verify
+     bookkeeping, furnace and piston sequences, crash corrections and NBT
+     loading. Test chunks are created in memory and piston extension and
+     retraction are invoked directly during a tile-entity update. This is not
+     a full client session or a reconstruction of every reported redstone
+     machine. Original Mojang client.jar SHA-1
      43db9b498cb67058d2e12d394e6507722e71bb45; Java 17; 21 assertion-based
      scenarios. Obfuscated World fd, Chunk lm, TileEntity ow, Furnace sk,
      Piston uk and BlockFurnace tc resolved using Babric intermediary b1.7.3.
@@ -798,16 +813,3 @@ every reported redstone machine.
      chunks, a one-shot TileEntity hook invokes additions and piston events
      during the unmodified World.updateEntities loop. Blocks and TEs execute
      original jar bytecode. No decompiled source or vanilla methods modified. -->
-
-The furnace note's door-based constructions lack placement and timing details
-and are not independently reproduced. The proposed result is a tile entity
-that remains recorded in the chunk map after its block is removed. That result
-requires removal to leave the invalid map entry intact until the furnace
-state-change procedure revalidates the remembered object, as described under
-Destruction and substitution.
-[[Block Data Corruption#A piston can push a furnace in the tick it lights]]
-records an earlier in-game test of furnace movement and the empty-tile-entity
-leak.
-<!-- Reported: HackMD Exploiting updateFurnaceBlockState, Illegal TEs 2 and 5
-     contain "add details" placeholders. Read: Chunk.java:401-420 permits a
-     valid mapped TE under air; :434-445 cannot newly install it there. -->

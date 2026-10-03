@@ -89,14 +89,16 @@ Most of what a tick means for an entity is a counter moving by one:
 
 ## Block entities
 
-Every block entity is offered a tick, and three of the nine kinds use it. The
-[[Furnace|furnace]] burns fuel and advances its smelt, the
+Every valid [[Tile Entity|block entity]] in the loaded list is offered a tick,
+and three of the eight kinds use it. The [[Furnace|furnace]] burns fuel and
+advances its smelt, the
 [[Monster Spawner|monster spawner]] counts down its delay, and a moving
 [[Piston|piston]] advances its animation. The [[Chest|chest]], [[Sign|sign]],
 [[Dispenser|dispenser]], [[Note Block|note block]] and [[Jukebox|jukebox]] hold
 state but keep no timer.
 <!-- src: World.java:1236 the loadedTileEntityList loop; TileEntity.java:42 is
-     empty, and only TileEntityFurnace:105, TileEntityMobSpawner:25 and
+     empty, :100-108 registers eight types, and only TileEntityFurnace:105,
+     TileEntityMobSpawner:25 and
      TileEntityPiston:105 override it -->
 
 ## Neighbour updates

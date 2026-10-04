@@ -59,6 +59,10 @@ The item is always the block itself. Gravel dropped this way never gives
 [[Flint|flint]].
 <!-- src: EntityFallingSand.java:63 and :66 dropItem(this.blockID, 1) -->
 
+Timed [[Piston|piston]] movements can preserve the original block as well as
+the falling entity; see [[Sand and Gravel Duplication]].
+<!-- src: BlockSand.java:24-:29; EntityFallingSand.java:53-:55 -->
+
 ## Data values
 
 - Entity network ID: {{id|FallingSand}}

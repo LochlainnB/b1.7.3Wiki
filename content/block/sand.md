@@ -25,6 +25,12 @@ in every other biome take sand as both instead, which makes beaches.
 <!-- src: BiomeGenBase.java:66-:67; ChunkProviderGenerate.java:123 the sand
      roll, :143-:157 applied between y=60 and y=65; :177 sandstone -->
 
+### Duplication
+
+Sand can be [[Sand and Gravel Duplication|duplicated]] with timed
+[[Piston|piston]] movements.
+<!-- src: BlockSand.java:24-:29; EntityFallingSand.java:53-:55 -->
+
 ## Usage
 
 ### Crafting ingredient

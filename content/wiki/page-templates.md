@@ -36,6 +36,25 @@ on a page whose subject has several and never shows them.
 
 {{gallery|Creeper}}
 
+## 3D models
+
+```
+{{viewer|sapling-transmutation}}  the sapling transmutation machine
+{{viewer|creeper}}                normal and charged creeper appearances
+```
+
+Viewers rotate by dragging and zoom by scrolling or pinching. Build layers are
+cumulative: the selected layer and everything below it are solid, while blocks
+above it remain as translucent edges. The highest layer shows the whole build.
+The fullscreen button expands the model together with its controls.
+
+Scene IDs come from `viewer/scenes.json`. Unknown IDs fail the build. Scenes use
+only exported block models and frozen entity appearances; they do not simulate
+redstone or tree growth. `viewer/README.md` describes scene authoring and mesh
+regeneration.
+
+{{viewer|sapling-transmutation}}
+
 ## Recipes
 
 Called with no argument, these use the page's own subject and read the real

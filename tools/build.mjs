@@ -21,6 +21,8 @@ import { buildSearchIndex } from './lib/search.mjs';
 import { report } from './lib/integrity.mjs';
 import { findSource } from './lib/source.mjs';
 import { verifyData } from './lib/verify.mjs';
+import { loadViewers } from './lib/viewers.mjs';
+import { build as bundle } from 'esbuild';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -157,6 +159,7 @@ async function main() {
   const index = buildIndex(pages, data);
 
   const ctx = makeContext({ config, data, pages, index, problems, links });
+  ctx.viewers = loadViewers(ROOT);
   const renderer = createRenderer(ctx);
 
   // Pass 1 populates the link graph so backlinks and orphan detection can see
@@ -213,6 +216,14 @@ async function main() {
     }
     emit(join(outDir, 'assets', 'wiki.css'), readFileSync(join(ROOT, 'theme', 'wiki.css')));
     emit(join(outDir, 'assets', 'wiki.js'), readFileSync(join(ROOT, 'theme', 'wiki.js')));
+    const viewerBundle = await bundle({
+      entryPoints: [join(ROOT, 'theme/viewer.js')], bundle: true, minify: true,
+      format: 'esm', target: 'es2022', write: false, legalComments: 'inline',
+    });
+    emit(join(outDir, 'assets/viewer.js'), viewerBundle.outputFiles[0].contents);
+    for (const [id, scene] of ctx.viewers) {
+      emit(join(outDir, 'assets/viewer', `${id}-scene.json`), JSON.stringify(scene));
+    }
     // Shipped as a script rather than JSON: fetch() is blocked on file://, so
     // this keeps search working when the site is opened straight off disk.
     emit(join(outDir, 'assets', 'search-index.js'),

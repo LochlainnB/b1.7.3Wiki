@@ -131,6 +131,10 @@ Positions are relative to the [[Sapling|sapling]], on dirt or grass:
 | ±3, 2, 0 | Any block a piston can push |
 | ±4, 2, 0 | Piston facing the torch, powered without being updated |
 
+{{viewer|sapling-transmutation}}
+<!-- Scene: Block Data Corruption, Appendix C, E6 setup. Coordinates and
+     metadata are the tested pre-growth fixture, including its powered levers. -->
+
 Growing the sapling with [[Bone Meal|bone meal]] hits the torches when the tree
 grows 4 or 5 blocks tall, two times in three, and never when it grows as a big
 oak.

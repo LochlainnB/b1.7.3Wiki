@@ -199,6 +199,40 @@ define(['gallery'], ({ args, named, ctx }) => {
   return `<ul class="gallery">${items.join('')}</ul>`;
 });
 
+define(['viewer'], ({ args, named, ctx }) => {
+  const id = args[0];
+  const scene = ctx.viewers.get(id);
+  if (!scene || args.length !== 1 || Object.keys(named).length) {
+    ctx.error(`{{viewer}} needs one registered scene ID; got "${id || ''}"`);
+    return '<span class="template-error">Unknown viewer scene</span>';
+  }
+  let controls;
+  if (scene.kind === 'build') {
+    const ticks = Array.from({ length: scene.layers }, (_, i) => `<span>${i + 1}</span>`).join('');
+    controls = `<div class="viewer-layers">` +
+      `<span class="viewer-layer-label">Visible layers: <strong>All</strong></span>` +
+      `<button type="button" class="viewer-previous" title="Previous layer" disabled>‹</button>` +
+      `<label class="viewer-slider"><input type="range" min="1" max="${scene.layers}" ` +
+      `value="${scene.layers}" step="1" aria-label="Visible layers" disabled>` +
+      `<span class="viewer-ticks">${ticks}</span></label>` +
+      `<button type="button" class="viewer-next" title="Next layer" disabled>›</button></div>`;
+  } else {
+    controls = `<div class="viewer-variants">${scene.variants.map((label, i) =>
+      `<button type="button" data-variant="${i}" aria-pressed="${i === 0}" disabled>` +
+      `${escapeHtml(label)}</button>`).join('')}</div>`;
+  }
+  return `<figure class="wiki-viewer" data-scene="${id}" data-viewer-state="waiting">` +
+    `<div class="viewer-title">${escapeHtml(scene.title)}</div>` +
+    `<div class="viewer-window"><div class="viewer-status">The 3D model requires JavaScript and WebGL 2.</div>` +
+    `<button type="button" class="viewer-fullscreen" title="Fullscreen" disabled>` +
+    `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">` +
+    `<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg></button>` +
+    `<svg class="viewer-axes" viewBox="0 0 80 80" aria-hidden="true"></svg>` +
+    `<span class="viewer-hint"><span class="viewer-desktop-hint">Drag to rotate · Scroll to zoom</span>` +
+    `<span class="viewer-touch-hint">Drag to rotate · Pinch to zoom</span></span></div>` +
+    `${controls}<figcaption>${escapeHtml(scene.caption)}</figcaption></figure>`;
+});
+
 define(['slot', 'invslot'], ({ args, named, ctx }) =>
   invslot(ctx, args[0] || named.name, { count: named.count || args[1], large: named.large === 'yes' }));
 

@@ -7,6 +7,8 @@ categories: [Mobs, Hostile mobs]
 
 A **creeper** is a hostile mob that walks up to a player and explodes.
 
+{{viewer|creeper}}
+
 ## Spawning
 
 Creepers spawn [[Mob Spawning#Hostile mobs|in the dark]] in every

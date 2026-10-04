@@ -6,6 +6,34 @@
   var BASE = window.WIKI_BASE || './';
   var root = document.documentElement;
 
+  // Load the renderer only when an article's model approaches the viewport.
+  var viewerModule;
+  var viewers = document.querySelectorAll('.wiki-viewer');
+  function loadViewer(element) {
+    if (element.dataset.viewerState !== 'waiting') return;
+    element.dataset.viewerState = 'loading';
+    element.querySelector('.viewer-status').textContent = 'Loading 3D viewer…';
+    if (!viewerModule) viewerModule = import(new URL(BASE + 'assets/viewer.js', window.location.href).href);
+    viewerModule.then(function (module) { return module.mountViewer(element); }).catch(function () {
+      element.dataset.viewerState = 'error';
+      element.querySelector('.viewer-status').textContent =
+        'The 3D viewer could not load. The article below is still available.';
+    });
+  }
+  if (viewers.length) {
+    if ('IntersectionObserver' in window) {
+      var viewerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            viewerObserver.unobserve(entry.target);
+            loadViewer(entry.target);
+          }
+        });
+      }, { rootMargin: '200px' });
+      viewers.forEach(function (element) { viewerObserver.observe(element); });
+    } else viewers.forEach(loadViewer);
+  }
+
   // ---------------------------------------------------- mobile navigation --
   var navigationToggle = document.getElementById('navigation-toggle');
   var sidebarLinks = document.getElementById('sidebar-links');

@@ -56,7 +56,7 @@ const schedule = () => {
   timer = setTimeout(build, 80);          // coalesce editor save bursts
 };
 
-for (const dir of ['content', 'theme', 'data', 'tools']) {
+for (const dir of ['content', 'theme', 'data', 'tools', 'viewer', 'assets/viewer']) {
   const full = join(ROOT, dir);
   if (!existsSync(full)) continue;
   watch(full, { recursive: true }, (_event, file) => {

@@ -333,11 +333,6 @@ Other chunks and player data can still save. Removing enough data permits later 
      Material.java:47-48,113; Item.java:155-164,358;
      ItemStack.java:75-85; RegionFile.java:161-162 -->
 
-Repeating `qwertyuiopasdfg` on all four lines of 32,512 signs does not suppress saving in a tested fixture: the chunk compresses to 135,231 bytes.
-<!-- verification: 2026-10-04, SignThreshold and RepeatedSave, OpenJDK
-     17.0.20.1, original client.jar. Bedrock floor y=0, signs y=1..127;
-     original region writer saves and reads back the full NBT payload. -->
-
 A headless test using the original client classes places 24,000 signs with four full lines of varied ASCII text in one chunk. The compressed payload is 1,453,774 bytes. Saving skips the chunk, and loading restores its previous save. These are automated game-class tests, not a manually built survival-world demonstration.
 <!-- verification: 2026-10-04, OpenJDK 17, Mojang client.jar SHA-1
      43db9b498cb67058d2e12d394e6507722e71bb45. PlacementProbe calls original

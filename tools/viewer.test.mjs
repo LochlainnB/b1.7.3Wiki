@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, copyFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadViewers, expandBuild, validateMesh } from './lib/viewers.mjs';
 import { renderTemplate } from './lib/templates.mjs';
@@ -11,6 +13,35 @@ const read = (file) => JSON.parse(readFileSync(new URL(`../${file}`, import.meta
 const models = read('assets/viewer/block-models.json').models;
 const creeper = read('assets/viewer/creeper.json');
 const scenes = loadViewers(root);
+
+test('scene files are discovered by filename without a shared catalog', (t) => {
+  const fixture = mkdtempSync(join(tmpdir(), 'wiki-viewers-'));
+  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  const directory = join(fixture, 'viewer/scenes');
+  mkdirSync(directory, { recursive: true });
+  mkdirSync(join(fixture, 'assets/viewer'), { recursive: true });
+  mkdirSync(join(fixture, 'assets/textures'), { recursive: true });
+  for (const file of ['viewer/block-models.json', 'textures/terrain.png']) {
+    copyFileSync(join(root, 'assets', file), join(fixture, 'assets', file));
+  }
+  const authored = { kind: 'build', title: 'First build', caption: 'Test fixture',
+    mesh: 'block-models.json', blocks: [{ at: [-3, 2, 1], block: '1:0' }] };
+  writeFileSync(join(directory, 'first-build.json'), JSON.stringify(authored));
+  writeFileSync(join(directory, 'README.md'), 'Not a scene');
+  assert.deepEqual([...loadViewers(fixture).keys()], ['first-build']);
+
+  writeFileSync(join(directory, 'second-build.json'), JSON.stringify({ ...authored,
+    title: 'Second build', blocks: [{ at: [4, -1, 2], block: '3:0' }] }));
+  const loaded = loadViewers(fixture);
+  assert.deepEqual([...loaded.keys()], ['first-build', 'second-build']);
+  assert.equal(loaded.get('first-build').title, 'First build');
+  assert.deepEqual(loaded.get('first-build').blocks, [{ at: [-3, 2, 1], block: '1:0' }]);
+  assert.equal(loaded.get('second-build').title, 'Second build');
+  assert.deepEqual(loaded.get('second-build').blocks, [{ at: [4, -1, 2], block: '3:0' }]);
+
+  writeFileSync(join(directory, 'Bad-ID.json'), JSON.stringify(authored));
+  assert.throws(() => loadViewers(fixture), /invalid viewer scene Bad-ID/);
+});
 
 test('machine matches the tested E6 fixture, not the other transmutation machine', () => {
   const scene = scenes.get('sapling-transmutation');

@@ -1,5 +1,5 @@
 // Authored scenes are separate from the generated game registries in data/.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const LIMIT = 10000;
@@ -72,9 +72,11 @@ export function validateMesh(mesh, root) {
 }
 
 export function loadViewers(root) {
-  const catalog = JSON.parse(readFileSync(join(root, 'viewer/scenes.json'), 'utf8'));
+  const directory = join(root, 'viewer/scenes');
   const scenes = new Map();
-  for (const [id, authored] of Object.entries(catalog)) {
+  for (const file of readdirSync(directory).filter((name) => name.endsWith('.json')).sort()) {
+    const id = file.slice(0, -5);
+    const authored = JSON.parse(readFileSync(join(directory, file), 'utf8'));
     if (!/^[a-z0-9-]+$/.test(id) || !['build', 'entity'].includes(authored.kind) ||
         !authored.title || !authored.caption || !assetName(authored.mesh)) {
       throw new Error(`invalid viewer scene ${id}`);

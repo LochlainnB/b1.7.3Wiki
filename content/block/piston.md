@@ -76,6 +76,10 @@ A furnace can be pushed in the tick it lights or goes out; see
 
 A retracted piston can itself be pushed.
 
+Timed piston movements can [[Sand and Gravel Duplication|duplicate]]
+[[Sand|sand]] and [[Gravel|gravel]].
+<!-- src: BlockSand.java:24-:29; EntityFallingSand.java:53-:55 -->
+
 Two pistons whose pushes meet in the same space can give a block another
 block's metadata; see [[Block Transmutation]].
 

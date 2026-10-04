@@ -35,6 +35,13 @@ y=60 and y=65, except where [[Soul Sand|soul sand]] takes them.
 <!-- src: ChunkProviderHell.java:113 the gravel roll, :136-:150, soul sand
      applied after gravel -->
 
+### Duplication
+
+Gravel can be [[Sand and Gravel Duplication|duplicated]] with timed
+[[Piston|piston]] movements.
+<!-- src: BlockGravel.java:5 extends BlockSand; BlockSand.java:24-:29;
+     EntityFallingSand.java:53-:55 -->
+
 ## Behaviour
 
 Gravel [[Falling Sand|falls]] when the block below it is air, [[Water|water]],

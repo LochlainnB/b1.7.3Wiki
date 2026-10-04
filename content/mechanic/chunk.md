@@ -3,7 +3,7 @@ title: Chunk
 description: Chunk dimensions and coordinates, terrain population, singleplayer and multiplayer loading, spawn chunks, ticking rules, and the McRegion save format.
 type: mechanic
 categories: [Game mechanics]
-aliases: [Chunks, Chunk Loading, Spawn Chunks]
+aliases: [Chunks, Chunk Loading, Spawn Chunks, Save Suppression, Chunk Save Suppression]
 ---
 
 A **chunk** is a 16×16-block column containing the full height of the world, used to generate, load, simulate, and save terrain.
@@ -299,3 +299,56 @@ Loading does not replay the ticks that passed while a chunk was unloaded. Crops 
 Pending scheduled block updates are not included in the chunk's saved data. Closing and reopening the world does not restore that queue. Unloading a chunk also does not create a saved queue of updates to replay later.
 <!-- src: ChunkLoader.java:108-149; World.java:17-18,153-155;
      Chunk.java:469-479 -->
+
+### Save suppression
+
+**Save suppression** is possible in both singleplayer and multiplayer. McRegion silently skips a chunk save when its compressed NBT payload reaches **1,044,475 bytes**. The limit applies after compression, not to the uncompressed data or the size of the region file. The loaded chunk continues running.
+<!-- src: RegionFile.java:161-173; RegionFileChunkBuffer.java:18-19;
+     McRegionChunkLoader.java:42-57. Sector calculation is (payload + 5) / 4096
+     + 1, with integer division; a result >= 256 returns before any write.
+     The server RegionFile.java:161-173 has the same limit. Original client
+     qj.a(II[BI)V independently tested: 1044474 accepted, 1044475 rejected. -->
+
+| Previous save | Result after the oversized chunk is discarded and loaded again |
+|---|---|
+| Chunk already saved | Its blocks, entities and block entities return to the last successfully saved state. |
+| Chunk never saved | No chunk entry exists on disk; terrain is generated again. |
+
+<!-- src: RegionFile.java:118-126,165-173,259-268;
+     McRegionChunkLoader.java:15-38; ChunkLoader.java:151-199;
+     ChunkProvider.java:31-49; minecraft_server/ChunkProviderServer.java:43-61 -->
+
+Other chunks and player data can still save. Removing enough data permits later saves to succeed, so the chunk must remain oversized until it is discarded to cause a rollback. Walking away does not discard a chunk in singleplayer; leaving the world or changing dimension does.
+<!-- src: RegionFile.java:165-237 operates on one chunk entry;
+     World.java:278-297 saves level/player data separately;
+     ChunkProvider.java:130-157; Minecraft.java:1236-1248,1268-1279 -->
+
+#### Signs
+
+[[Sign|Signs]] can supply enough data to suppress saving. They accept four lines of up to 15 characters each. Signs can support other signs, allowing dense columns within one chunk. Varied text compresses less than repeated text; there is no fixed number of signs that always suppresses saving. [[Book|Books]] have no writable pages or stored page text.
+<!-- src: TileEntitySign.java:4,8-13; GuiEditSign.java:58-62;
+     ItemSign.java:9-47; BlockSign.java:10,80-103;
+     Material.java:47-48,113; Item.java:155-164,358;
+     ItemStack.java:75-85; RegionFile.java:161-162 -->
+
+A headless test using the original client classes places 24,000 signs with four full lines of varied ASCII text in one chunk. The compressed payload is 1,453,774 bytes. Saving skips the chunk, and loading restores its previous save. These are automated game-class tests, not a manually built survival-world demonstration.
+<!-- verification: 2026-10-04, OpenJDK 17, Mojang client.jar SHA-1
+     43db9b498cb67058d2e12d394e6507722e71bb45. PlacementProbe calls original
+     iz.a(gs,fd,x,y-1,z,1) / ItemStack.useItem, supplying one sign per call;
+     all 24000 placements consume the item and survive neighbour updates.
+     Chunk (0,0), stone platform at y=5, signs at x=i%16, z=(i/16)%16,
+     y=6+i/256. Neighbours [-2,2] are generated before fixture setup.
+     Text uses java.util.Random(173), four lines of 15 uniform draws from the
+     94 unique printable ASCII characters in the jar's font.txt, in file order.
+     Text is assigned to TileEntitySign.signText, followed by onInventoryChanged;
+     the GUI, player reach and manual typing are not exercised.
+     Original to.a(lm,fd,nu) / ChunkLoader.storeChunkInCompound encodes the chunk;
+     as.a(nu,DataOutput) / CompressedStreamTools.write and default Java deflate
+     measure it. ld.a(fd,lm) / McRegionChunkLoader.saveChunk suppresses its save;
+     ld.a(fd,0,0) restores the baseline byte-for-byte. Removing the upper 12000
+     signs through fd.f(x,y,z,0) / World.setBlockWithNotify allows saving again.
+     Independent SaveProbe uses original yk/nu/sp/as/qj (sign/NBT/region classes):
+     24000-sign fixture, varied text 1410928 compressed bytes, repeated 'A' text
+     88362 bytes. It asserts old region bytes unchanged, fresh entry absent,
+     neighbour preserved, below-limit recovery and close/reopen persistence.
+     Jar: https://launcher.mojang.com/v1/objects/43db9b498cb67058d2e12d394e6507722e71bb45/client.jar -->

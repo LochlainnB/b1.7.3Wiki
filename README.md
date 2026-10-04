@@ -28,20 +28,6 @@ and every [sprite](https://lochlainnb.github.io/b1.7.3Wiki/wiki/sprites/).
   taken from the code cites the class and line it came from in a hidden comment,
   which a page's **View source** tab shows.
 
-## Reading offline
-
-The site is plain static files, and works opened straight from disk, search
-included. Building it needs [Node.js](https://nodejs.org/) 18 or later:
-
-```bash
-git clone https://github.com/LochlainnB/b1.7.3Wiki.git
-cd b1.7.3Wiki
-npm install
-npm run build
-```
-
-Then open `site/index.html`.
-
 ## Found a mistake?
 
 [Open an issue](https://github.com/LochlainnB/b1.7.3Wiki/issues/new) naming the

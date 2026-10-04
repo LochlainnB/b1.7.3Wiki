@@ -1,6 +1,7 @@
 # Article models
 
-Write `{{viewer|sapling-transmutation}}` or `{{viewer|creeper}}` alone on a line.
+Write `{{viewer|piston-transmutation}}`, `{{viewer|sapling-transmutation}}` or
+`{{viewer|creeper}}` alone on a line.
 Each authored scene lives in `viewer/scenes/<scene-id>.json`; `assets/viewer/`
 contains generated meshes shared by scenes. The filename supplies the template
 ID and must contain only lowercase letters, digits and hyphens. New scene files
@@ -24,7 +25,12 @@ or below it solid, and higher blocks as translucent cube edges. The maximum is
 All. Builds are limited to 10,000 blocks and 32 vertical layers. Unsupported
 block/metadata pairs fail the build rather than becoming generic cubes.
 
-The initial machine uses the E6 pre-growth fixture in
+The piston machine uses the E5 survival fixture in
+`content/research/block-data-corruption.md`, Appendix C, after the upper wall
+lever is switched on. Both pistons remain retracted and the floor lever is off.
+It uses lime wool and oak wood, with the surrounding floor cropped to 5 × 6.
+
+The sapling machine uses the E6 pre-growth fixture in
 `content/research/block-data-corruption.md`, Appendix C. Its two powered levers
 are frozen in the armed state, not a simulation of ordinary placement. The
 surrounding test floor is cropped to a 13 × 5 platform; no machine part is omitted.

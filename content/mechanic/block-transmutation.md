@@ -46,7 +46,7 @@ first.
      loop at :345 moves whatever is in the line then, unchecked -->
 
 Pistons of one kind ignore every update while one of them is moving, so the two
-pistons must be one sticky and one normal.
+pistons must be one [[Sticky Piston|sticky]] and one normal.
 <!-- src: BlockPistonBase.java:7 ignoreUpdates is a field of the Block object,
      one for Block.pistonBase and one for Block.pistonStickyBase; :113 sets it
      for the whole of playBlock and :53 onNeighborBlockChange checks it. Tested:
@@ -59,29 +59,22 @@ metadata is its colour, so every value but 0 can be chosen.
 <!-- Tested on a dedicated server, built with the player's own placement and
      lever code; see Block Data Corruption. -->
 
-Positions are relative to the [[Redstone Torch|redstone torch]] at the centre,
-with east as +x and south as +z. Everything stands on a solid floor.
+The model shows lime wool and oak [[Wood|wood]], with the upper [[Lever|lever]]
+on and the floor lever off.
 
-| Position | Block |
-|---|---|
-| 0, 0, 0 | Redstone torch, standing on the floor |
-| −1, 0, 0 | Wool of the colour to transfer |
-| −2, 0, 0 | Piston, facing east |
-| 0, 0, −1 | The block to transmute |
-| 0, 0, −2 | [[Sticky Piston\|Sticky piston]], facing south |
-| −2, 0, −2 and −2, 1, −2 | Two solid blocks, one on the other |
-| −1, 1, −2 | [[Lever]] on the east face of the upper solid block |
-| −2, 0, 1 | Lever on the floor |
+{{viewer|piston-transmutation}}
+<!-- Scene: Block Data Corruption, Appendix C, E5 survival machine after arming.
+     Coordinates and metadata match the tested setup; the floor is cropped. -->
 
 1. Place everything, with the upper lever off.
 2. Turn the upper lever on. It powers the sticky piston through the space above
    it without updating it, so the sticky piston stays retracted.
 3. Turn the floor lever on.
 
-The piston breaks the torch. A lit redstone torch's removal updates every block
-two steps away from it, which fires the sticky piston, and the pushed block ends
-up at the centre with the wool's metadata. The wool is used up, and the torch
-drops as an item.
+The piston breaks the [[Redstone Torch|torch]]. A lit redstone torch's removal
+updates every block two steps away from it, which fires the sticky piston, and
+the pushed block ends up at the centre with the wool's metadata. The wool is
+used up, and the torch drops as an item.
 <!-- src: BlockRedstoneTorch.java:61 onBlockRemoval updates the neighbours of
      each neighbour, which reaches the sticky piston through the block in front
      of it; BlockLever.java:153 blockActivated updates the lever's neighbours and
@@ -101,8 +94,8 @@ The block to transmute must be one a piston can push. [[Leaves]] and
 
 ## Tree growth
 
-A tree that grows over a lit redstone torch gives a sapling with damage value 3
-a chance to drop.
+A tree that grows over a lit redstone torch gives a [[Sapling|sapling]] with
+damage value 3 a chance to drop.
 
 An oak tree's two lowest leaf layers reach 2 blocks from its trunk, but the tree
 checks only 1 block out at those heights for room to grow. Its leaves there
@@ -121,15 +114,6 @@ with the leaves' metadata as its damage value.
      damageDropped metadata & 3. A torch removed by a growing tree updates only
      the blocks two steps away (BlockRedstoneTorch.java:61); the tree places
      leaves without neighbour updates. -->
-
-Positions are relative to the [[Sapling|sapling]], on dirt or grass:
-
-| Position | Block |
-|---|---|
-| ±2, 2, −1 | Solid block |
-| ±2, 2, 0 | Redstone torch on the south face of that block |
-| ±3, 2, 0 | Any block a piston can push |
-| ±4, 2, 0 | Piston facing the torch, powered without being updated |
 
 {{viewer|sapling-transmutation}}
 <!-- Scene: Block Data Corruption, Appendix C, E6 setup. Coordinates and

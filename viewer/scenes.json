@@ -1,0 +1,34 @@
+{
+  "sapling-transmutation": {
+    "kind": "build",
+    "title": "Sapling transmutation machine",
+    "caption": "Before tree growth. The pistons face inward; both levers are on. The surrounding floor is omitted. Layers above the selection remain ghosted.",
+    "mesh": "block-models.json",
+    "fills": [
+      { "from": [-6, -1, -2], "to": [6, -1, 2], "block": "1:0" }
+    ],
+    "blocks": [
+      { "at": [0, -1, 0], "block": "3:0" },
+      { "at": [0, 0, 0], "block": "6:0" },
+      { "at": [-2, 2, -1], "block": "1:0" },
+      { "at": [2, 2, -1], "block": "1:0" },
+      { "at": [-2, 2, 0], "block": "76:3" },
+      { "at": [2, 2, 0], "block": "76:3" },
+      { "at": [-3, 2, 0], "block": "1:0" },
+      { "at": [3, 2, 0], "block": "1:0" },
+      { "at": [-4, 2, 0], "block": "33:5" },
+      { "at": [4, 2, 0], "block": "33:4" },
+      { "at": [-5, 2, 0], "block": "1:0" },
+      { "at": [5, 2, 0], "block": "1:0" },
+      { "at": [-5, 3, 0], "block": "69:13" },
+      { "at": [5, 3, 0], "block": "69:13" }
+    ],
+    "omissions": []
+  },
+  "creeper": {
+    "kind": "entity",
+    "title": "Creeper",
+    "caption": "Frozen appearance of a normal or charged creeper.",
+    "mesh": "creeper.json"
+  }
+}

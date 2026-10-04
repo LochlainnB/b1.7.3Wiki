@@ -7,15 +7,20 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "dev": "node tools/serve.mjs",
-    "check": "node tools/build.mjs --check",
+    "check": "npm test && node tools/build.mjs --check",
+    "test": "node --test tools/viewer.test.mjs",
     "new": "node tools/new-page.mjs",
     "sourcemap": "node tools/sourcemap.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
-    "markdown-it": "^14.1.0"
+    "markdown-it": "^14.1.0",
+    "three": "0.186.1"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

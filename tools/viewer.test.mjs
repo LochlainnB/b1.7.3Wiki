@@ -60,6 +60,24 @@ test('machine matches the tested E6 fixture, not the other transmutation machine
   }
 });
 
+test('piston machine matches the armed E5 survival fixture', () => {
+  const scene = scenes.get('piston-transmutation');
+  assert.equal(scene.minY, -1);
+  assert.equal(scene.layers, 3);
+  assert.equal(scene.blocks.length, 39); // Cropped 5 × 6 floor and nine machine blocks.
+  assert.deepEqual(scene.blocks.filter((b) => b.at[1] >= 0), [
+    { at: [0, 0, 0], block: '76:5' },
+    { at: [-1, 0, 0], block: '35:5' },
+    { at: [-2, 0, 0], block: '33:5' },
+    { at: [0, 0, -1], block: '17:0' },
+    { at: [0, 0, -2], block: '29:3' },
+    { at: [-2, 0, -2], block: '1:0' },
+    { at: [-2, 1, -2], block: '1:0' },
+    { at: [-1, 1, -2], block: '69:9' }, // East-mounted wall lever, on.
+    { at: [-2, 0, 1], block: '69:6' }, // Floor lever, off.
+  ]);
+});
+
 test('explicit placements override fills; fixed omissions stay omitted', () => {
   const build = { fills: [{ from: [-1, 2, 3], to: [1, 3, 3], block: '1:0' }],
     blocks: [{ at: [0, 2, 3], block: '3:0' }], omissions: [[-1, 3, 3]] };
@@ -106,6 +124,27 @@ test('metadata rotates the piston front and south-mounted torch correctly', () =
   const cap = models['76:3'].faces[0].corners;
   assert.ok(Math.abs(cap.reduce((sum, v) => sum + v[2], 0) / 4 - 0.25) < 1e-7);
   assert.equal(models['69:13'].opaque, false);
+});
+
+test('piston machine exports the sticky head, lime wool, wood and armed lever poses', () => {
+  const tile = (face) => Math.floor(face.corners[0][3] * 16) + 16 * Math.floor(face.corners[0][4] * 16);
+  // BlockPistonBase: the sticky head is tile 106; orientation 3 faces south.
+  assert.equal(tile(models['29:3'].faces.find((f) => f.normal.join(',') === '0,0,1')), 106);
+  // BlockCloth's metadata-5 lookup yields 146, not the white wool tile 64.
+  assert.ok(models['35:5'].faces.every((f) => tile(f) === 146));
+  for (const face of models['17:0'].faces) assert.equal(tile(face), face.normal[1] ? 21 : 20);
+  const cap = models['76:5'].faces[0].corners;
+  assert.deepEqual([0, 1, 2].map((i) => cap.reduce((sum, v) => sum + v[i], 0) / 4), [0.5, 0.625, 0.5]);
+  // RenderBlockLever: the wall base touches x=0; the floor base touches y=0.
+  const wallBase = models['69:9'].faces.slice(0, 6).flatMap((f) => f.corners);
+  assert.equal(Math.min(...wallBase.map((v) => v[0])), 0);
+  assert.equal(Math.max(...wallBase.map((v) => v[0])), 0.1875);
+  const floorBase = models['69:6'].faces.slice(0, 6).flatMap((f) => f.corners);
+  assert.equal(Math.min(...floorBase.map((v) => v[1])), 0);
+  assert.equal(Math.max(...floorBase.map((v) => v[1])), 0.1875);
+  // The powered wall handle points down; the unpowered floor handle leans east.
+  assert.ok(models['69:9'].faces[7].corners.every((v) => v[1] < 0.2));
+  assert.ok(models['69:6'].faces[7].corners.every((v) => v[0] > 0.8));
 });
 
 test('entity pass order, additive glow and texture-matrix UVs survive batching', () => {

@@ -1,9 +1,12 @@
 # Article models
 
 Write `{{viewer|sapling-transmutation}}` or `{{viewer|creeper}}` alone on a line.
-`scenes.json` is the authored catalog; `assets/viewer/` contains generated meshes.
-The build validates both and emits page-relative scene JSON. The bundled Three.js
-viewer loads only when a model approaches the viewport. There are no CDN requests.
+Each authored scene lives in `viewer/scenes/<scene-id>.json`; `assets/viewer/`
+contains generated meshes shared by scenes. The filename supplies the template
+ID and must contain only lowercase letters, digits and hyphens. New scene files
+are discovered automatically, without a catalog entry. The build validates scenes
+and meshes and emits page-relative scene JSON. The bundled Three.js viewer loads
+only when a model approaches the viewport. There are no CDN requests.
 
 ## Builds
 
@@ -49,6 +52,7 @@ piston renderer's metadata switches in memory because the interpreter has no
 
 Block meshes retain all faces. The browser removes horizontal faces between
 opaque neighbors but retains vertical faces to expose each layer boundary.
+Block faces are single-sided: plants already export paired front/back quads.
 Nearest-filtered original textures and byte-space lighting preserve the Beta
 appearance. Normal/charged variants share framing, including the overlay bounds.
 

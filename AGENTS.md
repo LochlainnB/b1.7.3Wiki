@@ -296,12 +296,29 @@ Full reference with live examples: `content/wiki/page-templates.md`, rendered at
 | `{{recipe list}}` | every recipe in the game |
 | `{{id\|Cobblestone}}` | the numeric id; `31:2` for a subtype; `{{id\|block 68}}` for one of several ids |
 | `{{gallery}}` | every picture the game draws of the page's subject, captioned |
+| `{{viewer\|sapling-transmutation}}` | interactive 3D build or frozen entity scene |
 | `{{list\|blocks}}` | sortable table of a whole data set; `light`, `opacity` and `food` give the narrower tables the hubs use |
 | `{{pagelist\|namespace=biome}}` | linked list of pages |
 | `{{stub}}` `{{main\|X}}` `{{see also\|X}}` `{{hatnote\|…}}` `{{msgbox\|…}}` | notes |
 
 To show template syntax without running it, wrap it in backticks or a fenced
 block — code is parsed before templates are.
+
+### Interactive article models
+
+Use `{{viewer|scene-id}}` alone on a line to illustrate a build or a frozen
+entity appearance. Each scene has its own authored file at
+`viewer/scenes/<scene-id>.json`; generated game meshes belong in `assets/viewer/`.
+Read [viewer/README.md](viewer/README.md) before authoring a scene or changing the
+viewer. It documents placements, cumulative layers, fixed cutaways and the
+`tools/extract/viewer_blocks.py` and `viewer_entities.py` mesh exporters. The
+template reference has a live example under **3D models**.
+
+`tools/lib/viewers.mjs` validates scenes; `theme/viewer.js` and
+`theme/viewer-mesh.js` render them. Unsupported block/metadata pairs must be
+exported from the game's renderer, not replaced with generic cubes. After a
+change, run `npm run check` and `npm run build`, then inspect the affected scene
+in the live preview, including relevant layer states and camera angles.
 
 ## Links
 

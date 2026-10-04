@@ -94,7 +94,9 @@ export async function mountViewer(element) {
                 vec4 colour = pixel * vTint;
                 if (colour.a <= alphaCut) discard;
                 gl_FragColor = colour; }`,
-            side: THREE.DoubleSide, forceSinglePass: true,
+            // Plants already have reversed quads for their backs. Drawing both
+            // sides of each quad makes the mirrored textures fight for depth.
+            side: batchBlocks ? THREE.FrontSide : THREE.DoubleSide, forceSinglePass: true,
             transparent: state.blend,
             blending: state.blend ? THREE.CustomBlending : THREE.NoBlending,
             blendEquation: THREE.AddEquation,

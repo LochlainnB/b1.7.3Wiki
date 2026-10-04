@@ -1,0 +1,6 @@
+{
+  "kind": "entity",
+  "title": "Creeper",
+  "caption": "Frozen appearance of a normal or charged creeper.",
+  "mesh": "creeper.json"
+}

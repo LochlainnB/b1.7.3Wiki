@@ -48,10 +48,10 @@ cumulative: the selected layer and everything below it are solid, while blocks
 above it remain as translucent edges. The highest layer shows the whole build.
 The fullscreen button expands the model together with its controls.
 
-Scene IDs come from `viewer/scenes.json`. Unknown IDs fail the build. Scenes use
-only exported block models and frozen entity appearances; they do not simulate
-redstone or tree growth. `viewer/README.md` describes scene authoring and mesh
-regeneration.
+Each scene has its own `viewer/scenes/<scene-id>.json` file. Unknown IDs fail the
+build. Scenes use only exported block models and frozen entity appearances; they
+do not simulate redstone or tree growth. `viewer/README.md` describes scene
+authoring and mesh regeneration.
 
 {{viewer|sapling-transmutation}}
 

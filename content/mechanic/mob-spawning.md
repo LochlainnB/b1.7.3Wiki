@@ -10,7 +10,7 @@ player. A [[Monster Spawner]] block spawns mobs by its own rules.
 
 ## The spawn cycle
 
-The cycle runs once per tick. Every chunk within 8 chunks of a player is
+The cycle runs once per tick. Every [[Chunk|chunk]] within 8 chunks of a player is
 eligible, a 17×17 square — 289 chunks for a single player, and fewer per player
 where two squares overlap.
 <!-- src: SpawnerAnimals.java:27 performSpawning -->
@@ -18,7 +18,7 @@ where two squares overlap.
 Mobs fall into three categories, each with its own population cap and its own
 material to stand in:
 
-| Category | Mobs | Cap per 256 chunks | Spawns in |
+| Category | Mobs | Cap per 256 eligible chunks | Spawns in |
 |---|---|---|---|
 | Monster | [[Zombie]], [[Skeleton]], [[Spider]], [[Creeper]], [[Slime]], [[Ghast]], [[Pig Zombie]] | 70 | air |
 | Creature | [[Sheep]], [[Pig]], [[Cow]], [[Chicken]], [[Wolf]] | 15 | air |
@@ -26,18 +26,24 @@ material to stand in:
 
 <!-- src: EnumCreatureType.java:4 -->
 
-The cap scales with how much world is loaded, at `cap × eligible chunks ÷ 256`,
-and is counted against every mob of that category in loaded chunks. One player
-alone supports 79 monsters, 16 animals and 5 squid.
-<!-- src: SpawnerAnimals.java:48; World.java:2064 countEntities walks
-     loadedEntityList -->
+The cap is `cap × eligible chunks ÷ 256`, rounded down. It scales with the
+number of distinct chunk coordinates in the players' eligible areas, not the
+total number of loaded chunks.
+For one player, the thresholds are 79 monsters, 16 animals and 5 squid.
+<!-- src: SpawnerAnimals.java:23-48 -->
+
+The population count includes every loaded mob of that category in the
+dimension, including mobs outside the eligible area and in
+[[Chunk#Entities|lazy chunks]].
+<!-- src: World.java:2064-2074 countEntities walks loadedEntityList without a
+     distance or entity-ticking check -->
 
 That count is taken once per category per tick, before the pass over the
 eligible chunks, and nothing rechecks it during the pass. A tick that starts
-under the cap runs the whole pass, so a category can finish the tick well over
-its cap. Spawning then stops until despawning brings the count back down.
-<!-- src: SpawnerAnimals.java:48, the single countEntities call guarding the
-     entire chunk loop -->
+at or below the cap runs the whole pass, so a category can finish the tick well
+over its cap. Spawning stops while the count is above the cap.
+<!-- src: SpawnerAnimals.java:48, the single countEntities call uses <= and
+     guards the entire chunk loop -->
 
 For each eligible chunk the game draws one mob from the biome's list for that
 category, then picks a starting point: a random x and z inside the chunk, and a

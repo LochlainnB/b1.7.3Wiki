@@ -88,8 +88,9 @@ A chunk can remain loaded without receiving random ticks. A chunk outside the vi
 
 ### Singleplayer
 
-Singleplayer loads chunks as the world needs their block data. The initial terrain-loading screen requests a 17×17 square around the player, or the world spawn if there is no player yet. Random ticking and terrain rendering can request further chunks.
-<!-- src: World.java:311-316,366-367; ChunkProvider.java:72-74;
+Singleplayer loads chunks as the world needs their block data. The initial terrain-loading screen requests a 17×17 square around the player, or the world spawn if there is no player yet. Random ticking and terrain rendering can request further chunks. Reading or changing a block, or looking up a block entity, also loads its chunk if it is absent.
+<!-- src: World.java:311-316,366-398,405-415,1599-1601;
+     ChunkProvider.java:31-49,72-74;
      Minecraft.java:1346-1373; World.java:1892-1898;
      WorldRenderer.java:100; ChunkCache.java:9-23 -->
 
@@ -127,6 +128,13 @@ When the last player stops watching a chunk, the server queues it for unloading 
 <!-- src: minecraft_server/PlayerInstance.java:44-54;
      minecraft_server/ChunkProviderServer.java:32-45,176-196;
      minecraft_server/World.java:1516 -->
+
+Respawning loads the destination chunk and checks chunks around a saved [[Bed|bed]]. [[Nether Portal|Portal]] searches during dimension travel can also load missing terrain. Ordinary block reads and changes do not load an absent server chunk unless automatic loading is temporarily enabled for spawn selection or portal travel.
+<!-- src: minecraft_server/ServerConfigurationManager.java:132-154,205-211;
+     minecraft_server/EntityPlayer.java:628-639;
+     minecraft_server/World.java:96-112;
+     minecraft_server/ChunkProviderServer.java:84-90;
+     minecraft_server/Teleporter.java:15-32 -->
 
 The multiplayer client receives terrain from the server. It does not generate missing terrain or save the server's chunks locally. The client's render-distance setting does not replace the server's view distance.
 <!-- src: ChunkProviderClient.java:39-68;
@@ -175,9 +183,13 @@ A dedicated server with a view distance below nine can have missing chunks insid
 
 ### Entities
 
-Ordinary entities update only when every chunk intersecting the horizontal square extending 32 blocks from their position is loaded. This covers a 5×5-chunk area centred on their own chunk. A loaded chunk at the edge of a loaded region can therefore contain frozen entities.
+Ordinary entities update only when every chunk intersecting the horizontal square extending 32 blocks from their position is loaded. This covers a 5×5-chunk area centred on their own chunk.
 <!-- src: World.java:335-352,1291-1306;
      minecraft_server/World.java:1028-1043 updateEntityWithOptionalForce -->
+
+The outer two-chunk-wide border of a rectangular loaded area can be described as *lazy chunks*: their ordinary entities do not tick. An unloaded hole creates the same effect within two chunk coordinates of it. Block entities and eligible block updates can still run there.
+<!-- src: World.java:335-352,1236-1242,1291-1306,1984-1988;
+     the entity check needs chunk offsets -2 through +2 on both axes -->
 
 This check does not use the nine-chunk random-tick radius. Entities in a fully loaded distant area can continue moving or advancing timers. An entity crossing a chunk border is moved into the destination chunk's entity list.
 <!-- src: World.java:1291-1306,1329-1342; Chunk.java:356-378 -->
@@ -201,6 +213,11 @@ An individual block entity can impose additional conditions. A [[Monster Spawner
 [[Game Tick#Scheduled ticks|Scheduled block updates]] are kept in one world-wide queue, not a queue attached to each chunk. Scheduling an update requires every chunk intersecting an eight-block neighbourhood of the block to be loaded. The same neighbourhood is checked when the update becomes due.
 <!-- src: World.java:17-18,1152-1173,1967-1988 -->
 
+The eight-block-wide border inside a loaded area's edge can be described as *lazy blocks* for scheduled updates. An unloaded hole creates the same border around itself. Random ticks and neighbour notifications can still affect these blocks.
+<!-- src: World.java:335-352,506-513,1164-1173,1952-1961,1984-1988;
+     at a loaded block range [L,R], scheduled updates require x-8 >= L
+     and x+8 <= R, and the equivalent conditions along z -->
+
 A due update is removed from the queue even when the surrounding chunks are missing. It is discarded rather than postponed until those chunks return. Scheduled updates can run beyond random-tick range if their required chunks remain loaded.
 <!-- src: World.java:1982-1988;
      minecraft_server/World.java:1736-1743 -->
@@ -215,6 +232,9 @@ A chunk border is not a wall for [[Redstone Power|redstone]], [[Fluid|fluids]], 
 
 Natural spawning considers the 17×17 square within eight chunk coordinates of each player. This is separate from both the random-tick area and the server's watched area. A chunk being loaded or retained at spawn is not enough to make natural spawning occur there.
 <!-- src: SpawnerAnimals.java:19-38 -->
+
+The natural mob cap scales with the size of this eligible area, not the total number of loaded chunks. Existing mobs in all loaded chunks count towards it, including mobs outside the eligible area and in lazy chunks.
+<!-- src: SpawnerAnimals.java:23-48; World.java:2064-2074 -->
 
 A *slime chunk* is a chunk whose coordinates and world seed pass the [[Slime|slime]] spawning test. About one chunk in ten qualifies. The designation covers the whole horizontal chunk, but slimes spawn only below y=16. Loading or unloading a chunk does not change its designation.
 <!-- src: EntitySlime.java:134-136; Chunk.java:598-599 -->

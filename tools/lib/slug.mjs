@@ -37,8 +37,8 @@ export function anchorId(text) {
 }
 
 /**
- * Relative href from one page URL to another, so the built site works from any
- * directory: a local file:// open, a subpath on GitHub Pages, or a dev server.
+ * Relative href from one page URL to another, so links work at a subpath on
+ * GitHub Pages or at the root of a dev server.
  * Both arguments are absolute site paths like "/block/stone/".
  */
 export function relative(fromUrl, toUrl) {

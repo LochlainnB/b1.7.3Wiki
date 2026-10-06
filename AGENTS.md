@@ -57,13 +57,17 @@ outside this repository. Setup sets `sourceDir` in the gitignored
 `B173_SOURCE` still takes precedence if explicitly configured. Repeated setup
 runs reuse the installed toolchain and source. No game code is committed.
 
-Setup also installs the [b1.7.3Harness](https://github.com/LochlainnB/b1.7.3Harness)
-into a commit-pinned sibling checkout (`../b1.7.3Harness`), with its own venv and
-`b173` on `PATH`. Its `b173 setup` step caches the game jars and a JDK 17 in
-`~/.cache/b173harness`, and `b173 doctor` must pass. Use the harness to check a
-claim against the real game: `b173 run examples/e1_merge.py` reproduces a known
-experiment; see its `README.md` and `docs/` for the experiment API. Bump
-`harness_commit` in `.agents/setup` to pick up harness updates.
+The Amp project must include the private
+[b1.7.3Harness](https://github.com/LochlainnB/b1.7.3Harness) as an additional
+repository. Amp clones it into `../repos/b1.7.3Harness` before setup; setup
+cannot clone private repositories with personal GitHub credentials, which
+only become available after activation. Setup pins that checkout to a commit,
+installs its own venv, and puts `b173` on `PATH`. Its `b173 setup` step caches
+the game jars and a JDK 17 in `~/.cache/b173harness`, and `b173 doctor` must pass.
+Use the harness to check a claim against the real game:
+`b173 run examples/e1_merge.py` reproduces a known experiment; see its `README.md`
+and `docs/` for the experiment API. Bump `harness_commit` in `.agents/setup` to
+pick up harness updates.
 
 For a live preview, run `amp orb services ensure`. `.amp/services.yaml` declares
 `npm run dev` on port 8173, checks that the home page responds, and provides an

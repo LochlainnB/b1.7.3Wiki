@@ -65,9 +65,10 @@ multiplayer only, a button on the sleeping screen gets the player up.
      GuiSleepMP.java:48 sends Packet19EntityAction state 3 -->
 
 A player can sleep while riding a minecart and return to the bed after transport
-and removal of the cart; see [[Multiplayer Bed Recall]] for a tested setup.
+and removal of the cart; see [[Multiplayer Bed Recall]] for setup and use.
 <!-- src: minecraft_server/EntityPlayer.java:512-570,592-607;
-     test: tools/experiments/bed-recall.py, seed 1, stock-input MP recall -->
+     test: 2026-10-06, two real clients, stock-input MP recall;
+     evidence: https://ampcode.com/threads/T-01a10ea1-2780-7373-b4d3-70cf3a51b6bb -->
 
 ### Spawn point
 

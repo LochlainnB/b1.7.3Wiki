@@ -65,8 +65,8 @@ if [[ ! -d "$harness_dir/.git" ]]; then
 fi
 git -C "$harness_dir" checkout --quiet "$harness_commit"
 
-# Xvfb and Mesa (llvmpipe) for headless game clients, per the harness README.
-system_deps=(xvfb libgl1-mesa-dri libgl1 mesa-utils libxrandr2 libxxf86vm1 libxcursor1 libxi6 libopenal1)
+# Xvfb and Mesa (llvmpipe) for headless game clients. LWJGL also invokes xrandr.
+system_deps=(xvfb x11-xserver-utils libgl1-mesa-dri libgl1 mesa-utils libxrandr2 libxxf86vm1 libxcursor1 libxi6 libopenal1)
 if ! dpkg -s "${system_deps[@]}" >/dev/null 2>&1; then
   echo "Installing harness system dependencies"
   sudo apt-get update -qq

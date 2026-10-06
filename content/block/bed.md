@@ -64,6 +64,11 @@ multiplayer only, a button on the sleeping screen gets the player up.
      Minecraft.java:975 shows GuiSleepMP only in a multiplayer world;
      GuiSleepMP.java:48 sends Packet19EntityAction state 3 -->
 
+A player can sleep while riding a minecart and return to the bed after transport
+and removal of the cart; see [[Multiplayer Bed Recall]] for a tested setup.
+<!-- src: minecraft_server/EntityPlayer.java:512-570,592-607;
+     test: tools/experiments/bed-recall.py, seed 1, stock-input MP recall -->
+
 ### Spawn point
 
 Waking in the morning sets the player's spawn point at the bed. In multiplayer,

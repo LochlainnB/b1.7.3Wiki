@@ -5,7 +5,7 @@ type: guide
 categories: [Guides]
 ---
 
-**Multiplayer bed recall** returns a transported, sleeping player to their original [[Bed|bed]] through the stock **Leave Bed** button.
+**Multiplayer bed recall** returns a transported, sleeping player to their original [[Bed|bed]] through the **Leave Bed** button.
 <!-- src: minecraft_server/EntityPlayer.java:592-607 wakeUpPlayer;
      EntityPlayerMP.java:248-257; GuiSleepMP.java:36-49 -->
 
@@ -28,27 +28,15 @@ This is not a recall button for an awake player. The player stays asleep through
 <!-- src: Minecraft.java:972-979; GuiSleepMP.java:36-49;
      EntityClientPlayerMP.java:38-52 -->
 
-## Preparing a route
-
-Place a [[Bed|bed]] in the [[Overworld]], close enough to a stopped, empty [[Minecart|minecart]] to be used while mounted. Leave clear ground beside the bed for the return.
-<!-- src: minecraft_server/EntityPlayer.java:512-570,592-607 -->
-
-Keep the cart stopped until the player is asleep. A switchable [[Powered Rail|powered rail]] with a solid backstop provides a launcher. Build a safe, lit track to the destination, with powered rails to keep the cart moving and unpowered powered rails to stop it. Leave room beside the arrival point for a helper to reach the cart.
-<!-- src: minecraft_server/EntityMinecart.java:252-263,386-406 -->
-
-An awake helper launches the cart and removes it at the destination. The original bed must remain intact and its [[Chunk|chunk]] must stay loaded. For a route that takes the helper away from the bed's loaded area, keep another awake player near the bed.
-<!-- src: minecraft_server/World.java:1502-1515,2082-2099;
-     EntityPlayer.java:63-68,624-625;
-     ChunkProviderServer.java:84-90; PlayerManager.java:11-38 -->
-
 ## Using the recall
 
-1. At night, the sleeper mounts the stopped [[Minecart|minecart]] beside the [[Bed|bed]]. Wait a moment for mounting to settle.
-2. Still mounted, the sleeper right-clicks the bed. **Leave Bed** must appear before departure.
-3. The helper launches the cart. The sleeper keeps the sleep screen open during the journey.
-4. At the destination, stop the cart. The helper attacks the cart until it breaks. **Stop attacking immediately when the cart disappears; do not hit the sleeper.**
-5. Once the cart is gone and the sleeper is no longer mounted, the sleeper clicks **Leave Bed** to return beside the original bed.
-6. Replace the cart and reset the launcher before another journey. Each use requires entering the bed again.
+Having a helper ready to launch and destroy the player's [[Minecart|minecart]] is the simplest way to use this recall, particularly because another player must be connected to the server to prevent night being skipped.
+
+1. Mount a minecart.
+2. Right click a [[Bed|bed]] to sleep. **Leave Bed** must appear before departure.
+3. Launch the minecart and wait for it to reach its destination.
+4. Destroy the cart.
+5. Click **Leave Bed** to return to beside the original bed.
 
 <!-- src: minecraft_server/NetServerHandler.java:59-71,308-310,447-455;
      EntityPlayer.java:512-570;
@@ -60,12 +48,12 @@ An awake helper launches the cart and removes it at the destination. The origina
 
 | Condition | Effect or action |
 |---|---|
-| Everyone sleeps | The night skips and wakes the sleeper. Keep at least one other player awake. |
-| Daylight arrives | The sleeper wakes before the planned recall. Complete the journey during the night. |
-| The sleeper takes damage | The sleeper wakes early. Protect the route from mobs and other hazards. |
+| Everyone sleeps | The night skips and the player wakes. |
+| Daylight arrives | The player wakes. |
+| The player takes damage | The player wakes. |
 | The original bed breaks or its chunk unloads | The bed can no longer provide the return position. |
-| Leave Bed is pressed while still mounted | The player stays with the cart instead of completing the return. |
-| The server restarts or the sleeper reconnects | The transported sleep state is lost. Start a new journey. |
+| Leave Bed is pressed while still mounted | The player stays with the cart. |
+| The server restarts or the player reconnects | The transported sleep state is lost. |
 | Bed or launcher interactions fail near world spawn | Spawn protection can block the interaction. Build outside it or obtain operator permission. |
 
 <!-- src: minecraft_server/EntityPlayer.java:63-68,288-298,337-344,592-625;

@@ -28,10 +28,6 @@ This is not a recall button for an awake player. The player stays asleep through
 <!-- src: Minecraft.java:972-979; GuiSleepMP.java:36-49;
      EntityClientPlayerMP.java:38-52 -->
 
-Spawn protection blocks non-operators from right-clicking beds or levers and placing minecarts within 16 blocks of world spawn along both horizontal axes. Mounting or breaking existing carts and **Leave Bed** are unaffected.
-<!-- src: minecraft_server/NetServerHandler.java:287-310,447-455,475-486;
-     ItemInWorldManager.java:129-135; ItemMinecart.java:12-20 -->
-
 ## Using the recall
 
 Having a helper ready to launch and destroy the player's [[Minecart|minecart]] is the simplest way to use this recall, particularly because another player must be connected to the server to prevent night being skipped.
@@ -55,10 +51,9 @@ Having a helper ready to launch and destroy the player's [[Minecart|minecart]] i
 | Everyone sleeps | The night skips and the player wakes. |
 | Daylight arrives | The player wakes. |
 | The player takes damage | The player wakes. |
-| The original bed breaks or its chunk unloads | The player wakes automatically where they are. |
+| The original bed breaks or its chunk unloads | The player wakes. |
 | Leave Bed is pressed while still mounted | The player stays with the cart. |
 | The server restarts or the player reconnects | The player reconnects awake at their last saved position. |
-| A non-operator clicks a bed or launch lever inside spawn protection | The block does not activate. |
 
 <!-- src: minecraft_server/EntityPlayer.java:63-68,288-298,337-344,592-625;
      World.java:144-149,199-200,1502-1515,2082-2099;

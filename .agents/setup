@@ -52,4 +52,43 @@ config.sourceDir = process.argv[2];
 writeFileSync(file, JSON.stringify(config, null, 2) + '\n');
 JS
 
+# Install the b1.7.3 harness (https://github.com/LochlainnB/b1.7.3Harness) for
+# in-game testing: tick-exact experiments against the real game. Kept as a
+# commit-pinned sibling checkout, like the source above, so orbs are
+# reproducible; bump harness_commit to pick up harness updates.
+harness_commit=df5a794ff71048abccc73262663cd4d2a13efeb8
+harness_dir="$(dirname "$repo_root")/b1.7.3Harness"
+if [[ ! -d "$harness_dir/.git" ]]; then
+  echo "Cloning b1.7.3Harness"
+  git clone --quiet https://github.com/LochlainnB/b1.7.3Harness.git "$harness_dir"
+fi
+git -C "$harness_dir" checkout --quiet "$harness_commit"
+
+# Xvfb and Mesa (llvmpipe) for headless game clients, per the harness README.
+system_deps=(xvfb libgl1-mesa-dri libgl1 mesa-utils libxrandr2 libxxf86vm1 libxcursor1 libxi6 libopenal1)
+if ! dpkg -s "${system_deps[@]}" >/dev/null 2>&1; then
+  echo "Installing harness system dependencies"
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq "${system_deps[@]}" >/dev/null
+fi
+
+# Editable install into the harness checkout's own venv; expose b173 on PATH.
+harness_venv="$harness_dir/.venv"
+if command -v uv >/dev/null; then
+  if [[ ! -x "$harness_venv/bin/python" ]]; then
+    uv venv --quiet "$harness_venv"
+  fi
+  uv pip install --quiet --python "$harness_venv/bin/python" -e "$harness_dir[capture,test]"
+else
+  python3 -m venv "$harness_venv"
+  "$harness_venv/bin/pip" install --quiet -e "$harness_dir[capture,test]"
+fi
+sudo ln -sfn "$harness_venv/bin/b173" /usr/local/bin/b173
+
+# Downloads JDK 17, the pinned game jars (~500 MB into ~/.cache/b173harness) and
+# derives the MCP-named compile jars. Idempotent and hash-checked; a warm run
+# verifies what is already cached.
+"$harness_venv/bin/b173" setup
+"$harness_venv/bin/b173" doctor
+
 npm run check

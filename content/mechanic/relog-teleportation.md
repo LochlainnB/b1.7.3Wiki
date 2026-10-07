@@ -10,7 +10,7 @@ aliases: [Relog Elevator, Multiplayer Relog Elevator, Logout Teleportation]
 
 ## How it works
 
-Disconnecting saves the [[Player|player]]'s position. Reconnecting restores it, then checks the player's full collision box. An overlapping player moves upward in one-block steps until the box is clear. X and Z stay unchanged.
+Disconnecting saves the [[Player|player]]'s position. Reconnecting restores it, then checks the player's full collision box. An overlapping player moves upward in one-block steps. X and Z stay unchanged.
 <!-- src: minecraft_server/ServerConfigurationManager.java:74-99
      readPlayerDataFromFile, playerLoggedIn, playerLoggedOut;
      minecraft_server/NetLoginHandler.java:81-98 doLogin;
@@ -21,6 +21,23 @@ The check uses block and entity collision shapes, not visible block outlines or 
      Block.java:273-283 getCollidingBoundingBoxes, getCollisionBoundingBoxFromPool;
      AxisAlignedBB.java:185-195 intersectsWith;
      Entity.java:892-905 isEntityInsideOpaqueBlock uses separate eye-level samples -->
+
+The lift stops at the first collision-free position it tests, not necessarily the surface. The player's box is 0.6 blocks wide and 1.8 blocks high. A two-block-high cavity can stop an ascent underground. A one-block-high gap cannot contain the whole body.
+<!-- src: minecraft_server/ServerConfigurationManager.java:83-85;
+     Entity.java:86-87,163-169 width, height, setPosition;
+     minecraft_server/EntityPlayerMP.java:41 yOffset=0 -->
+<!-- test: 2026-10-06, same harness/JDK/seed and no T3 deviations.
+     Stone (0,39,0)..(4,100,4), air (1,41,1)..(3,42,3), pit air (2,40,2),
+     landing air Y=101..105. Real-client placement buried the player in two
+     sand or gravel blocks. Both materials twice gave Y=40 to Y=101;
+     empty pit stayed Y=40, one sand stopped Y=41. One-high gap at Y=60
+     was bypassed; two-high gap Y=60..61 stopped at Y=60. X/Z unchanged.
+     Evidence: https://ampcode.com/threads/T-01a11104-f82f-761b-95c7-ed6616e10833 -->
+
+[[Water|Water]] and [[Lava|lava]] have no collision box. The lift can stop with the player submerged in either fluid, provided no other collision shape overlaps the player's box.
+<!-- src: BlockFluid.java:82-83 getCollisionBoundingBoxFromPool returns null;
+     minecraft_server/ServerConfigurationManager.java:83-85 playerLoggedIn;
+     World.java:959-996 getCollidingBoundingBoxes -->
 
 ## Wall-contact rounding
 
@@ -70,28 +87,6 @@ Wall contact does not always leave an overlap. Different approach positions can 
      Removing stone (0,60,4)..(2,61,6) stopped the wall-contact ascent at Y=60.
      Read-only playerLoggedIn entry/exit traces verified restored Y=40,
      corrected destinations and unchanged X/Z in all six cases.
-     Evidence: https://ampcode.com/threads/T-01a11104-f82f-761b-95c7-ed6616e10833 -->
-
-## Destination
-
-The lift stops at the first collision-free position it tests, not necessarily the surface. The [[Player|player]]'s box is 0.6 blocks wide and 1.8 blocks high. A two-block-high cavity can stop an ascent underground. A one-block-high gap cannot contain the whole body.
-<!-- src: minecraft_server/ServerConfigurationManager.java:83-85;
-     Entity.java:86-87,163-169 width, height, setPosition;
-     minecraft_server/EntityPlayerMP.java:41 yOffset=0 -->
-
-A slight side-wall overlap can carry the player upward while their centre remains in air. The lift continues only while every tested position intersects a collision shape. Solid terrain above a cave does not start the lift when the saved position is clear.
-<!-- src: minecraft_server/ServerConfigurationManager.java:83-85;
-     World.java:959-996; AxisAlignedBB.java:185-195 -->
-
-The destination is not checked for hazards. [[Water|Water]] and [[Lava|lava]] have no collision box and do not stop the lift. The player is not sent to their [[Bed|bed]] or world spawn.
-<!-- src: BlockFluid.java:82-83 getCollisionBoundingBoxFromPool returns null;
-     minecraft_server/ServerConfigurationManager.java:78-89 playerLoggedIn -->
-<!-- test: 2026-10-06, same harness/JDK/seed and no T3 deviations.
-     Stone (0,39,0)..(4,100,4), air (1,41,1)..(3,42,3), pit air (2,40,2),
-     landing air Y=101..105. Real-client placement buried the player in two
-     sand or gravel blocks. Both materials twice gave Y=40 to Y=101;
-     empty pit stayed Y=40, one sand stopped Y=41. One-high gap at Y=60
-     was bypassed; two-high gap Y=60..61 stopped at Y=60. X/Z unchanged.
      Evidence: https://ampcode.com/threads/T-01a11104-f82f-761b-95c7-ed6616e10833 -->
 
 ## Singleplayer

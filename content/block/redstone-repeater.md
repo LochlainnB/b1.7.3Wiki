@@ -60,8 +60,9 @@ its input goes off, if the input is still off by then.
      a mismatch; :28 updateTick always turns an unpowered repeater on, and
      schedules the turn-off at once when the input has already gone -->
 
-Its delay is exact. [[Game Tick#Skipping a delay|Random ticks]] never cut it
-short.
+[[Game Tick#Skipping a delay|Random ticks]] never cut its delay short. A
+crowded tick queue can make it run long; see
+[[Redstone Power#Waiting in the queue|Redstone Power]].
 <!-- src: BlockRedstoneRepeater's constructor never calls setTickOnLoad -->
 
 ## Data values

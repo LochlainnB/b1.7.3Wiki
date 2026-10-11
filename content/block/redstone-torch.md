@@ -57,6 +57,40 @@ block beside it changes, or on a random tick.
      than 100 ticks; :117 the fizz and smoke on the 8th; :128 no relight while 8
      remain -->
 
+Every torch in the running game records its turn-offs in one list, shared by
+every world and dimension loaded since the game started. A torch counts the
+turn-offs recorded at its coordinates, whichever world made them.
+
+Turn-offs are cleared from the oldest end of the list, against the clock of the
+world the clearing torch is in. A turn-off dated later than a world's clock
+cannot be cleared by that world's torches, and holds back every turn-off
+recorded after it. While it stays, a torch in that world burns out at its 8th
+turn-off in all, and does not relight. This happens:
+
+- in a singleplayer world opened after one with a later time, without restarting
+  the game;
+- in a server's Nether once players sleep through a night, which moves the
+  Overworld's clock on and not the Nether's. Each Overworld torch that turns off
+  then holds back the Nether's turn-offs until a torch in the Overworld updates
+  more than 100 ticks later;
+- on a server, after `time set` to an earlier time.
+
+<!-- src: BlockRedstoneTorch.java:9 torchUpdates is static; :24 compares x, y
+     and z only; :110 stops at the first entry not more than 100 ticks older
+     than this world's time. Singleplayer copies the world info on a dimension
+     change (World.java:136), so its two dimensions share one clock; a server
+     loads a WorldInfo per dimension (minecraft_server World.java:68) and
+     sleeping moves one world's clock (minecraft_server World.java:1502).
+     tested (harness): singleplayer world at time 50000 burnt a clock out, then
+     a new world in the same session: a clock at the same coordinates burnt out
+     at its 1st turn-off and one elsewhere at its 8th, and neither relit in 8000
+     ticks, where a fresh session's clocks relit every 100-900 ticks. Server, a
+     player in the Nether, another asleep in the Overworld (clocks then 24008
+     and 13112): once the Overworld's only clock stopped, a Nether clock burnt
+     out and stayed out for 5945 ticks; while that clock ran, it had relit every
+     140-780 ticks. Server, time set from 51500 to 1000: one clock never relit
+     and a new one burnt out at its 8th turn-off, for 5000 ticks -->
+
 ## Data values
 
 - Block ID: {{id|Redstone Torch}} unlit, {{id|block 76}} lit

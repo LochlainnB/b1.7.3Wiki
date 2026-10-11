@@ -60,12 +60,16 @@ block and replaces it:
   [[Rail|rails]], [[Lever|levers]] and [[Button|buttons]];
 - [[Snow|snow]] layers, [[Fire|fire]] and [[Nether Portal|portal]] blocks.
 
-Water breaks these into their drops. Lava destroys them.
+Water flowing sideways into these breaks them into their drops. Water flowing
+down onto them destroys them without drops. Lava destroys them.
 <!-- src: BlockFlowing.java:220 blockBlocksFlow, true for the four named
      blocks and any solid material; the non-solid materials are plants,
      circuits, snow, fire and portal (Material.java:108-:138,
      MaterialLogic.java, MaterialTransparent.java, MaterialPortal.java);
-     :116 flowIntoBlock drops the block for water and fizzes for lava -->
+     :116 flowIntoBlock drops the block for water and fizzes for lava; :80-:85
+     the downward flow replaces the block without flowIntoBlock, so nothing
+     drops. Tested on a dedicated server: water placed above redstone dust and
+     above a torch left no item; water placed beside each dropped one. -->
 
 ## Infinite water
 

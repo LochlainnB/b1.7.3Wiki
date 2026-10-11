@@ -56,7 +56,20 @@ because every ray starts inside it.
 A broken block drops each item it would drop with a chance of 3 in 10.
 [[TNT]] drops nothing, and is lit instead with a short fuse.
 <!-- src: Explosion.java:158 dropBlockAsItemWithChance(..., 0.3F);
-     BlockTNT.java:35 quantityDropped 0, :39 onBlockDestroyedByExplosion -->
+     BlockTNT.java:35 quantityDropped 0, :39 onBlockDestroyedByExplosion.
+     Block.java:339 applies the chance to every block whatever its hardness.
+     Tested: redstone dust, torches, redstone torches and repeaters (hardness
+     0) on obsidian dropped in 23-35% of 40 blasts each. -->
+
+A block that a [[Piston|piston]] is moving drops everything it would drop. The
+block is still destroyed.
+<!-- src: BlockPistonMoving.java:61 dropBlockAsItemWithChance ignores the
+     chance and calls the moved block's dropBlockAsItem (:65), which uses a
+     chance of 1 (Block.java:335); the moving block's blast resistance is 0.
+     TileEntityPiston.java:98 places nothing once the space is air. Tested:
+     redstone ore blown up while moving dropped 4 or 5 redstone in 33 of 33
+     blasts, against 1.24 on average for ore at rest, and was not placed
+     afterwards. -->
 
 A ghast fireball or a bed sets fire to one space in three of those it clears,
 where the block beneath is opaque.

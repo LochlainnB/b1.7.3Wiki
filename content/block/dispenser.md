@@ -39,10 +39,20 @@ Right-clicking a dispenser opens its 9 slots.
 A dispenser fires 4 ticks after it, or the block above it, is
 [[Redstone Power#Blocks that respond|powered]], and only if it is still powered
 then. It checks only when a power source beside it changes, so a
-[[Redstone Repeater|repeater]] switching beside it goes unnoticed.
+[[Redstone Repeater|repeater]] switching beside it goes unnoticed, and so does
+power reaching only the block above it.
 <!-- src: BlockDispenser.java:140 onNeighborBlockChange, the canProvidePower
      test on the changed block; :13 tickRate 4; :150 updateTick checks power
      again -->
+
+While it stays powered, a dispenser fires again each time a power source beside
+it changes, even one that has nothing to do with it.
+<!-- src: BlockDispenser.java:140 schedules whenever it is powered at a check,
+     and keeps no record of its last state.
+     tested (harness, server): a dispenser held on by one lever fired once more
+     at each of four toggles of a second lever beside it, on and off alike; with
+     a lever beside the block above it, it did not fire until a torch was placed
+     beside it -->
 
 ### Firing
 

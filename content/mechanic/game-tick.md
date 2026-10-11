@@ -131,6 +131,17 @@ At most 1000 scheduled ticks run in one tick. Anything still due waits for the
 next one.
 <!-- src: World.java:1972 -->
 
+Generating terrain queues a tick for each block of [[Gravel|gravel]] it places,
+a few hundred to a chunk. A player reaching new terrain can hold up every
+scheduled tick in the dimension for several seconds; see
+[[Redstone Power#Waiting in the queue|Redstone Power]].
+<!-- src: ChunkProviderGenerate.java:365 WorldGenMinable for gravel;
+     WorldGenMinable.java:46 setBlock runs BlockSand.java:12 onBlockAdded,
+     which queues a tick 3 ahead.
+     tested (harness, server, seed 1): 218,342 pending at start from 624
+     chunks, 218,191 of them gravel; a player teleporting into new terrain
+     queued 147,000 to 175,000 -->
+
 Two conditions are checked before a due tick runs. Every chunk within 8 blocks
 must be loaded, and the block at the position must still be the one that asked.
 A block broken while its tick was pending gets nothing.
@@ -230,8 +241,8 @@ The odds are the random-tick odds — about 1 in 410 for each tick the block
 spends waiting, and nothing at all beyond 9 chunks from a player.
 
 The {{sprite|Redstone Repeater}} and the {{sprite|Dispenser}} are not flagged,
-and neither are falling {{sprite|Sand}} and {{sprite|Gravel}}. Their delays are
-exact.
+and neither are falling {{sprite|Sand}} and {{sprite|Gravel}}. Random ticks never
+cut their delays short.
 
 ## Display ticks
 

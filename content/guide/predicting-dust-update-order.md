@@ -50,11 +50,13 @@ first dust's list touch the next dust:
 | One block down, beside the block under the first dust | the space above the next dust, and the block under the first dust |
 
 A dust on the same level is reached when the list gets to the first dust's own
-position. The six block updates sent around that position go to the six blocks
-touching the first dust, in the usual order. Any dust beside it on the same
-level is among them, on the −x, +x, −z or +z side. So when two branches leave
-one dust on the same level, the −x branch goes first, then +x, then −z, then
-+z, whatever the buckets are.
+position, as the six block updates sent around that position include one to it.
+
+The first dust's position is not only on its own list. Every dust beside it has
+that position on its list too. So a dust on the same level can also be reached
+from the list of another dust beside the first dust, whichever list gets to the
+first dust's position sooner. Where a line splits, below, shows when that
+matters.
 
 A dust one block up or down is reached at whichever of its two positions comes
 first on the list. That can be before or after the first dust's own position.
@@ -81,6 +83,49 @@ For a straight line of three dust, A, B and C, powered from A's end:
 
 Power therefore runs to the far end of one branch before the dust where two
 branches part sends another block update.
+
+## Where a line splits
+
+A **junction** is a dust where a line splits into branches. This section covers
+a junction where the first dust of each branch sits right beside the junction,
+on the same level: a T or a cross of dust, with no step up or down between the
+junction and its branches.
+
+When the junction turns on, its list reaches its own position. The block updates
+sent around that position go −x, +x, −y, +y, −z, +z, so the branch on the
+earliest of the sides −x, +x, −z, +z turns on first. Call it the first branch.
+
+The first branch does not always fire first. Its first dust now works through
+its own update list, and the junction's position is on that list. If the list
+reaches the junction's position before the dust's own position, the block
+updates sent around the junction reach the other branches and turn them on.
+Each runs to its end before the first branch goes any further.
+
+Take dust at x = 0, 1 and 2, all on one level, with power reaching the middle
+dust and branches carrying on from both ends:
+
+1. The middle dust's list reaches its own position. Its −x block update turns
+   on the dust at x = 0.
+2. The dust at x = 0 works through its own list, which includes the middle
+   dust's position.
+3. If the middle dust's position comes first on that list, the block updates
+   sent around it turn on the dust at x = 2, and the +x branch fires to its end.
+4. Only then does the x = 0 dust's list reach its own position, and the −x
+   branch fires.
+
+If the x = 0 dust's own position comes first on its list instead, the −x branch
+fires first.
+
+To compare two branches leaving a junction on one level, take the branch on the
+earlier side and look at its first dust's list. If the dust's own position comes
+before the junction's position, that branch fires first. If the junction's
+position comes first, the other branch does. With three or four branches, the
+same check repeats at the first dust of each branch in turn, and the script
+follows it.
+<!-- tested (harness, server): dust at x = 0 to 6, powered at x = 3 by a floor
+     lever beside it, with a piston beyond each end, at 231 places: the +x
+     piston extended first at 146, the -x piston at 85, and the script
+     predicted all 231 -->
 <!-- src: BlockRedstoneWire.java:88-:97 skip the dust that asked, so a dust's
      own calculation never turns the next dust on: the next dust turns on when
      a block update reaches it, and handles its whole list inside that block
@@ -168,19 +213,22 @@ positions. Switching off can, as its one list contains the whole network:
 
 A bigger table changes the buckets of every position. A machine that works in a
 game just started can fail later in the same session, once a bigger network
-anywhere has switched off. Two rules hold whatever the table size: switching on
-runs depth first, and branches on the same level go −x, +x, −z, +z.
+anywhere has switched off. Only one rule holds whatever the table size:
+switching on runs depth first.
 
 ## Which machine acts first
 
 1. Find the table size: 16 in a game just started, otherwise the size the
    biggest network switched off since then has given it.
-2. **Switching on:** find the dust where the paths to the two machines part.
-   - If both paths leave it on the same level, the side order decides.
-   - Otherwise, list that dust's update list in order, with the script's
-     `--set`. For each path, find the first position on the list that touches
-     the next dust on that path. The path whose position comes first acts first.
-   - A machine powered straight from this dust acts at the first position on
+2. **Switching on:** find the junction, the dust where the paths to the two
+   machines part.
+   - If both paths leave it on the same level, use the check under Where a line
+     splits.
+   - If a path steps up or down, list the junction's update list in order, with
+     the script's `--set`. For each path, find the first position on the list
+     that touches the next dust on that path. The path whose position comes
+     first acts first.
+   - A machine powered straight from the junction acts at the first position on
      the list that touches the machine.
 3. **Switching off:** run the script with `--off`. The machine whose touching
    position comes first on the network's one list acts first.

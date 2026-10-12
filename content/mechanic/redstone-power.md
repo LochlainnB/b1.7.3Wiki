@@ -173,8 +173,10 @@ the coordinates.
 
 - **Switching on** runs depth first. When a block update from one dust turns on
   a second dust, the second dust works through its whole update list before the
-  first dust sends its next block update. Two branches that leave one dust on
-  the same level go in the order −x, +x, −z, +z.
+  first dust sends its next block update. Where a line splits on one level, the
+  branch on the −x side starts first, then +x, −z and +z. Its first dust can
+  still fire the other branches before its own: that dust's update list includes
+  the position of the dust where the line splits.
 - **Switching off** makes one update list for the whole network, and works
   through it in hash order.
 
@@ -194,7 +196,9 @@ Java 8 and later.
      into one space: one piston won at 234 places and the other at 55, all
      predicted. Four copies fired one way in a fresh session and the other way
      after a 15-dust line 120 blocks away had switched off; in singleplayer,
-     the same after the line switched off in the previous world. 90 random
+     the same after the line switched off in the previous world. A line split
+     at its middle dust, at 231 places: the +x branch fired first at 146 and
+     the -x branch at 85, all predicted. 90 random
      networks, switched on and off: every block update reaching an unmovable
      piston arrived in the predicted order. JDK 8 changed HashMap.hash (read,
      not run on Java 6 or 7) -->

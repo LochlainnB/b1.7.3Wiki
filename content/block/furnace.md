@@ -52,7 +52,7 @@ Breaking a furnace drops its contents.
 ## Behaviour
 
 A [[Piston|piston]] cannot push a furnace, except in the tick the furnace
-lights or goes out. A piston that answers the neighbour update the furnace sends
+lights or goes out. A piston that answers the block update the furnace sends
 then can. The pushed furnace loses its contents and stays lit for good, and
 the piston's head takes its old place.
 <!-- src: BlockPistonBase.java:268 canPushBlock refuses any block with a tile

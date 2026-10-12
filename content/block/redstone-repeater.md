@@ -45,10 +45,10 @@ nothing else.
 <!-- src: BlockRedstoneRepeater.java:103 ignoreTick, :65 isIndirectlyPoweringTo,
      :69 isPoweringTo -->
 
-A [[Wooden Door|door]], [[Trapdoor|trapdoor]], [[TNT]],
-[[Note Block|note block]] or [[Dispenser|dispenser]] does not notice a repeater
-switching beside it. A repeater is not a
-[[Redstone Power#Blocks that respond|power source]] to them.
+A repeater is not a [[Redstone Power#Block updates|power source]], so a
+[[Wooden Door|door]], [[Trapdoor|trapdoor]], [[TNT]],
+[[Note Block|note block]], [[Dispenser|dispenser]] or [[Rail|rail]] ignores the
+block updates a repeater sends as it switches.
 <!-- src: BlockRedstoneRepeater.java:127 canProvidePower returns false -->
 
 ### Delay

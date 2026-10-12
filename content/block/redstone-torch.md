@@ -50,8 +50,8 @@ it except the one it is attached to, and
 
 A redstone torch that turns off for the 8th time within 100 ticks burns out,
 with a hiss and a puff of smoke. It stays off while 8 of its turn-offs lie
-within the last 100 ticks, and relights at its next update after that: when a
-block beside it changes, or on a random tick.
+within the last 100 ticks, and relights at its next
+[[Game Tick#Block updates|block update]] or random tick after that.
 <!-- src: BlockRedstoneTorch.java:15 checkForBurnout, which counts entries for
      this position in a list shared by every torch; :110 drops entries older
      than 100 ticks; :117 the fizz and smoke on the 8th; :128 no relight while 8

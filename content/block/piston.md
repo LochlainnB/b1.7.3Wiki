@@ -40,28 +40,33 @@ player's feet, and down if it is above the player's head.
 ### Power
 
 A piston extends when it is [[Redstone Power#Blocks that respond|powered]]
-from any side but its front, or would be if it stood one block higher. It
-retracts when that power goes. It checks only when a block beside it changes,
-and then moves in the same tick.
+from any side but its front, or would be if it stood one block higher, which is
+[[Redstone Power#Blocks that respond|quasi-connectivity]]. It retracts when that
+power goes. It checks only when it gets a
+[[Redstone Power#Block updates|block update]], and then moves in the same tick.
+An extended piston also gets the block updates sent to its head.
 <!-- src: BlockPistonBase.java:84 isIndirectlyPowered; :52
      onNeighborBlockChange calls :66 updatePistonState, whose playNoteAt runs
      :112 playBlock at once (World.java:2369) -->
 
-Power reaching only the space above a piston changes nothing beside it, so the
-piston does not move until a block beside it next changes. Pistons of one
-kind, normal or sticky, also ignore the changes another piston of that kind
-makes while extending, such as breaking a torch or dust in its way. A piston
-whose power such a push takes away or brings stays as it is. See
-[[Redstone Power#Missed updates|missed updates]].
+Power reaching a piston only by quasi-connectivity sends it no block update,
+so the piston does not move until its next one. Pistons of one kind, normal or
+sticky, also ignore every block update sent while another piston of that kind
+is extending, including those from anything its push sets off, such as a torch
+it breaks or dust it switches on. A piston whose power such a push takes away
+or brings stays as it is. See [[Redstone Power#Missed updates|missed updates]].
 <!-- src: BlockPistonBase.java:97-:108 read the neighbours of the block above;
      :7 ignoreUpdates belongs to the one block object each kind shares, set at
      :113 and cleared at :172, and :53 returns while it is set. tryExtend
      breaks blocks at :337 and the base switches at :116 inside that window.
      Retraction clears it around its own block removals (:149, :154, :164).
+     BlockPistonExtension.java:145 passes the head's block updates to the base.
      tested (harness, server): a lever beside the space above a piston left it
      retracted for 240 ticks, until a block was placed beside it; a normal
      piston breaking the torch that powered another normal piston left that
-     piston extended until a block was placed beside it -->
+     piston extended until a block was placed beside it; a piston whose base
+     block update switched on dust left a normal piston at the end of that dust
+     retracted, its block updates arriving while the flag was set -->
 
 
 ### Pushing

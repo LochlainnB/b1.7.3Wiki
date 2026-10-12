@@ -41,7 +41,7 @@ Duplicated gravel that drops this way gives gravel, not [[Flint|flint]].
 ## Timing
 
 Sand and gravel schedule a fall check 3 [[Game Tick|game ticks]] after placement
-or a neighbour update. The block below must allow falling when the check runs.
+or a [[Game Tick#Block updates|block update]]. The block below must allow falling when the check runs.
 <!-- src: BlockSand.java:12-:21 schedules tickRate(), :45-:60 gives 3 ticks and
      tests the block below -->
 

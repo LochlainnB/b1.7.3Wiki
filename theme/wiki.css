@@ -828,10 +828,9 @@ blockquote {
 .viewer-status[hidden] { display: none; }
 .wiki-viewer button { font: inherit; cursor: pointer; }
 .wiki-viewer button:disabled { cursor: default; opacity: 0.4; }
-.viewer-fullscreen {
+.viewer-fullscreen, .wiki-viewer .viewer-download {
   position: absolute;
   top: 10px;
-  right: 10px;
   width: 42px;
   height: 42px;
   display: grid;
@@ -842,8 +841,11 @@ blockquote {
   background: #ffffff15;
   z-index: 3;
 }
-.viewer-fullscreen:hover { background: #ffffff30; }
-.viewer-fullscreen path { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.viewer-fullscreen { right: 10px; }
+.viewer-download { left: 10px; }
+.viewer-fullscreen:hover, .wiki-viewer .viewer-download:hover { background: #ffffff30; }
+.viewer-download:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.viewer-fullscreen path, .viewer-download path { fill: none; stroke: currentColor; stroke-width: 2.5; }
 .viewer-hint { position: absolute; bottom: 12px; right: 14px; font-size: 0.8em; pointer-events: none; }
 .viewer-touch-hint { display: none; }
 .viewer-axes { position: absolute; bottom: 0; left: 8px; width: 80px; height: 80px; pointer-events: none; font-size: 12px; }

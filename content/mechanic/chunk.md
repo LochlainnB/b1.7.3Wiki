@@ -73,7 +73,7 @@ Population chooses feature origins in a 16×16 area offset eight blocks along bo
 | Term | Meaning |
 |---|---|
 | Saved chunk | Chunk data exists on disk. This does not make it run. |
-| Loaded chunk | Its terrain is held in memory. Entities, block entities, and scheduled updates have their own rules for running. |
+| Loaded chunk | Its terrain is held in memory. Entities, block entities, and scheduled ticks have their own rules for running. |
 | Active chunk | It is in the player-centred area selected for random block ticks and local weather checks. |
 | Rendered terrain | The client has built geometry to draw it. Visibility does not determine whether the world simulates it. |
 
@@ -153,7 +153,7 @@ The same retention test applies in the [[Overworld]] and [[Nether]]. At startup,
      minecraft_server/ChunkProviderServer.java:32-39,43-45;
      minecraft_server/PlayerInstance.java:44-54 -->
 
-Spawn retention does not grant random ticks or natural [[Mob Spawning|mob spawning]] without a nearby player. Loaded spawn chunks can still run block entities, scheduled updates, and entities where those updates' own conditions are met.
+Spawn retention does not grant random ticks or natural [[Mob Spawning|mob spawning]] without a nearby player. Loaded spawn chunks can still run block entities, scheduled ticks, and entities where their own conditions are met.
 <!-- src: minecraft_server/ChunkProviderServer.java:32-39;
      World.java:1236-1242,1291-1306,1875-1885,1982-1988;
      SpawnerAnimals.java:23-38 -->
@@ -187,7 +187,7 @@ Ordinary entities update only when every chunk intersecting the horizontal squar
 <!-- src: World.java:335-352,1291-1306;
      minecraft_server/World.java:1028-1043 updateEntityWithOptionalForce -->
 
-The outer two-chunk-wide border of a rectangular loaded area can be described as *lazy chunks*: their ordinary entities do not tick. An unloaded hole creates the same effect within two chunk coordinates of it. Block entities and eligible block updates can still run there.
+The outer two-chunk-wide border of a rectangular loaded area can be described as *lazy chunks*: their ordinary entities do not tick. An unloaded hole creates the same effect within two chunk coordinates of it. Block entities and eligible scheduled ticks can still run there.
 <!-- src: World.java:335-352,1236-1242,1291-1306,1984-1988;
      the entity check needs chunk offsets -2 through +2 on both axes -->
 
@@ -208,21 +208,21 @@ An individual block entity can impose additional conditions. A [[Monster Spawner
 <!-- src: TileEntityMobSpawner.java:21-30; Chunk.java:469-475;
      World.java:1238-1248 -->
 
-### Scheduled updates and chunk borders
+### Scheduled ticks and chunk borders
 
-[[Game Tick#Scheduled ticks|Scheduled block updates]] are kept in one world-wide queue, not a queue attached to each chunk. Scheduling an update requires every chunk intersecting an eight-block neighbourhood of the block to be loaded. The same neighbourhood is checked when the update becomes due.
+[[Game Tick#Scheduled ticks|Scheduled ticks]] are kept in one world-wide queue, not a queue attached to each chunk. Scheduling a tick requires every chunk intersecting an eight-block neighbourhood of the block to be loaded. The same neighbourhood is checked when the tick becomes due.
 <!-- src: World.java:17-18,1152-1173,1967-1988 -->
 
-The eight-block-wide border inside a loaded area's edge can be described as *lazy blocks* for scheduled updates. An unloaded hole creates the same border around itself. Random ticks and neighbour notifications can still affect these blocks.
+The eight-block-wide border inside a loaded area's edge can be described as *lazy blocks* for scheduled ticks. An unloaded hole creates the same border around itself. Random ticks and [[Game Tick#Block updates|block updates]] can still affect these blocks.
 <!-- src: World.java:335-352,506-513,1164-1173,1952-1961,1984-1988;
      at a loaded block range [L,R], scheduled updates require x-8 >= L
      and x+8 <= R, and the equivalent conditions along z -->
 
-A due update is removed from the queue even when the surrounding chunks are missing. It is discarded rather than postponed until those chunks return. Scheduled updates can run beyond random-tick range if their required chunks remain loaded.
+A due tick is removed from the queue even when the surrounding chunks are missing. It is discarded rather than postponed until those chunks return. Scheduled ticks can run beyond random-tick range if their required chunks remain loaded.
 <!-- src: World.java:1982-1988;
      minecraft_server/World.java:1736-1743 -->
 
-A chunk border is not a wall for [[Redstone Power|redstone]], [[Fluid|fluids]], or moving entities. Neighbour notifications cross it. Missing neighbouring chunks can prevent scheduled updates or entity movement from being simulated near a loaded region's edge.
+A chunk border is not a wall for [[Redstone Power|redstone]], [[Fluid|fluids]], or moving entities. Block updates cross it. Missing neighbouring chunks can prevent scheduled ticks or entity movement from being simulated near a loaded region's edge.
 <!-- src: World.java:506-513,1152-1173,1291-1306,1329-1342;
      BlockFlowing.java:16 updateTick -->
 
@@ -296,7 +296,7 @@ Loading does not replay the ticks that passed while a chunk was unloaded. Crops 
 <!-- src: ChunkLoader.java:151-199 does not read LastUpdate;
      World.java:1952-1961; TileEntityFurnace.java:49-64,105-160 -->
 
-Pending scheduled block updates are not included in the chunk's saved data. Closing and reopening the world does not restore that queue. Unloading a chunk also does not create a saved queue of updates to replay later.
+Pending scheduled ticks are not included in the chunk's saved data. Closing and reopening the world does not restore that queue. Unloading a chunk also does not create a saved queue of ticks to replay later.
 <!-- src: ChunkLoader.java:108-149; World.java:17-18,153-155;
      Chunk.java:469-479 -->
 

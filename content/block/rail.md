@@ -71,7 +71,7 @@ A rail between three rails curves.
      unpowered order puts south and east last, the powered order north and
      west -->
 
-It switches when a power source beside it changes.
+It switches at a [[Redstone Power#Block updates|block update from a power source]].
 <!-- src: BlockRail.java:135 onNeighborBlockChange, gated on canProvidePower
      and on getNAdjacentTracks == 3 -->
 

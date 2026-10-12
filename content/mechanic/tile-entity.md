@@ -167,9 +167,9 @@ map, not the loaded or deferred lists.
      BlockFurnace.java:106 and BlockPistonBase.java:268-269 lookup callers -->
 
 Repairing a missing [[Furnace|furnace]] or [[Dispenser|dispenser]] also
-recalculates the block's facing using its placement rules and sends neighbour
-updates. A **neighbour update** is a notification asking adjacent blocks to
-react to a change. Those blocks can respond immediately, before the original
+recalculates the block's facing using its placement rules and sends
+[[Game Tick#Block updates|block updates]]. A **block update** asks the adjacent
+blocks to react to a change. Those blocks can respond immediately, before the original
 lookup finishes. Repairing a missing [[Chest|chest]] does not send these
 updates. A moving piston has no default tile entity to create, so this repair
 process cannot replace its missing motion data.
@@ -385,11 +385,11 @@ During the furnace tile entity's update, this replacement proceeds as follows:
    the old block is removed. Replace the block with the lit or unlit furnace.
    Removal marks the old tile entity invalid. Placement of the new block
    creates an empty furnace tile entity and adds it to the deferred list.
-3. Run the block replacement's neighbour updates. Adjacent blocks can respond
+3. Run the block replacement's block updates. Adjacent blocks can respond
    while the original tile entity is invalid and the empty replacement is
    still waiting in the deferred list.
 4. Re-enable furnace inventory drops and restore the remembered block metadata.
-   Restoring this metadata sends further neighbour updates.
+   Restoring this metadata sends further block updates.
 5. Revalidate the tile entity remembered in step 1 and add it to the deferred
    list for installation at the furnace's coordinates. Its inventory and
    other data are preserved because it is the same object, not a new copy.
@@ -415,7 +415,7 @@ orphan and continues receiving updates.
 ### Moving a furnace
 
 A [[Piston|piston]] normally cannot move a block that has a tile entity. During
-the neighbour updates sent by a furnace lighting or going out, the original
+the block updates sent by a furnace lighting or going out, the original
 furnace tile entity is temporarily invalid. If a piston checks the furnace
 then, its tile-entity lookup deletes the invalid map entry and finds no object.
 The furnace can pass the tile-entity part of the piston's movement check.
@@ -447,7 +447,7 @@ as an unlit block instead.
 
 #### Tile entities left after removal
 
-Removing the furnace block during the neighbour updates of a lit/unlit state
+Removing the furnace block during the block updates of a lit/unlit state
 change can leave its tile entity behind. The state-change procedure still
 remembers the original furnace tile entity from its initial lookup. The new,
 empty furnace tile entity created by placement of the lit or unlit block is
@@ -497,7 +497,7 @@ For a chest placed at the burning furnace orphan's position, the sequence is:
 
 The result is a furnace block with a chest tile entity associated with its
 position.
-If neighbour updates remove the newly placed furnace block before this same
+If block updates remove the newly placed furnace block before this same
 replacement procedure finishes, the **remembered chest tile entity** can be
 left at coordinates that now contain air. It remains mapped if removal leaves
 its invalid map entry intact; it becomes list-only if removal deletes that
@@ -549,11 +549,11 @@ blocks immediately, but its requests to install moving tile entities go into
 the deferred list because the loaded-list update pass is still running.
 
 While a normal piston processes extension or retraction, normal pistons
-temporarily ignore neighbour updates that could make them react in the middle
+temporarily ignore block updates that could make them react in the middle
 of that movement operation. This protection is shared by all normal pistons.
 [[Sticky Piston|Sticky pistons]] have a separate, shared protection. A normal
 piston's operation therefore does not prevent a sticky piston from reacting
-to its neighbour updates, or the reverse.
+to its block updates, or the reverse.
 <!-- src: World.java:2369-2373 playNoteAt; BlockPistonBase.java:7,52-55,
      66-79,112-113,172; Block.java:621,625 registers one Block object per kind -->
 
@@ -702,9 +702,8 @@ the new object receives its link to the current world during attachment.
 <!-- src: TileEntity.java:24-63,100-108; Chunk.java:434-442 -->
 
 When a tile entity reports that its data has changed, the game marks its chunk
-as needing to be saved. This is separate from notifying adjacent blocks about
-a block change. Reporting the data change does not send a redstone neighbour
-update or request a future scheduled block tick.
+as needing to be saved. This is separate from the block updates a block change
+sends. Reporting the data change sends no block update and schedules no tick.
 <!-- src: TileEntity.java:70-73 onInventoryChanged;
      World.java:2053-2059 func_698_b marks chunk modified and calls world
      access doNothingWithTileEntity, not notifyBlocksOfNeighborChange -->

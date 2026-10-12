@@ -31,8 +31,10 @@ the pitch first.
 
 A note block also plays once each time it becomes a
 [[Redstone Power#Powered blocks|powered block]], strongly or weakly. A powered
-block beside it does not play it.
-<!-- src: BlockNote.java:12 onNeighborBlockChange reads isBlockGettingPowered,
+block beside it does not play it. It checks only at a
+[[Redstone Power#Block updates|block update from a power source]].
+<!-- src: BlockNote.java:13 the canProvidePower test; :12 onNeighborBlockChange
+     reads isBlockGettingPowered,
      the power a solid block in its place would receive, and plays on the
      change from unpowered to powered -->
 

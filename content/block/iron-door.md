@@ -37,8 +37,8 @@ One hinged on the right opens when unpowered and closes when powered.
 
 A door opens when either half is
 [[Redstone Power#Blocks that respond|powered]], and closes when neither is. It
-checks only when a power source beside it changes, so a
-[[Redstone Repeater|repeater]] switching beside it goes unnoticed.
+checks only at a [[Redstone Power#Block updates|block update from a power source]],
+so a [[Redstone Repeater|repeater]] switching beside it goes unnoticed.
 <!-- src: BlockDoor.java:134 onNeighborBlockChange, the canProvidePower test at
      :163; :164 reads both halves -->
 

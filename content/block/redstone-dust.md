@@ -85,11 +85,12 @@ Dust carrying power powers the block beneath it, and the blocks it points into:
 A solid block powered by dust is only [[Redstone Power#Powered blocks|weakly
 powered]], and passes no power to other dust.
 
-Dust tells nothing around it when its shape changes but its level does not. A
-[[Lever|lever]] placed beside the end of a line bends the end into a corner,
-which points into nothing, yet whatever the line powered through the block ahead
-is not told. See [[Redstone Power#Missed updates|missed updates]].
-<!-- src: BlockRedstoneWire.java:108 notifies only on a level change; :291
+Dust sends no [[Redstone Power#Block updates|block updates]] when its shape
+changes but its level does not. A [[Lever|lever]] placed beside the end of a
+line bends the end into a corner, which points into nothing, yet whatever the
+line powered through the block ahead gets no block update. See
+[[Redstone Power#Missed updates|missed updates]].
+<!-- src: BlockRedstoneWire.java:108 sends block updates only on a level change; :291
      isPoweringTo depends on the connections.
      tested (harness, server): a piston powered through the block a line
      pointed into stayed extended for 200 ticks after a lever was placed beside
@@ -97,9 +98,11 @@ is not told. See [[Redstone Power#Missed updates|missed updates]].
 
 ### Update order
 
-Dust that switches on or off tells the blocks around it in an order set by a
-hash of their coordinates, so the same machine can act differently in two
-places. See [[Redstone Power#Location|update order]].
+Dust that turns on or off sends block updates around itself and its six
+neighbours, in an order set by a hash of their coordinates and by how big a
+network has switched off since the game started. Switching on runs depth first;
+switching off is one pass over the whole network. See
+[[Predicting Dust Update Order]].
 <!-- src: BlockRedstoneWire.java:10 a HashSet of ChunkPosition, :47-:53 -->
 
 ## Data values

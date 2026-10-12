@@ -1,9 +1,9 @@
 ---
 title: Game Tick
-description: The step the world advances in, twenty times a second — the order of work in a tick, neighbour updates, scheduled ticks and random ticks.
+description: The step the world advances in, twenty times a second — the order of work in a tick, block updates, scheduled ticks and random ticks.
 type: mechanic
 categories: [Game mechanics]
-aliases: [Tick, Random Tick, Scheduled Tick, Neighbour Update]
+aliases: [Tick, Random Tick, Scheduled Tick, Block update, Neighbour Update]
 ---
 
 A **game tick** is one step of the world simulation, run 20 times a second.
@@ -101,18 +101,26 @@ state but keep no timer.
      TileEntityMobSpawner:25 and
      TileEntityPiston:105 override it -->
 
-## Neighbour updates
+## Block updates
 
-Changing a block tells its six neighbours, within the same tick. They are told
-in the order −x, +x, −y, +y, −z, +z.
+Changing a block sends a **block update** to each of its six neighbours, within
+the same tick, in the order −x, +x, −y, +y, −z, +z. A block update asks the
+neighbour to check itself again, and carries the type of block that sent it;
+see [[Redstone Power#Block updates]].
 <!-- src: World.java:506 notifyBlocksOfNeighborChange -->
 
-Nothing is queued. A notified block that changes another block notifies again
-from inside the first notification, so a whole [[Redstone Dust|redstone]] line
-settles before the tick that started it is over.
+Nothing is queued. A block that changes another block while handling a block
+update sends its own block updates from inside the first, so block updates run
+depth first, and a whole [[Redstone Dust|redstone]] line settles before the tick
+that started it is over.
 
-A block told about a neighbour rarely acts at once. It schedules a tick instead,
-which is where redstone's delays come from.
+Dust, [[Piston|pistons]] and doors act on a block update at once. Redstone
+torches, repeaters, dispensers, and falling [[Sand|sand]] and
+[[Gravel|gravel]] schedule a tick instead, which is where their delays come
+from.
+<!-- src: BlockRedstoneWire, BlockPistonBase and BlockDoor onNeighborBlockChange
+     act in place; BlockRedstoneTorch.java:136, BlockRedstoneRepeater.java:95,
+     BlockDispenser.java:144 and BlockSand.java:17 call scheduleBlockUpdate -->
 
 ## Scheduled ticks
 
@@ -131,8 +139,8 @@ At most 1000 scheduled ticks run in one tick. Anything still due waits for the
 next one.
 <!-- src: World.java:1972 -->
 
-Generating terrain queues a tick for each block of [[Gravel|gravel]] it places,
-a few hundred to a chunk. A player reaching new terrain can hold up every
+Generating terrain queues a tick for each block in the underground pockets of
+[[Gravel|gravel]] it places, a few hundred to a chunk. A player reaching new terrain can hold up every
 scheduled tick in the dimension for several seconds; see
 [[Redstone Power#Waiting in the queue|Redstone Power]].
 <!-- src: ChunkProviderGenerate.java:365 WorldGenMinable for gravel;
@@ -280,7 +288,7 @@ draws no random ticks, and keeps no weather timers.
 <!-- src: WorldClient.java:22 tick; scheduleBlockUpdate, TickUpdates and
      updateBlocksAndPlayCaveSounds are empty overrides at :73-81 -->
 
-Neighbour updates are suppressed on a client too, so a block a player places
+Block updates are suppressed on a client too, so a block a player places
 changes nothing around it until the server says so.
 <!-- src: World.java:516 skips notification when multiplayerWorld is set -->
 

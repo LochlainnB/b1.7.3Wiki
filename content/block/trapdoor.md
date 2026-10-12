@@ -40,8 +40,9 @@ long enough to smelt 1.5 items.
 ### Power
 
 A trapdoor opens when it is [[Redstone Power#Blocks that respond|powered]], and
-closes when it is not. It checks only when a power source beside it changes, so
-a [[Redstone Repeater|repeater]] switching beside it goes unnoticed.
+closes when it is not. It checks only at a
+[[Redstone Power#Block updates|block update from a power source]], so a
+[[Redstone Repeater|repeater]] switching beside it goes unnoticed.
 <!-- src: BlockTrapDoor.java:120 the canProvidePower test, :85
      onPoweredBlockChange -->
 

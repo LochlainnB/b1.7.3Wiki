@@ -21,7 +21,7 @@ import { buildSearchIndex } from './lib/search.mjs';
 import { report } from './lib/integrity.mjs';
 import { findSource } from './lib/source.mjs';
 import { verifyData } from './lib/verify.mjs';
-import { loadViewers } from './lib/viewers.mjs';
+import { loadViewers, encodeSchematic } from './lib/viewers.mjs';
 import { build as bundle } from 'esbuild';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -160,6 +160,10 @@ async function main() {
 
   const ctx = makeContext({ config, data, pages, index, problems, links });
   ctx.viewers = loadViewers(ROOT);
+  const schematics = new Map();
+  for (const [id, scene] of ctx.viewers) {
+    if (scene.kind === 'build') schematics.set(id, encodeSchematic(scene));
+  }
   const renderer = createRenderer(ctx);
 
   // Pass 1 populates the link graph so backlinks and orphan detection can see
@@ -223,6 +227,9 @@ async function main() {
     emit(join(outDir, 'assets/viewer.js'), viewerBundle.outputFiles[0].contents);
     for (const [id, scene] of ctx.viewers) {
       emit(join(outDir, 'assets/viewer', `${id}-scene.json`), JSON.stringify(scene));
+    }
+    for (const [id, bytes] of schematics) {
+      emit(join(outDir, 'assets/viewer', `${id}.schematic`), bytes);
     }
     // Shipped as a script rather than JSON: fetch() is blocked on file://, so
     // this keeps search working when the site is opened straight off disk.

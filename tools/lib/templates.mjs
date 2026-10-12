@@ -206,8 +206,12 @@ define(['viewer'], ({ args, named, ctx }) => {
     ctx.error(`{{viewer}} needs one registered scene ID; got "${id || ''}"`);
     return '<span class="template-error">Unknown viewer scene</span>';
   }
-  let controls;
+  let controls, download = '';
   if (scene.kind === 'build') {
+    download = `<a class="viewer-download" href="${ctx.hrefFor(`/assets/viewer/${id}.schematic`)}" ` +
+      `download="${id}.schematic" title="Download as .schematic" aria-label="Download as .schematic">` +
+      `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">` +
+      `<path d="M12 3v12m-5-5 5 5 5-5M3 15v6h18v-6"/></svg></a>`;
     const ticks = Array.from({ length: scene.layers }, (_, i) => `<span>${i + 1}</span>`).join('');
     controls = `<div class="viewer-layers">` +
       `<span class="viewer-layer-label">Visible layers: <strong>All</strong></span>` +
@@ -224,6 +228,7 @@ define(['viewer'], ({ args, named, ctx }) => {
   return `<figure class="wiki-viewer" data-scene="${id}" data-viewer-state="waiting">` +
     `<div class="viewer-title">${escapeHtml(scene.title)}</div>` +
     `<div class="viewer-window"><div class="viewer-status">The 3D model requires JavaScript and WebGL 2.</div>` +
+    download +
     `<button type="button" class="viewer-fullscreen" title="Fullscreen" disabled>` +
     `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">` +
     `<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg></button>` +

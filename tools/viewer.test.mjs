@@ -4,7 +4,8 @@ import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, copyFileSync, rmSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadViewers, expandBuild, validateMesh } from './lib/viewers.mjs';
+import { gunzipSync } from 'node:zlib';
+import { loadViewers, expandBuild, encodeSchematic, validateMesh } from './lib/viewers.mjs';
 import { renderTemplate } from './lib/templates.mjs';
 import { visibleFaces, faceBatches, faceGeometry, blockEdges } from '../theme/viewer-mesh.js';
 
@@ -87,6 +88,79 @@ test('explicit placements override fills; fixed omissions stay omitted', () => {
   assert.ok(!scene.blocks.some((b) => b.at.join(',') === '-1,3,3'));
   assert.equal(scene.minY, 2);
   assert.equal(scene.layers, 2);
+});
+
+test('schematic exports preserve XYZ order, metadata, air and fixed omissions', () => {
+  const scene = expandBuild({
+    fills: [{ from: [-2, 4, 7], to: [0, 4, 7], block: '1:0' }],
+    blocks: [{ at: [-1, 4, 7], block: '35:5' },
+      { at: [-2, 5, 10], block: '55:0:-f--' }, { at: [0, 5, 10], block: '69:13' }],
+    omissions: [[0, 4, 7]],
+  }, models);
+  // Exercise the unsigned byte boundary, even though current Beta scenes use lower IDs.
+  scene.blocks.push({ at: [0, 4, 10], block: '255:15' });
+  const bytes = gunzipSync(encodeSchematic(scene));
+  let offset = 0;
+  const string = () => {
+    const length = bytes.readUInt16BE(offset);
+    offset += 2;
+    const text = bytes.toString('utf8', offset, offset + length);
+    offset += length;
+    return text;
+  };
+  assert.equal(bytes[offset++], 10); // Named root compound.
+  assert.equal(string(), 'Schematic');
+  const tags = {};
+  for (let type; (type = bytes[offset++]) !== 0;) {
+    const name = string();
+    let value;
+    switch (type) {
+      case 2:
+        value = bytes.readInt16BE(offset);
+        offset += 2;
+        break;
+      case 7: {
+        const length = bytes.readInt32BE(offset);
+        offset += 4;
+        value = [...bytes.subarray(offset, offset + length)];
+        offset += length;
+        break;
+      }
+      case 8:
+        value = string();
+        break;
+      case 9:
+        assert.equal(bytes[offset++], 10); // Empty lists of compounds, not bytes.
+        assert.equal(bytes.readInt32BE(offset), 0);
+        offset += 4;
+        value = [];
+        break;
+      default:
+        assert.fail(`unexpected NBT tag type ${type}`);
+    }
+    tags[name] = { type, value };
+  }
+  assert.equal(offset, bytes.length);
+  assert.deepEqual(tags, {
+    Width: { type: 2, value: 3 }, Height: { type: 2, value: 2 }, Length: { type: 2, value: 4 },
+    Materials: { type: 8, value: 'Alpha' },
+    Blocks: { type: 7, value: [1, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 0, 69] },
+    Data: { type: 7, value: [0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13] },
+    Entities: { type: 9, value: [] }, TileEntities: { type: 9, value: [] },
+  });
+});
+
+test('schematic exports reject oversized bounds and unrepresentable block data', () => {
+  const scene = (at, block = '1:0') => ({ blocks: [{ at: [0, 0, 0], block: '1:0' }, { at, block }] });
+  assert.doesNotThrow(() => encodeSchematic(scene([32766, 0, 0])));
+  assert.throws(() => encodeSchematic(scene([32767, 0, 0])), /schematic bounds/);
+  assert.doesNotThrow(() => encodeSchematic(scene([999, 0, 999])));
+  assert.throws(() => encodeSchematic(scene([1000, 0, 1000])), /schematic bounds/);
+  for (const block of ['256:0', '-1:0', '1:16', '1:-1', '1:0.5']) {
+    assert.throws(() => encodeSchematic(scene([1, 0, 0], block)), /unsupported schematic block/);
+  }
 });
 
 test('authoring mistakes and unsupported blocks fail validation', () => {
@@ -192,14 +266,19 @@ test('ghost edges have no triangle diagonals and deduplicate adjacent block edge
 
 test('template uses scene layer count and entity controls; rejects unknown scene IDs', () => {
   const errors = [];
-  const ctx = { viewers: scenes, error: (s) => errors.push(s), warn: (s) => assert.fail(s) };
+  const ctx = { viewers: scenes, hrefFor: (url) => `../..${url}`,
+    error: (s) => errors.push(s), warn: (s) => assert.fail(s) };
   const build = renderTemplate('viewer', ['sapling-transmutation'], {}, ctx);
   assert.match(build, /max="5" value="5"/);
   assert.match(build, /viewer-previous/);
+  assert.match(build, /href="\.\.\/\.\.\/assets\/viewer\/sapling-transmutation\.schematic"/);
+  assert.match(build, /download="sapling-transmutation\.schematic"/);
+  assert.match(build, /title="Download as \.schematic"/);
+  assert.match(build, /aria-label="Download as \.schematic"/);
   const entity = renderTemplate('viewer', ['creeper'], {}, ctx);
   assert.match(entity, /Normal/);
   assert.match(entity, /Charged/);
-  assert.doesNotMatch(entity, /type="range"|viewer-layers/);
+  assert.doesNotMatch(entity, /type="range"|viewer-layers|viewer-download|\.schematic/);
   renderTemplate('viewer', ['../../wrong'], {}, ctx);
   renderTemplate('viewer', ['creeper'], { mesh: 'arbitrary.json' }, ctx);
   assert.equal(errors.length, 2);

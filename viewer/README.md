@@ -25,6 +25,16 @@ or below it solid, and higher blocks as translucent cube edges. The maximum is
 All. Builds are limited to 10,000 blocks and 32 vertical layers. Unsupported
 block/metadata pairs fail the build rather than becoming generic cubes.
 
+The top-left download control saves the complete build as a legacy Alpha
+`.schematic`, regardless of the selected layer or camera angle. The build emits
+gzip-compressed NBT alongside the scene JSON, so downloading needs neither
+JavaScript nor WebGL. Coordinates are shifted to a zero-based bounding box;
+empty positions and fixed omissions are air. Rendering-only key suffixes such
+as dust connections are excluded; numeric block IDs and metadata are preserved.
+Schematic bounds may contain at most 1,000,000 cells and span at most 32,767 per
+axis. Entities and tile entities are empty; scenes do not store their data.
+Entity viewers have no schematic download.
+
 The piston machine uses the E5 survival fixture in
 `content/research/block-data-corruption.md`, Appendix C, after the upper wall
 lever is switched on. Both pistons remain retracted and the floor lever is off.

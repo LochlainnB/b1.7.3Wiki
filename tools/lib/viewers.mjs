@@ -1,6 +1,7 @@
 // Authored scenes are separate from the generated game registries in data/.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 const LIMIT = 10000;
 const point = (v) => Array.isArray(v) && v.length === 3 && v.every(Number.isSafeInteger);
@@ -42,6 +43,60 @@ export function expandBuild(scene, models) {
   const maxY = Math.max(...blocks.map((b) => b.at[1]));
   if (maxY - minY >= 32) throw new Error('build exceeds 32 vertical layers');
   return { blocks, minY, layers: maxY - minY + 1 };
+}
+
+// Legacy Alpha schematics store block IDs and metadata, not rendered geometry.
+export function encodeSchematic({ blocks }) {
+  const min = [0, 1, 2].map((i) => Math.min(...blocks.map((b) => b.at[i])));
+  const size = min.map((v, i) => Math.max(...blocks.map((b) => b.at[i])) - v + 1);
+  const [width, height, length] = size;
+  const volume = width * height * length;
+  // Sparse placements can have enormous bounds despite the occupied-block limit.
+  if (size.some((v) => v > 32767) || volume > 1000000) {
+    throw new Error('schematic bounds exceed 32767 per axis or 1000000 cells');
+  }
+  const ids = Buffer.alloc(volume), metadata = Buffer.alloc(volume);
+  for (const { at, block } of blocks) {
+    const [id, data] = block.split(':', 2).map(Number);
+    if (!Number.isInteger(id) || id < 0 || id > 255 ||
+        !Number.isInteger(data) || data < 0 || data > 15) {
+      throw new Error(`unsupported schematic block ${block}`);
+    }
+    const [x, y, z] = at.map((v, i) => v - min[i]);
+    const index = x + width * (z + length * y);
+    ids[index] = id;
+    metadata[index] = data;
+  }
+
+  const string = (text) => {
+    const bytes = Buffer.from(text);
+    const prefix = Buffer.alloc(2);
+    prefix.writeUInt16BE(bytes.length);
+    return Buffer.concat([prefix, bytes]);
+  };
+  const tag = (type, name, payload) => Buffer.concat([Buffer.from([type]), string(name), payload]);
+  const short = (value) => {
+    const bytes = Buffer.alloc(2);
+    bytes.writeInt16BE(value);
+    return bytes;
+  };
+  const byteArray = (bytes) => {
+    const prefix = Buffer.alloc(4);
+    prefix.writeInt32BE(bytes.length);
+    return Buffer.concat([prefix, bytes]);
+  };
+  const emptyCompounds = Buffer.from([10, 0, 0, 0, 0]);
+  return gzipSync(tag(10, 'Schematic', Buffer.concat([
+    tag(2, 'Width', short(width)),
+    tag(2, 'Height', short(height)),
+    tag(2, 'Length', short(length)),
+    tag(8, 'Materials', string('Alpha')),
+    tag(7, 'Blocks', byteArray(ids)),
+    tag(7, 'Data', byteArray(metadata)),
+    tag(9, 'Entities', emptyCompounds),
+    tag(9, 'TileEntities', emptyCompounds),
+    Buffer.from([0]),
+  ])));
 }
 
 export function validateMesh(mesh, root) {

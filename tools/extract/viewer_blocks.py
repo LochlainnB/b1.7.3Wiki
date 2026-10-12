@@ -18,8 +18,35 @@ from softgl import GL
 
 
 MODELS = ((1, 0), (3, 0), (6, 0), (76, 3), (33, 4), (33, 5), (69, 13),
-          (17, 0), (29, 3), (35, 5), (76, 5), (69, 9), (69, 6))
-OPAQUE = {(1, 0), (3, 0), (33, 4), (33, 5), (17, 0), (29, 3), (35, 5)}
+          (17, 0), (29, 3), (35, 5), (76, 5), (69, 9), (69, 6),
+          (33, 1), (41, 0), (57, 0))
+OPAQUE = {(1, 0), (3, 0), (33, 4), (33, 5), (17, 0), (29, 3), (35, 5),
+          (33, 1), (41, 0), (57, 0)}
+
+# Redstone dust draws itself from its neighbours, so each dust model names its
+# power level and its four sides, north (-z), east (+x), south (+z) and west (-x):
+# '-' nothing to connect to, 'f' dust beside it (or one block lower, drawn the
+# same), 'u' dust on top of a solid block beside it, which draws the dust up
+# that block's face. Key: '55:<level>:<nesw>'.
+DUST = ('55:0:-f-f', '55:0:ff-u', '55:0:f-f-', '55:0:--f-', '55:0:-f--')
+SIDES = {0: (0, 0, -1), 1: (1, 0, 0), 2: (0, 0, 1), 3: (-1, 0, 0)}  # n, e, s, w
+
+
+def _dust_world(key):
+    """The neighbourhood a dust model's key describes: block ids and solid cubes."""
+    _id, level, sides = key.split(':')
+    ids, solid = {}, set()
+    for i, kind in enumerate(sides):
+        dx, _dy, dz = SIDES[i]
+        if kind == 'f':
+            ids[(dx, 0, dz)] = 55
+        elif kind == 'u':
+            ids[(dx, 0, dz)] = 1
+            solid.add((dx, 0, dz))
+            ids[(dx, 1, dz)] = 55
+        elif kind != '-':
+            raise ValueError('bad dust key %s' % key)
+    return int(level), ids, solid
 
 
 def _normal(corners):
@@ -83,7 +110,7 @@ def export(jar_path, cache):
     placed = '(L%s;III)Z' % block
     # The interpreter intentionally has no tableswitch (the dispatch method's
     # only unsupported opcode), so call the exact branch selected there.
-    branch_names = {0: 'method_76', 1: 'method_73', 2: 'method_62', 12: 'method_68'}
+    branch_names = {0: 'method_76', 1: 'method_73', 2: 'method_62', 5: 'method_71', 12: 'method_68'}
     branches = {kind: next(m['name'] for m in game.jar.cls(render).methods
                            if m['desc'] == placed
                            and game.mp.member(render, m['name'], m['desc']) == named)
@@ -91,24 +118,33 @@ def export(jar_path, cache):
     piston = next(m['name'] for m in game.jar.cls(render).methods
                   if m['desc'] == '(L%s;IIIZ)Z' % block)
 
-    state = {'id': 0, 'meta': 0}
+    # The block sits at the origin of an empty world; a dust model adds the
+    # neighbours its key describes (state['ids'] and state['solid']).
+    state = {'id': 0, 'meta': 0, 'ids': {}, 'solid': set()}
     world = Stub(view)
     nothing = Interp.NOTHING
+
+    def block_id(a):
+        return state['id'] if tuple(a) == (0, 0, 0) else state['ids'].get(tuple(a), 0)
+
     answers = {
-        '(III)I': lambda a: state['id'] if tuple(a) == (0, 0, 0) else 0,
+        '(III)I': block_id,
         '(IIII)F': lambda _a: 1.0,
         '(III)F': lambda _a: 1.0,
     }
-    # Disambiguate the two (III)I methods by their mapped names.
+    # Disambiguate the two (III)I methods, and isBlockNormalCube among the
+    # (III)Z ones, by their mapped names.
     for m in game.jar.cls(view).methods:
         key = (view, m['name'], m['desc'])
         named = game.mp.member(view, m['name'], m['desc'])
         if named == 'getBlockId':
-            it.hooks[key] = lambda _i, _r, a: state['id'] if tuple(a) == (0, 0, 0) else 0
+            it.hooks[key] = lambda _i, _r, a: block_id(a)
         elif named == 'method_1778':
             it.hooks[key] = lambda _i, _r, a: state['meta'] if tuple(a) == (0, 0, 0) else 0
         elif m['desc'] in answers:
             it.hooks[key] = lambda _i, _r, a, fn=answers[m['desc']]: fn(a)
+        elif named == 'method_1780':
+            it.hooks[key] = lambda _i, _r, a: tuple(a) in state['solid']
         elif m['desc'] == '(III)Z':
             it.hooks[key] = lambda _i, _r, _a: False
         elif m['desc'].startswith('(III)L') or m['desc'].startswith('()L'):
@@ -121,8 +157,11 @@ def export(jar_path, cache):
     start, draw = game.gl_names['startQuads'], game.gl_names['draw']
     tess_obj = Stub(tess)
     result = {'format': 1, 'models': {}}
-    for ident, meta in MODELS:
-        state.update(id=ident, meta=meta)
+    jobs = [(ident, meta, '%d:%d' % (ident, meta), {}, set()) for ident, meta in MODELS]
+    jobs += [(55,) + (lambda lv, ids, solid, k=key: (lv, k, ids, solid))(*_dust_world(key))
+             for key in DUST]
+    for ident, meta, model_key, ids, solid in jobs:
+        state.update(id=ident, meta=meta, ids=ids, solid=solid)
         gl = GL(game.lists)
         gl.install(it, game.gl_names)
         gl.bind(gl.texture_id('/terrain.png'))
@@ -165,8 +204,8 @@ def export(jar_path, cache):
                 'alpha_test': face.alpha_test, 'depth_test': face.depth_test,
                 'depth_mask': face.depth_mask, 'depth_func': face.depth_func,
             })
-        result['models']['%d:%d' % (ident, meta)] = {
-            'opaque': (ident, meta) in OPAQUE, 'faces': faces}
+        result['models'][model_key] = {
+            'opaque': (ident, meta) in OPAQUE and not ids, 'faces': faces}
     return result
 
 

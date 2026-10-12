@@ -1,160 +1,255 @@
 ---
 title: Predicting Dust Update Order
-description: How to work out which machine on a line of redstone dust acts first — the depth-first order of switching on, the single pass of switching off, and the hash behind both — with a script that does the arithmetic.
+description: How to work out which of two machines on one line of redstone dust acts first — the update list each dust works through, how switching on and off differ, and how to find the list's order — with a script that does the arithmetic.
 type: guide
 categories: [Guides]
-aliases: [Dust update order, Redstone dust update order]
+aliases: [Dust update order, Redstone dust update order, Update list]
 ---
 
-**Predicting dust update order** tells which of the machines on one network of
-[[Redstone Dust|redstone dust]] acts first when the dust switches on or off.
+**Predicting dust update order** works out which of two machines on one
+network of [[Redstone Dust|redstone dust]] acts first when the dust switches on
+or off.
 
-## How dust sends block updates
+## The update list
 
-Dust that turns on or off sends [[Game Tick#Block updates|block updates]] around
-seven positions: itself and its six neighbours. Around each position, the six
-blocks beside it get a block update in the order −x, +x, −y, +y, −z, +z. The seven
-positions are taken in **hash order**, which depends on their coordinates and on
-the table size, both below.
-<!-- src: BlockRedstoneWire.java:160-:168 adds the dust and its six neighbours
-     to blocksNeedingUpdate, a HashSet (:10); :45-:53 copies it and sends
-     World.notifyBlocksOfNeighborChange (World.java:506) around each in turn -->
+When a dust turns on or off, it tells the blocks around it by sending
+[[Game Tick#Block updates|block updates]]. It does this in two steps:
 
-A block that responds acts at its first block update after the dust powering
-it has changed.
+1. It makes an **update list** of seven positions: its own position, and the six
+   positions touching it, above, below and on its four sides.
+2. It goes down the list one position at a time. At each position, it sends a
+   block update to each of the six blocks touching that position, always in the
+   same order: −x, +x, −y, +y, −z, +z.
+
+The two steps have different orders:
+
+- **The seven positions on the list** come in an order that depends on where the
+  dust is. Each position gets a number from its coordinates, its **bucket**, and
+  the list runs from the lowest bucket to the highest.
+- **The six block updates sent around one position** always go −x, +x, −y, +y,
+  −z, +z.
+
+The example at the end of this page shows one dust's whole list.
+<!-- src: BlockRedstoneWire.java:160-:168 put the dust and its six neighbours
+     in blocksNeedingUpdate, a HashSet (:10); :45-:53 copy it and call
+     World.notifyBlocksOfNeighborChange (World.java:506) for each in turn -->
+
+A block can touch several positions on one list, so one dust can send it several
+block updates. A block that responds acts on the first of them that arrives
+after its power has changed.
+
+## Reaching the next dust
+
+To find when a dust turns on the dust next to it, find which positions on the
+first dust's list touch the next dust:
+
+| The next dust is | It touches these positions on the first dust's list |
+|---|---|
+| On the same level | only the first dust's own position |
+| One block up, on top of the block beside the first dust | the block under the next dust, and the space above the first dust |
+| One block down, beside the block under the first dust | the space above the next dust, and the block under the first dust |
+
+A dust on the same level is reached when the list gets to the first dust's own
+position. The six block updates sent around that position go to the six blocks
+touching the first dust, in the usual order. Any dust beside it on the same
+level is among them, on the −x, +x, −z or +z side. So when two branches leave
+one dust on the same level, the −x branch goes first, then +x, then −z, then
++z, whatever the buckets are.
+
+A dust one block up or down is reached at whichever of its two positions comes
+first on the list. That can be before or after the first dust's own position.
+So the buckets decide whether a branch that steps up or down goes before or
+after a branch on the same level.
 
 ## Switching on
 
-Switching on runs depth first. A dust that turns on sends all of its block
-updates, and so turns on every dust beyond it, before the dust that turned it on
-moves to its next position.
-<!-- src: :88-:97 skip the dust that asked, so a dust's own calculation never
-     turns the next dust on; the next dust turns on when one of these block
-     updates reaches it, inside that block update -->
+Switching on runs **depth first**. When a block update from one dust turns on a
+second dust, the second dust works through its whole update list at once. The
+first dust waits, and sends its next block update only when the second dust has
+finished.
 
-Which of a dust's seven positions turns on the next dust depends on the shape of
-the line:
+For a straight line of three dust, A, B and C, powered from A's end:
 
-| Next dust | Turned on by the position of |
-|---|---|
-| Level with it | the dust itself |
-| One step up | the block under the next dust, or the space above this one, whichever comes first |
-| One step down | the space above the next dust, or the block under this one, whichever comes first |
+1. A turns on, and starts down its update list.
+2. When A's list reaches A's own position, A sends a block update to B, and B
+   turns on.
+3. Before A sends anything else, B goes down its whole update list. When B's
+   list reaches B's own position, B sends a block update to C, and C turns on.
+4. C goes down its whole list.
+5. B finishes the rest of its list.
+6. A finishes the rest of its list.
 
-Two branches that leave one dust at the same level both turn on from that dust's
-own position. The branch on the −x side goes first, then +x, −z and +z, whatever
-the hash says.
+Power therefore runs to the far end of one branch before the dust where two
+branches part sends another block update.
+<!-- src: BlockRedstoneWire.java:88-:97 skip the dust that asked, so a dust's
+     own calculation never turns the next dust on: the next dust turns on when
+     a block update reaches it, and handles its whole list inside that block
+     update -->
 
 ## Switching off
 
-The whole network drops to 0 in one calculation, before any block update is
-sent. The dust the change reached then sends block updates around every
-position of the network in one pass: each dust that switched off and its six
-neighbours, in hash order. Nothing in that pass is depth first.
+Switching off does not run depth first:
+
+1. When the power goes, every dust it fed drops to 0 at once, before any block
+   update is sent.
+2. The dust the change reached first then makes one update list for the whole
+   network: every dust that switched off, and every position touching one.
+3. It works through that one list, from the lowest bucket up.
+
+The list covers the whole network, so a position at the far end can come before
+one next to the power. The machine whose touching position comes earliest on the
+list acts first.
 <!-- src: calculateCurrentChanges recurses through every dust whose level
-     depends on the removed power before :45 updateAndPropagateCurrentStrength
+     depends on the lost power before :45 updateAndPropagateCurrentStrength
      copies the set; :160 adds positions for every dust that reaches level 0 or 1.
      tested (harness): the game's World.notifyBlocksOfNeighborChange calls for a
      5-dust line switching off were the 27 positions the script predicts, in
      its order -->
 
-## Hash order
+## Finding the buckets
 
-Each position gets a number from its coordinates:
+A position's bucket comes from its coordinates in four steps:
 
-```
-h = 8976890 × x + 981131 × y + z
-```
+1. Work out `h = 8976890 × x + 981131 × y + z`.
+2. Keep it to 32 bits: add or subtract 4,294,967,296 until `h` is between 0 and
+   4,294,967,295.
+3. Write `h` as 8 hexadecimal digits, and combine the first four with the last
+   four by exclusive or: write both halves in binary, and set each bit of the
+   result to 1 where exactly one of the two halves has a 1.
+4. The bucket is the lowest bits of the result. How many bits depends on the
+   table size: 4 bits for a table of 16 buckets, 5 for 32, 6 for 64, and so on.
 
-kept to 32 bits: add or subtract 4,294,967,296 until it lies from 0 to
-4,294,967,295. The top half of `h` is then folded into the bottom half: in
-hexadecimal, the first four digits of eight are combined with the last four by
-exclusive or. The position's **bucket** is the lowest bits of the result, as
-many as the table needs: 4 bits for a table of 16, 5 for 32, 6 for 64, and so
-on. Positions go in bucket order, from 0 upwards. Positions that share a bucket
-go in the order they were added; for one dust, that is the dust, then −x, +x,
-−y, +y, −z, +z.
-<!-- src: ChunkPosition.java:23 hashCode; java.util.HashMap.hash and
+Positions with the same bucket keep the order they were added in. For one dust
+that is its own position, then −x, +x, −y, +y, −z, +z.
+<!-- src: ChunkPosition.java:23 hashCode; java.util.HashMap.hash and its
      iteration on Java 8 and later -->
 
-For the dust at (1, 64, 5), `h` is 71,769,279, or `0x04471CBF`. Folding
-`0x0447` into `0x1CBF` gives `0x18F8`. Its last hexadecimal digit, 8, is its
-bucket in a table of 16; its lowest five bits, 24, are its bucket in a table of
-32.
+For the dust at (6, 64, 5), `h` is 116,653,729, which is `06F3 FEA1` in
+hexadecimal. `06F3` combined with `FEA1` gives `F852`. With 16 buckets, the
+bucket is the last digit, 2. With 32 buckets it is the lowest five bits: `52` is
+`0101 0010` in binary, and its lowest five bits, `10010`, make 18.
 
-That is too much arithmetic to do by hand for seven positions, let alone a
-network. The script below does it.
+That is too much arithmetic for seven positions, let alone a whole network.
+The script below does it.
 
 ## Table size
 
-The table belongs to the game, not to a world. It starts at 16 when the game
-starts. When one pass holds more than three quarters of the table, the table
-doubles, and it never shrinks until the game is closed. Switching on never grows
-it, as each pass holds seven positions. Switching off grows it:
+The table size is the number of buckets. One table serves every dust in the
+game, in every world and dimension:
 
-| Network switched off | Table afterwards |
-|---|---|
-| A line of 3 or 4 dust | 32 |
-| A line of 5 to 9 | 64 |
-| A line of 10 to 15 | 128 |
-| A patch of 6 × 6 | 256 |
-| A patch of 8 × 8 | 512 |
+- It starts at 16 buckets when the game starts.
+- It doubles when an update list gets more positions than three quarters of the
+  table size. The 13th position on one list doubles a table of 16 to 32, the
+  25th doubles 32 to 64, and so on. It counts positions, not buckets: two
+  positions in the same bucket count as two.
+- It never gets smaller until the game is closed.
 
-<!-- src: java.util.HashMap.resize past a load of 0.75; HashMap.clear keeps
-     the table; BlockRedstoneWire.blocksNeedingUpdate is one field of the one
-     Block.redstoneWire object. A lever powers at most 15 dust of a line.
+Switching on never grows it, as each list from switching on has seven
+positions. Switching off can, as its one list contains the whole network:
+
+| Network switched off | Positions on its list | Table afterwards |
+|---|---|---|
+| A straight line of 3 or 4 dust | 17 or 22 | 32 |
+| A straight line of 5 to 9 dust | 27 to 47 | 64 |
+| A straight line of 10 to 15 dust | 52 to 77 | 128 |
+| A square patch of 6 × 6 dust | more than 96 | 256 |
+| A square patch of 8 × 8 dust | more than 192 | 512 |
+
+<!-- src: java.util.HashMap.putVal resizes when ++size > threshold, three
+     quarters of the table; HashMap.clear keeps the table;
+     BlockRedstoneWire.blocksNeedingUpdate is one field of the one
+     Block.redstoneWire object. A line of n flat dust has 5n + 2 positions;
+     a lever powers at most 15 dust of a line.
      tested (harness): the game's table read by reflection matched the script's
      after each of 340 switchings; four copies of one machine fired one way in
      a fresh session and the other way after a 15-dust line 120 blocks away had
      switched off; in singleplayer, the same after the line switched off in the
      previous world -->
 
-A machine that works in a game just started can fail later in the same session,
-once a bigger network anywhere has switched off. Only the rules that do not
-depend on the hash hold whatever the table: depth first when switching on, and
-the side order at a level junction.
+A bigger table changes the buckets of every position. A machine that works in a
+game just started can fail later in the same session, once a bigger network
+anywhere has switched off. Two rules hold whatever the table size: switching on
+runs depth first, and branches on the same level go −x, +x, −z, +z.
 
 ## Which machine acts first
 
-1. Find the table size: 16 in a game just started, otherwise what the largest
-   network switched off since gave.
+1. Find the table size: 16 in a game just started, otherwise the size the
+   biggest network switched off since then has given it.
 2. **Switching on:** find the dust where the paths to the two machines part.
-   If both leave it at the same level, the side order decides. Otherwise list
-   that dust's seven positions in hash order, and find the first position that
-   continues each path, from the table under Switching on. A machine this
-   dust powers directly acts at the first of these positions next to the
-   machine. The path whose position comes first acts first.
-3. **Switching off:** list every position of the network in one pass. The
-   machine next to the earliest position acts first.
+   - If both paths leave it on the same level, the side order decides.
+   - Otherwise, list that dust's update list in order, with the script's
+     `--set`. For each path, find the first position on the list that touches
+     the next dust on that path. The path whose position comes first acts first.
+   - A machine powered straight from this dust acts at the first position on
+     the list that touches the machine.
+3. **Switching off:** run the script with `--off`. The machine whose touching
+   position comes first on the network's one list acts first.
 
 The head of an extended [[Piston|piston]] passes its block updates on to the
-piston, and the top half of a [[Wooden Door|door]] to the bottom half, so a
-machine also acts at the first position next to those.
+piston, and the top half of a [[Wooden Door|door]] to the bottom half. Count the
+positions touching those as touching the machine.
 
-### Example
+## Example
 
-A floor lever at (−1, 64, 5) powers dust at (0, 64, 5) and (1, 64, 5). From
-(1, 64, 5) one branch runs level along +z, through (1, 64, 6) and (1, 64, 7), to
-a piston A at (1, 64, 8). The other steps up onto a block at (2, 64, 5) and runs
-through (2, 65, 5) and (3, 65, 5) to a piston B at (4, 65, 5).
+{{viewer|dust-order-example}}
 
-The level branch turns on from the position of (1, 64, 5) itself, bucket 8 in
-a table of 16. The step branch turns on from the block at (2, 64, 5), bucket 9,
-or the space at (1, 65, 5), bucket 12. In a game just started, A extends first.
-In a table of 32 the buckets are 24, 9 and 28, and B extends first.
-<!-- tested (harness): A then B in a fresh session; B then A after a 4-dust line
-     elsewhere had switched off -->
+A floor lever at (8, 64, 5) powers dust at (7, 64, 5) and at the junction,
+(6, 64, 5). From the junction:
+
+- the **gold branch** runs on the same level along −z, through (6, 64, 4) and
+  (6, 64, 3), to a piston at (6, 64, 2) carrying a block of gold;
+- the **diamond branch** steps up onto a stone block at (5, 64, 5), and runs
+  along −x through (5, 65, 5) and (4, 65, 5) to a piston at (3, 65, 5) carrying
+  a block of diamond.
+
+The gold branch's first dust touches only one position on the junction's update
+list: the junction's own position. The diamond branch's first dust touches two:
+the stone block under it, and the space above the junction.
+
+In a game just started, the junction's update list runs:
+
+| Order | Position | Bucket | What its block updates do |
+|---|---|---|---|
+| 1 | +z, beside the junction | 1 | nothing |
+| 2 | the junction itself | 2 | turn on the gold branch: the gold piston extends |
+| 3 | −y, the block under the junction | 3 | nothing |
+| 4 | −z, the gold branch's first dust | 3 | nothing new |
+| 5 | +x, the dust before the junction | 7 | nothing |
+| 6 | −x, the stone block | 12 | turn on the diamond branch: the diamond piston extends |
+| 7 | +y, the space above the junction | 14 | nothing new |
+
+At step 2 the whole gold branch turns on, one dust after another, and the gold
+piston extends. Only then does the junction go on to step 3.
+
+Once any line of 3 or 4 dust has switched off, the table has 32 buckets and the
+list runs:
+
+| Order | Position | Bucket | What its block updates do |
+|---|---|---|---|
+| 1 | +x, the dust before the junction | 7 | nothing |
+| 2 | −x, the stone block | 12 | turn on the diamond branch: the diamond piston extends |
+| 3 | +y, the space above the junction | 14 | nothing new |
+| 4 | +z, beside the junction | 17 | nothing |
+| 5 | the junction itself | 18 | turn on the gold branch: the gold piston extends |
+| 6 | −y, the block under the junction | 19 | nothing |
+| 7 | −z, the gold branch's first dust | 19 | nothing new |
+
+The diamond piston now extends first.
+<!-- tested (harness, server): this scene, built as shown at the coordinates
+     given: the gold piston extended first in a fresh session, the diamond
+     piston first after a 4-dust line elsewhere had switched off -->
 
 ```
-python dust_order.py --lever -1,64,5 --dust 0..1,64,5 1,64,6..7 2..3,65,5 --watch A=1,64,8 B=4,65,5 --table 32
+python dust_order.py --lever 8,64,5 --dust 6..7,64,5 6,64,3..4 4..5,65,5 --solid 3,64,5 --watch gold=6,64,2 diamond=3,65,5 --table 32
 ```
 
 ## The script
 
 Save it as `dust_order.py` and run it with Python 3.8 or later; it needs nothing
-else. `--set` lists one dust's seven positions in order; the rest model a whole
-network, powered by one floor lever, and report the order the watched blocks
-act in. `--trace` prints every pass, indented by depth.
+else. It models one network of dust on solid blocks, powered by one floor
+lever, and reports the order the watched blocks act in. `--set` prints one
+dust's update list, `--off` switches the lever off instead of on, and `--trace`
+prints every update list, indented to show which dust is waiting on which.
 <!-- tested (harness, server, two random seeds): 90 random dust networks, flat
      and stepped, branching, 5 to 17 dust, switched on and off with the table
      carried between them: every block update reaching an unmovable piston
@@ -174,7 +269,7 @@ unpowered (lever switched off).
 
     python dust_order.py --lever -1,64,0 --dust 0..4,64,0 4,64,1..3 --watch A=5,64,0 B=4,64,4
     python dust_order.py --lever -1,64,0 --dust 0..4,64,0 --watch A=5,64,0/5,65,0 --off
-    python dust_order.py --set 10,64,-3          # the order one dust updates its 7 positions in
+    python dust_order.py --set 10,64,-3          # one dust's update list, in order
     python dust_order.py --table 128 ...         # after a big network has switched off
 
 Coordinates are x,y,z; any of them can be a range a..b. Positions in --solid, --dust and
@@ -200,8 +295,8 @@ def bucket(p, table):
 
 class JavaHashSet:
     """Iterates in bucket order, entries of one bucket in the order they were added.
-    The table starts at 16, doubles when the set holds more than 3/4 of it, and never
-    shrinks: clear() keeps it."""
+    The table starts at 16 buckets and doubles when the set gets more entries than 3/4
+    of that. It never shrinks: clear() keeps it."""
     def __init__(self, table=16):
         self.table = table
         self.clear()
@@ -316,7 +411,7 @@ class World:
         self.set.clear()
         self.depth += 1
         for e in entries:
-            self.update_neighbours(e, f"position {entries.index(e) + 1} of {len(entries)} that dust {p} updates around")
+            self.update_neighbours(e, f"position {entries.index(e) + 1} of {len(entries)} in the update list of dust {p}")
         self.depth -= 1
 
     def recalculate(self, p, src):                   # calculateCurrentChanges
@@ -384,9 +479,9 @@ def main(argv=None):
                     help="NAME=x,y,z blocks to compare, such as pistons; NAME=x,y,z/x,y,z for one that also "
                          "takes block updates at a second position, such as an extended piston's head")
     ap.add_argument("--off", action="store_true", help="switch the lever off instead of on")
-    ap.add_argument("--table", type=int, default=16, help="the shared set's table size (16 in a fresh game)")
-    ap.add_argument("--set", nargs="*", help="print the order one dust updates its 7 positions in, and stop")
-    ap.add_argument("--trace", action="store_true", help="print every set dust builds, in order")
+    ap.add_argument("--table", type=int, default=16, help="the table size, in buckets (16 in a game just started)")
+    ap.add_argument("--set", nargs="*", help="print one dust's update list in order, and stop")
+    ap.add_argument("--trace", action="store_true", help="print every update list, indented by depth")
     argv = sys.argv[1:] if argv is None else argv
     # let negative coordinates through: argparse would take "-1,64,0" for an option
     a = ap.parse_args(["\0" + t if re.match(r"-\d", t) else t for t in argv])
@@ -398,7 +493,7 @@ def main(argv=None):
                 for d in [(0, 0, 0)] + SIDES:
                     s.add(add(p, d))
                 names = {add(p, d): n for d, n in zip([(0, 0, 0)] + SIDES, ["dust", "-x", "+x", "-y", "+y", "-z", "+z"])}
-                print(f"dust at {p}, table {s.table}:")
+                print(f"update list of the dust at {p}, table {s.table}:")
                 for i, e in enumerate(s):
                     print(f"  {i + 1}. {names[e]:>4} {e}  bucket {bucket(e, s.table)}")
         return
@@ -426,7 +521,7 @@ def main(argv=None):
     if a.trace:
         for ev in w.log:
             if ev[0] == "set" and ev[2]:
-                print("  " * ev[4] + f"dust {ev[1]} updates around {len(ev[2])} positions (table {ev[3]}): "
+                print("  " * ev[4] + f"dust {ev[1]} works through an update list of {len(ev[2])} positions (table {ev[3]}): "
                       + " ".join(f"{e[0]},{e[1]},{e[2]}" for e in ev[2]))
     want = not a.off
     acted, order = set(), []
@@ -435,7 +530,7 @@ def main(argv=None):
             acted.add(ev[1])
             order.append(ev)
     print(f"dust levels: " + " ".join(f"{p[0]},{p[1]},{p[2]}={v}" for p, v in w.dust.items()))
-    print(f"the set's table is now {w.set.table}")
+    print(f"the table size is now {w.set.table}")
     print("watched blocks act in this order (their first block update while " + ("powered):" if want else "unpowered):"))
     for i, ev in enumerate(order):
         print(f"  {i + 1}. {ev[1]} at {ev[2]}: block update from {ev[3]}, {ev[4]}")

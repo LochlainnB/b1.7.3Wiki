@@ -1,0 +1,136 @@
+{
+  "kind": "build",
+  "title": "Two branches from one dust",
+  "caption": "The floor lever at the front powers a line of dust. At the junction, one branch runs level along −z to the piston under the gold block. The other steps up onto a stone block and runs along −x to the piston under the diamond block. Shown switched off.",
+  "mesh": "block-models.json",
+  "fills": [
+    {
+      "from": [
+        -4,
+        0,
+        -4
+      ],
+      "to": [
+        3,
+        0,
+        1
+      ],
+      "block": "1:0"
+    }
+  ],
+  "blocks": [
+    {
+      "at": [
+        2,
+        1,
+        0
+      ],
+      "block": "69:6"
+    },
+    {
+      "at": [
+        1,
+        1,
+        0
+      ],
+      "block": "55:0:-f-f"
+    },
+    {
+      "at": [
+        0,
+        1,
+        0
+      ],
+      "block": "55:0:ff-u"
+    },
+    {
+      "at": [
+        0,
+        1,
+        -1
+      ],
+      "block": "55:0:f-f-"
+    },
+    {
+      "at": [
+        0,
+        1,
+        -2
+      ],
+      "block": "55:0:--f-"
+    },
+    {
+      "at": [
+        0,
+        1,
+        -3
+      ],
+      "block": "33:1"
+    },
+    {
+      "at": [
+        0,
+        2,
+        -3
+      ],
+      "block": "41:0"
+    },
+    {
+      "at": [
+        -1,
+        1,
+        0
+      ],
+      "block": "1:0"
+    },
+    {
+      "at": [
+        -1,
+        2,
+        0
+      ],
+      "block": "55:0:-f-f"
+    },
+    {
+      "at": [
+        -2,
+        1,
+        0
+      ],
+      "block": "1:0"
+    },
+    {
+      "at": [
+        -2,
+        2,
+        0
+      ],
+      "block": "55:0:-f--"
+    },
+    {
+      "at": [
+        -3,
+        1,
+        0
+      ],
+      "block": "1:0"
+    },
+    {
+      "at": [
+        -3,
+        2,
+        0
+      ],
+      "block": "33:1"
+    },
+    {
+      "at": [
+        -3,
+        3,
+        0
+      ],
+      "block": "57:0"
+    }
+  ],
+  "omissions": []
+}

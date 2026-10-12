@@ -98,10 +98,12 @@ line powered through the block ahead gets no block update. See
 
 ### Update order
 
-Dust that turns on or off sends block updates around itself and its six
-neighbours, in an order set by a hash of their coordinates and by how big a
-network has switched off since the game started. Switching on runs depth first;
-switching off is one pass over the whole network. See
+Dust that turns on or off sends its block updates from an update list of seven
+positions: itself and the six positions touching it. The list's order comes
+from a hash of the coordinates, and from the biggest network switched off since
+the game started. Switching on runs depth first: a dust that turns on works
+through its whole list before the dust that turned it on carries on. Switching
+off works through one list for the whole network. See
 [[Predicting Dust Update Order]].
 <!-- src: BlockRedstoneWire.java:10 a HashSet of ChunkPosition, :47-:53 -->
 

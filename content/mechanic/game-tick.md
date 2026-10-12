@@ -109,10 +109,11 @@ neighbour to check itself again, and carries the type of block that sent it;
 see [[Redstone Power#Block updates]].
 <!-- src: World.java:506 notifyBlocksOfNeighborChange -->
 
-Nothing is queued. A block that changes another block while handling a block
-update sends its own block updates from inside the first, so block updates run
-depth first, and a whole [[Redstone Dust|redstone]] line settles before the tick
-that started it is over.
+Nothing is queued. When a block update makes a block change, that block sends
+its own block updates straight away. The block that sent the first one waits,
+and sends its next block update only when the changed block has finished. Block
+updates therefore run depth first, and a whole [[Redstone Dust|redstone]] line
+settles before the tick that started it is over.
 
 Dust, [[Piston|pistons]] and doors act on a block update at once. Redstone
 torches, repeaters, dispensers, and falling [[Sand|sand]] and

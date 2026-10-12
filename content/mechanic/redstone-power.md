@@ -164,23 +164,26 @@ work facing one way and fail turned a quarter turn.
 
 {{main|Predicting Dust Update Order}}
 
-[[Redstone Dust|Dust]] that turns on or off sends block updates around itself
-and its six neighbours, and takes those seven positions in an order set by a
-hash of their coordinates.
+When [[Redstone Dust|dust]] turns on or off, it sends its block updates from an
+**update list** of seven positions: its own position and the six positions
+touching it. It goes down the list one position at a time. At each position, it
+sends a block update to each of the six blocks touching that position, in the
+order −x, +x, −y, +y, −z, +z. The order of the list itself comes from a hash of
+the coordinates.
 
-- **Switching on** runs depth first. Each dust that turns on sends all of its
-  block updates, and so turns on everything beyond it, before the dust that
-  turned it on carries on. Branches that leave one dust at the same level go in
-  side order: −x, +x, −z, +z.
-- **Switching off** drops the whole network at once, then sends block updates
-  around every position of it in one pass, in hash order.
+- **Switching on** runs depth first. When a block update from one dust turns on
+  a second dust, the second dust works through its whole update list before the
+  first dust sends its next block update. Two branches that leave one dust on
+  the same level go in the order −x, +x, −z, +z.
+- **Switching off** makes one update list for the whole network, and works
+  through it in hash order.
 
-The hash order also depends on a table that belongs to the game rather than to
-a world. It starts at 16 positions and doubles whenever a network switching off
-needs more room than it has. It never shrinks until the game is closed. The same machine can
-therefore act differently in two places, and in one place before and after
-another network anywhere, even in another world, switches off. Java 7 and
-earlier hash differently again from Java 8 and later.
+The hash order also depends on a table shared by the whole game, in every
+world. The table starts with 16 buckets, doubles when a network switching off
+needs more, and never gets smaller until the game is closed. So the same machine
+can act differently in two places, and in one place before and after another
+network anywhere switches off. Java 7 and earlier use a different hash from
+Java 8 and later.
 <!-- src: BlockRedstoneWire.java:10 blocksNeedingUpdate is a HashSet on the one
      Block.redstoneWire object; :160-:168 add the dust and its six neighbours;
      :47-:53 send block updates around them in set order; :88-:97 skip the dust

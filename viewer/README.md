@@ -35,6 +35,18 @@ The sapling machine uses the E6 pre-growth fixture in
 are frozen in the armed state, not a simulation of ordinary placement. The
 surrounding test floor is cropped to a 13 × 5 platform; no machine part is omitted.
 
+The dust order example is the worked example in
+`content/guide/predicting-dust-update-order.md`, switched off. Its scene
+coordinates are the guide's world coordinates minus (6, 63, 5), and it was
+tested in the game as built.
+
+Redstone dust draws itself from its neighbours, so a dust model's key carries
+them: `55:<power level>:<n><e><s><w>`, north (−Z), east, south, west. Each side
+is `-` for nothing to connect to, `f` for dust beside it (or one block lower,
+which draws the same), or `u` for dust on top of a solid block beside it, which
+draws the dust up that block's face. `DUST` in `tools/extract/viewer_blocks.py`
+lists the shapes exported; add a key there and rerun the exporter.
+
 ## Entities and mesh extraction
 
 An entity has `kind: "entity"`, `title`, `caption`, and `mesh`. The mesh lists
